@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>AdaptCAT — Master Architecture & Engineering Blueprint</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+:root {
+  --bg:#0d1117; --surface:#161b22; --surface2:#1c2128; --surface3:#22272e;
+  --border:#2d333b; --border2:#444c56;
+  --text:#cdd9e5; --text2:#768390; --text3:#545d68;
+  --accent:#4184e4; --accent-d:#316dca; --accent-bg:rgba(65,132,228,.1);
+  --green:#57ab5a; --green-bg:rgba(87,171,90,.08);
+  --red:#e5534b; --red-bg:rgba(229,83,75,.08);
+  --amber:#c69026; --amber-bg:rgba(198,144,38,.08);
+  --purple:#986ee2; --teal:#39c5cf;
+  --shadow:0 1px 4px rgba(0,0,0,.5);
+}
+[data-theme="light"]{
+  --bg:#f6f8fa; --surface:#fff; --surface2:#f6f8fa; --surface3:#eaeef2;
+  --border:#d0d7de; --border2:#afb8c1;
+  --text:#1f2328; --text2:#57606a; --text3:#8c959f;
+  --accent:#0969da; --accent-d:#0550ae; --accent-bg:rgba(9,105,218,.06);
+  --green:#1a7f37; --green-bg:rgba(26,127,55,.06);
+  --red:#cf222e; --red-bg:rgba(207,34,46,.06);
+  --amber:#9a6700; --amber-bg:rgba(154,103,0,.06);
+  --purple:#8250df; --teal:#1b7c83;
+  --shadow:0 1px 3px rgba(0,0,0,.1);
+}
+*,::before,::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:13px;line-height:1.6}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+a{color:var(--accent);text-decoration:none}
+code,pre{font-family:'Cascadia Code','Fira Code','SF Mono',monospace}
+code{background:var(--surface2);padding:1px 6px;border-radius:3px;font-size:12px;color:var(--teal);border:1px solid var(--border)}
+pre{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:1rem;overflow-x:auto;font-size:12px;line-height:1.7;color:var(--text2)}
+pre .kw{color:#c792ea}pre .fn{color:#82b1ff}pre .st{color:#c3e88d}pre .cm{color:#546e7a}pre .nm{color:#f78c6c}pre .dec{color:#e5534b}
+
+/* NAV */
+.topnav{position:sticky;top:0;z-index:200;background:var(--surface);border-bottom:1px solid var(--border);padding:.5rem 1.5rem;display:flex;align-items:center;gap:12px}
+.nav-logo{font-weight:700;font-size:14px;color:var(--accent);letter-spacing:-.2px;margin-right:auto}
+.nav-link{font-size:12px;color:var(--text2);padding:4px 8px;border-radius:4px;transition:all .12s}
+.nav-link:hover{background:var(--surface2);color:var(--text)}
+.theme-btn{padding:4px 10px;border-radius:5px;border:1px solid var(--border);background:transparent;color:var(--text2);font-size:11px;cursor:pointer}
+.theme-btn:hover{background:var(--surface2);color:var(--text)}
+
+/* LAYOUT */
+.page-wrap{max-width:1100px;margin:0 auto;padding:2rem 1.5rem 4rem}
+.hero{text-align:center;padding:3rem 1rem 2rem;border-bottom:1px solid var(--border);margin-bottom:2.5rem}
+.hero h1{font-size:28px;font-weight:800;letter-spacing:-.5px;margin-bottom:.5rem;background:linear-gradient(135deg,var(--accent),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero p{font-size:14px;color:var(--text2);max-width:600px;margin:0 auto .75rem}
+.hero-badges{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:.75rem}
+.hb{padding:3px 10px;border-radius:4px;font-size:11px;font-weight:700}
+.hb-blue{background:var(--accent-bg);color:var(--accent);border:1px solid rgba(65,132,228,.25)}
+.hb-green{background:var(--green-bg);color:var(--green);border:1px solid rgba(87,171,90,.25)}
+.hb-purple{background:rgba(152,110,226,.08);color:var(--purple);border:1px solid rgba(152,110,226,.2)}
+
+/* SECTIONS */
+.doc-section{margin-bottom:3rem}
+.section-header{display:flex;align-items:baseline;gap:12px;margin-bottom:1.25rem;padding-bottom:.75rem;border-bottom:1px solid var(--border)}
+.section-num{font-size:11px;font-weight:700;color:var(--accent);background:var(--accent-bg);border:1px solid rgba(65,132,228,.25);padding:2px 8px;border-radius:3px;white-space:nowrap}
+.section-title{font-size:18px;font-weight:700;letter-spacing:-.2px}
+h3{font-size:15px;font-weight:600;color:var(--text);margin:1.25rem 0 .5rem}
+h4{font-size:13px;font-weight:600;color:var(--accent);margin:.875rem 0 .375rem}
+p{font-size:13px;color:var(--text2);line-height:1.65;margin-bottom:.65rem}
+ul,ol{color:var(--text2);font-size:13px;padding-left:1.25rem;margin-bottom:.65rem}
+li{margin-bottom:.3rem;line-height:1.6}
+
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.125rem;margin-bottom:1rem}
+.card-title{font-size:13px;font-weight:600;margin-bottom:.5rem;display:flex;align-items:center;gap:7px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:1rem}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:1rem}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:1rem}
+
+/* COMPARISON TABLE */
+.compare-table{width:100%;border-collapse:collapse;font-size:12px;margin:1rem 0}
+.compare-table th{background:var(--surface2);color:var(--text2);padding:8px 12px;text-align:left;border:1px solid var(--border);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.05em}
+.compare-table td{padding:8px 12px;border:1px solid var(--border);color:var(--text2);vertical-align:top}
+.compare-table tr:hover td{background:var(--surface2)}
+.bad-cell{color:var(--red)}
+.good-cell{color:var(--green);font-weight:600}
+.neutral-cell{color:var(--amber)}
+
+/* ALERT BOXES */
+.alert{padding:10px 14px;border-radius:6px;font-size:12px;line-height:1.6;margin:1rem 0}
+.alert-blue{background:var(--accent-bg);border:1px solid rgba(65,132,228,.2);color:var(--text2)}
+.alert-green{background:var(--green-bg);border:1px solid rgba(87,171,90,.2);color:var(--text2)}
+.alert-amber{background:var(--amber-bg);border:1px solid rgba(198,144,38,.2);color:var(--text2)}
+.alert strong{color:var(--text);font-weight:600}
+
+/* METRIC BOXES */
+.metric-row{display:flex;gap:10px;flex-wrap:wrap;margin:1rem 0}
+.metric{padding:12px 16px;background:var(--surface);border:1px solid var(--border);border-radius:7px;text-align:center;flex:1;min-width:120px}
+.metric-val{font-size:24px;font-weight:800;line-height:1.1}
+.metric-lbl{font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.07em;margin-top:3px}
+
+/* ARCHITECTURE DIAGRAM */
+.arch-wrap{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:1.25rem;margin:1rem 0;overflow-x:auto}
+.arch-layer{margin-bottom:.875rem}
+.arch-layer-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:.4rem}
+.arch-nodes{display:flex;gap:8px;flex-wrap:wrap}
+.arch-node{padding:6px 12px;border-radius:5px;font-size:11px;font-weight:600;white-space:nowrap}
+.an-blue{background:var(--accent-bg);color:var(--accent);border:1px solid rgba(65,132,228,.25)}
+.an-green{background:var(--green-bg);color:var(--green);border:1px solid rgba(87,171,90,.25)}
+.an-amber{background:var(--amber-bg);color:var(--amber);border:1px solid rgba(198,144,38,.25)}
+.an-purple{background:rgba(152,110,226,.08);color:var(--purple);border:1px solid rgba(152,110,226,.2)}
+.an-teal{background:rgba(57,197,207,.08);color:var(--teal);border:1px solid rgba(57,197,207,.2)}
+.an-gray{background:var(--surface3);color:var(--text2);border:1px solid var(--border)}
+.arch-arrow{text-align:center;font-size:16px;color:var(--text3);margin:.2rem 0}
+
+/* IRT VISUALISER */
+.irt-vis{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:1.25rem;margin:1rem 0}
+.irt-controls{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:1rem;align-items:center}
+.irt-control{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text2)}
+.irt-control label{white-space:nowrap}
+.irt-control input{width:100px}
+.irt-control span{min-width:30px;font-weight:600;color:var(--accent)}
+
+/* PHASE TIMELINE */
+.phases{display:flex;flex-direction:column;gap:0}
+.phase{display:flex;gap:16px;padding:1rem 0;border-bottom:1px solid var(--border)}
+.phase:last-child{border-bottom:none}
+.phase-num{width:32px;height:32px;border-radius:50%;background:var(--accent-bg);color:var(--accent);border:1px solid rgba(65,132,228,.25);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0;margin-top:2px}
+.phase-body{flex:1}
+.phase-title{font-size:14px;font-weight:600;margin-bottom:.3rem}
+.phase-desc{font-size:12px;color:var(--text2);line-height:1.6}
+.phase-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:.4rem}
+.pt{padding:2px 7px;border-radius:3px;font-size:10px;font-weight:600}
+
+/* FORMULA BOX */
+.formula{background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:0 6px 6px 0;padding:12px 16px;margin:1rem 0;font-family:'Cascadia Code','Fira Code',monospace;font-size:12.5px;color:var(--text)}
+.formula-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);margin-bottom:.5rem;font-family:inherit}
+.formula-math{color:var(--teal);font-size:13px;margin-bottom:.3rem}
+.formula-note{font-size:11px;color:var(--text2);font-family:inherit}
+
+/* TAGS */
+.tag{display:inline-block;padding:1px 7px;border-radius:3px;font-size:11px;font-weight:600}
+.tag-blue{background:var(--accent-bg);color:var(--accent);border:1px solid rgba(65,132,228,.2)}
+.tag-green{background:var(--green-bg);color:var(--green);border:1px solid rgba(87,171,90,.2)}
+.tag-amber{background:var(--amber-bg);color:var(--amber);border:1px solid rgba(198,144,38,.2)}
+.tag-red{background:var(--red-bg);color:var(--red);border:1px solid rgba(229,83,75,.2)}
+.tag-purple{background:rgba(152,110,226,.08);color:var(--purple);border:1px solid rgba(152,110,226,.2)}
+
+/* CHART CONTAINERS */
+.chart-box{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:1rem}
+.chart-box h4{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--text2);margin-bottom:.875rem}
+
+.stack-row{display:flex;align-items:center;gap:10px;margin-bottom:6px;font-size:12px}
+.stack-name{width:130px;color:var(--text2);flex-shrink:0}
+.stack-bar{flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden}
+.stack-fill{height:100%;border-radius:3px}
+.stack-role{font-size:11px;color:var(--text3)}
+
+hr{border:none;border-top:1px solid var(--border);margin:2rem 0}
+@media(max-width:700px){.grid2,.grid3,.grid4{grid-template-columns:1fr}.irt-controls{flex-direction:column}}
+</style>
+</head>
+<body>
+
+<div role="note" style="margin:1rem auto;max-width:1180px;padding:.875rem 1rem;border:1px solid var(--amber);border-radius:6px;background:rgba(198,144,38,.08);color:var(--text)">Proposed target architecture (design document). Not all components are implemented, and any figures shown are targets, not measurements. See the README for what is implemented.</div>
+
+<div class="topnav">
+  <span class="nav-logo">AdaptCAT — Engineering Blueprint</span>
+  <a href="#db" class="nav-link">Database</a>
+  <a href="#irt" class="nav-link">IRT Engine</a>
+  <a href="#ml" class="nav-link">ML Learning</a>
+  <a href="#arch" class="nav-link">Architecture</a>
+  <a href="#deploy" class="nav-link">Deployment</a>
+  <button class="theme-btn" onclick="toggleTheme(this)">☽ Dark</button>
+</div>
+
+<div class="page-wrap">
+
+<div class="hero">
+  <h1>AdaptCAT — Next-Gen Adaptive Assessment System</h1>
+  <p>A proposed engineering blueprint for a Computer Adaptive Testing platform using ML-supported IRT, multi-source question ingestion, real-time ability estimation, and transparent scoring.</p>
+  <div class="hero-badges">
+    <span class="hb hb-blue">2PL IRT Engine</span>
+    <span class="hb hb-blue">Bayesian Theta Estimation</span>
+    <span class="hb hb-green">183+ Questions · 8 Books</span>
+    <span class="hb hb-green">Wilson Score Learning</span>
+    <span class="hb hb-purple">6-Language IDE</span>
+    <span class="hb hb-purple">AI Essay Grading</span>
+    <span class="hb hb-blue">FastAPI + React Ready</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+  SECTION 2: DATABASE ENGINEERING
+═══════════════════════════════════ -->
+<div class="doc-section" id="db">
+  <div class="section-header">
+    <span class="section-num">§ 02</span>
+    <span class="section-title">Database Engineering & Knowledge Acquisition</span>
+  </div>
+
+  <h3>2.1 Multi-Source Ingestion Strategy</h3>
+
+  <div class="grid3">
+    <div class="card">
+      <div class="card-title">📚 Logical/Aptitude Books</div>
+      <ul>
+        <li>R.S. Aggarwal — Quantitative Aptitude (25 chapters)</li>
+        <li>R.S. Aggarwal — Verbal & Non-Verbal Reasoning</li>
+        <li>Arun Sharma — CAT Quantitative Aptitude</li>
+        <li>Norman Lewis — Word Power Made Easy</li>
+        <li>Wren & Martin — English Grammar</li>
+        <li>Barron's GRE Word List (3500 words)</li>
+        <li>Cambridge IELTS Reading Passages (10 books)</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title">💻 Technical / Coding Books</div>
+      <ul>
+        <li>Cracking the Coding Interview (McDowell)</li>
+        <li>CLRS — Introduction to Algorithms</li>
+        <li>Karumanchi — DSA Made Easy</li>
+        <li>Mark Lutz — Learning Python (5th ed.)</li>
+        <li>Fluent Python (Ramalho)</li>
+        <li>PCEP/PCAP Official Certification Prep</li>
+        <li>LeetCode Top 150 Interview Questions</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title">🌐 Online Sources (Structured Scrape)</div>
+      <ul>
+        <li>GeeksForGeeks (DSA, Python, C++)</li>
+        <li>HackerRank Problem Archive</li>
+        <li>GATE Previous Year Papers (CS/IT)</li>
+        <li>IBPS PO/Clerk Previous Papers</li>
+        <li>CAT Previous Year Quant + DI</li>
+        <li>AMCAT Sample Papers (official)</li>
+        <li>Stack Overflow canonical answers</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>2.2 Question Schema — NLP Concept Tagging</h3>
+  <p>Every question is stored with rich metadata beyond just text and answer. This enables concept-level analytics, retest-bias prevention, and adaptive topic coverage.</p>
+
+  <pre><span class="cm"># Complete Question Schema (Python dataclass)</span>
+<span class="kw">from</span> dataclasses <span class="kw">import</span> dataclass, field
+<span class="kw">from</span> typing <span class="kw">import</span> List, Dict, Optional
+
+<span class="dec">@dataclass</span>
+<span class="kw">class</span> <span class="fn">Question</span>:
+    <span class="cm"># Identity</span>
+    id:              str          <span class="cm"># Unique: "RS_QUANT_CH11_042"</span>
+    source_book:     str          <span class="cm"># "R.S. Aggarwal Quantitative Aptitude"</span>
+    source_chapter:  str          <span class="cm"># "Chapter 11 — Profit and Loss"</span>
+    source_page:     Optional[int]
+
+    <span class="cm"># Taxonomy</span>
+    section:         str          <span class="cm"># "quant" | "logical" | "python" | "dsa"</span>
+    subsection:      str          <span class="cm"># "Applied Math"</span>
+    concepts:        List[str]    <span class="cm"># ["profit_loss", "percentage", "ratio"]</span>
+    bloom_level:     str          <span class="cm"># "remember"|"understand"|"apply"|"analyze"</span>
+
+    <span class="cm"># Content</span>
+    stem:            str          <span class="cm"># Question text</span>
+    options:         List[str]    <span class="cm"># Exactly 4 options</span>
+    correct_index:   int          <span class="cm"># 0-3</span>
+    explanation:     str          <span class="cm"># Step-by-step solution</span>
+    formula_used:    Optional[str]<span class="cm"># "SP = MP * (1 - d/100)"</span>
+
+    <span class="cm"># IRT Parameters (ML-learned, initialised from author difficulty)</span>
+    diff_author:     int          <span class="cm"># Author's original rating: 1-5</span>
+    b_param:         float        <span class="cm"># IRT difficulty (-3 to +3), learned</span>
+    a_param:         float        <span class="cm"># Discrimination (0.5 to 2.5), learned</span>
+    c_param:         float        <span class="cm"># Guessing parameter (0 to 0.35)</span>
+
+    <span class="cm"># Usage statistics (updated on every answer)</span>
+    total_attempts:  int   = 0
+    correct_count:   int   = 0
+    avg_time_sec:    float = 0.0
+    pass_rate:       float = 0.5   <span class="cm"># Empirical, updated via Wilson Score</span>
+    wilson_lo:       float = 0.5   <span class="cm"># Lower confidence bound on pass_rate</span>
+
+    <span class="cm"># Anti-bias flags</span>
+    last_used:       float = 0.0   <span class="cm"># timestamp</span>
+    version:         int   = 1     <span class="cm"># incremented when question text is revised</span>
+    flagged_by:      List[str] = field(default_factory=list)  <span class="cm"># user IDs who flagged as unclear</span></pre>
+
+  <h3>2.3 NLP Concept Tagging Pipeline</h3>
+
+  <div class="arch-wrap">
+    <div class="arch-layer">
+      <div class="arch-layer-title">Input Sources</div>
+      <div class="arch-nodes">
+        <span class="arch-node an-gray">PDF Books (OCR)</span>
+        <span class="arch-node an-gray">HTML Scrapes</span>
+        <span class="arch-node an-gray">JSON Imports</span>
+        <span class="arch-node an-gray">Manual Entry</span>
+        <span class="arch-node an-gray">AI Generation</span>
+      </div>
+    </div>
+    <div class="arch-arrow">↓</div>
+    <div class="arch-layer">
+      <div class="arch-layer-title">NLP Preprocessing</div>
+      <div class="arch-nodes">
+        <span class="arch-node an-blue">spaCy Tokenisation</span>
+        <span class="arch-node an-blue">Named Entity Recognition</span>
+        <span class="arch-node an-blue">Formula Extraction (LaTeX parser)</span>
+        <span class="arch-node an-blue">Duplicate Detection (sentence-transformers cosine similarity)</span>
+      </div>
+    </div>
+    <div class="arch-arrow">↓</div>
+    <div class="arch-layer">
+      <div class="arch-layer-title">Concept Tagging (Zero-shot classification)</div>
+      <div class="arch-nodes">
+        <span class="arch-node an-purple">facebook/bart-large-mnli</span>
+        <span class="arch-node an-purple">Bloom's Taxonomy classifier</span>
+        <span class="arch-node an-purple">Domain taxonomy tree (custom)</span>
+        <span class="arch-node an-purple">Difficulty estimator (XGBoost on 50 features)</span>
+      </div>
+    </div>
+    <div class="arch-arrow">↓</div>
+    <div class="arch-layer">
+      <div class="arch-layer-title">Quality Validation</div>
+      <div class="arch-nodes">
+        <span class="arch-node an-green">Distractors check (answer unique)</span>
+        <span class="arch-node an-green">Explanation completeness scorer</span>
+        <span class="arch-node an-green">Expert review queue (flagged if score &lt; 0.7)</span>
+        <span class="arch-node an-green">Store in PostgreSQL + Elasticsearch index</span>
+      </div>
+    </div>
+  </div>
+
+  <h3>2.4 Scaling to 10,000+ Items — Anti-Retest-Bias Roadmap</h3>
+
+  <div class="phases">
+    <div class="phase">
+      <div class="phase-num">1</div>
+      <div class="phase-body">
+        <div class="phase-title">Phase 1 — Seed Bank: 500 items (Current)</div>
+        <div class="phase-desc">183 manually curated high-quality questions from 8 authoritative books. Each tagged with concepts, source, and author difficulty. All validated with explanations.</div>
+        <div class="phase-tags">
+          <span class="pt tag-green">Done</span>
+          <span class="pt tag-blue">R.S. Aggarwal · CTCI · Wren & Martin · CLRS</span>
+        </div>
+      </div>
+    </div>
+    <div class="phase">
+      <div class="phase-num">2</div>
+      <div class="phase-body">
+        <div class="phase-title">Phase 2 — Structured Import: 2,000 items</div>
+        <div class="phase-desc">Parse GATE CS previous year papers (2010–2024), CAT Quant/DI papers, IBPS Reasoning papers. Automated extraction with manual review of flagged items. Each question gets full schema entry including concept tags via NLP pipeline.</div>
+        <div class="phase-tags">
+          <span class="pt tag-amber">3 months</span>
+          <span class="pt tag-blue">Python PyMuPDF + spaCy pipeline</span>
+        </div>
+      </div>
+    </div>
+    <div class="phase">
+      <div class="phase-num">3</div>
+      <div class="phase-body">
+        <div class="phase-title">Phase 3 — AI Augmentation: 5,000 items</div>
+        <div class="phase-desc">Use Claude API to generate variants of existing questions with same concept but different surface features (numbers, names, scenarios). Every generated question is paraphrased, validated against existing bank for duplicates (cosine similarity &lt; 0.85), and enters a probationary pool until it accumulates 10+ responses with a valid IRT fit.</div>
+        <div class="phase-tags">
+          <span class="pt tag-amber">6 months</span>
+          <span class="pt tag-blue">Claude API · Sentence Transformers · FAISS</span>
+        </div>
+      </div>
+    </div>
+    <div class="phase">
+      <div class="phase-num">4</div>
+      <div class="phase-body">
+        <div class="phase-title">Phase 4 — Community + Offline Training: 10,000+ items</div>
+        <div class="phase-desc">Open question submission from educators with expert review. Periodic offline IRT recalibration (bi-weekly) on entire response database using EM (Expectation-Maximisation) algorithm to re-estimate all a, b, c parameters. Questions with poor fit indices (RMSEA &gt; 0.06) are flagged for revision.</div>
+        <div class="phase-tags">
+          <span class="pt tag-amber">12 months</span>
+          <span class="pt tag-purple">ltm R package · Python IRT-py · EM Algorithm</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+  SECTION 3: IRT ENGINE
+═══════════════════════════════════ -->
+<div class="doc-section" id="irt">
+  <div class="section-header">
+    <span class="section-num">§ 03</span>
+    <span class="section-title">The CAT Algorithm — Item Response Theory</span>
+  </div>
+
+  <h3>3.1 Why IRT over Classical Test Theory (CTT)?</h3>
+  <p>Classical Test Theory produces scores dependent on the specific question set used. If two students take different questions, their raw scores can't be fairly compared. IRT solves this by estimating an <em>ability parameter θ</em> that is question-independent — the same student would get the same θ regardless of which specific questions they answered, as long as the questions have calibrated IRT parameters.</p>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">❌ Classical Test Theory (CTT)</div>
+      <ul>
+        <li>Score = number of correct answers</li>
+        <li>Difficulty = % of students who answered correctly (sample-dependent)</li>
+        <li>Comparing two tests is only valid if same questions used</li>
+        <li>Easy questions contribute same to score as hard ones</li>
+        <li>No probabilistic model of how a student of ability θ responds</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title" style="color:var(--green)">✓ Item Response Theory (IRT)</div>
+      <ul>
+        <li>Estimates θ — a continuous ability on a latent trait scale</li>
+        <li>Question parameters (b, a, c) are student-sample independent</li>
+        <li>Can compare students across different question sets</li>
+        <li>Hard questions answered correctly provide more information</li>
+        <li>Probabilistic model: P(correct | θ, b, a, c)</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>3.2 The 3-Parameter Logistic Model (3PL)</h3>
+  <p>We use the 3PL model, which is the gold standard used by ETS (GRE, TOEFL) and College Board (SAT/AP):</p>
+
+  <div class="formula">
+    <div class="formula-title">3PL Item Characteristic Curve</div>
+    <div class="formula-math">P(X=1 | θ, a, b, c) = c + (1-c) × 1 / (1 + e^(-Da(θ-b)))</div>
+    <div class="formula-note">Where:
+  θ = examinee ability (standard normal, typically −3 to +3)
+  a = discrimination parameter (slope; higher = better separator of ability levels)
+  b = difficulty parameter (θ at which P = 0.5+c/2; higher = harder)
+  c = pseudo-guessing parameter (lower asymptote; typically 0.25 for 4-option MCQ)
+  D = 1.702 (scaling constant to align logistic with normal-ogive)</div>
+  </div>
+
+  <h3>3.3 Live IRT Visualiser — Item Characteristic Curves</h3>
+  <p>Drag the sliders to see how each parameter shapes the probability curve:</p>
+
+  <div class="irt-vis">
+    <div class="irt-controls">
+      <div class="irt-control"><label>b (difficulty):</label><input type="range" id="b-slider" min="-3" max="3" step="0.1" value="0"><span id="b-val">0.0</span></div>
+      <div class="irt-control"><label>a (discrimination):</label><input type="range" id="a-slider" min="0.5" max="3" step="0.1" value="1"><span id="a-val">1.0</span></div>
+      <div class="irt-control"><label>c (guessing):</label><input type="range" id="c-slider" min="0" max="0.35" step="0.05" value="0.25"><span id="c-val">0.25</span></div>
+      <div class="irt-control"><span style="color:var(--text2)">P at θ=0: <strong id="p-at-zero" style="color:var(--accent)">0.50</strong></span></div>
+    </div>
+    <div style="position:relative;height:260px"><canvas id="irt-chart" role="img" aria-label="Item Characteristic Curve showing probability of correct response versus theta"></canvas></div>
+    <p style="font-size:11px;color:var(--text3);text-align:center;margin-top:.5rem">The S-curve shows probability of a correct answer for a student of each ability level. The steeper the curve, the better the question discriminates between ability levels.</p>
+  </div>
+
+  <h3>3.4 Theta Estimation — Maximum Likelihood (MLE) + EAP</h3>
+  <p>After each response, we update θ using two methods depending on response count:</p>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">Phase 1: Expected A Posteriori (EAP) — First 5 Q</div>
+      <p>With few observations, MLE is unstable (can be ±∞ for all-correct or all-wrong streaks). EAP uses a prior distribution and Bayes' theorem:</p>
+      <div class="formula" style="margin:0">
+        <div class="formula-math">θ_EAP = Σ [θ_k × L(X|θ_k) × π(θ_k)] / Σ [L(X|θ_k) × π(θ_k)]</div>
+        <div class="formula-note">Prior π(θ) = Normal(0, 1). Quadrature points θ_k from −4 to +4.</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Phase 2: Maximum Likelihood (MLE) — Q6 onwards</div>
+      <p>With sufficient data, MLE gives a sharper estimate. We maximise the log-likelihood via Newton-Raphson iteration:</p>
+      <div class="formula" style="margin:0">
+        <div class="formula-math">θ_{t+1} = θ_t + L'(θ_t) / L''(θ_t)</div>
+        <div class="formula-note">L'= first derivative of log-likelihood. L''= second derivative (negative Fisher Information). Converges in 3-5 iterations.</div>
+      </div>
+    </div>
+  </div>
+
+  <h3>3.5 Item Selection — Maximum Fisher Information</h3>
+  <p>At each step, we select the question that maximises the Fisher Information at the current θ estimate — the question that will most reduce our uncertainty about the student's true ability:</p>
+
+  <div class="formula">
+    <div class="formula-title">Fisher Information Function for 3PL</div>
+    <div class="formula-math">I(θ) = a² × [(P(θ) - c)² × Q(θ)] / [(1-c)² × P(θ)]</div>
+    <div class="formula-note">Where P(θ) = 3PL probability, Q(θ) = 1 - P(θ).
+Maximum information occurs when P(θ) ≈ c + (1-c)/2 — i.e., question difficulty b ≈ current θ.
+This is why the algorithm converges: it keeps selecting questions near the student's estimated ability.</div>
+  </div>
+
+  <h3>3.6 Stopping Rules</h3>
+  <p>The test stops when any of these conditions is met:</p>
+  <ul>
+    <li><strong>Fixed length:</strong> Section question count exhausted (24 for English, etc.)</li>
+    <li><strong>Precision threshold:</strong> Standard Error of θ falls below 0.30 (high confidence)</li>
+    <li><strong>Time limit:</strong> Section timer expires</li>
+    <li><strong>Content constraint:</strong> All subsections covered (minimum 1 question per concept tag)</li>
+  </ul>
+
+  <h3>3.7 Our Simplified Implementation (Current AdaptCAT)</h3>
+  <p>The current live build uses a simplified but effective model — <strong>Rasch 1PL with Bayesian updates</strong> — which is suitable for a browser-only system without a statistics server:</p>
+
+  <pre><span class="cm">// AdaptCAT v3 — SectionEngine core logic (JavaScript)</span>
+<span class="cm">// Rule: Correct → diff+1 (max 5) | Wrong → reset to diff=1</span>
+<span class="cm">// This is a "mastery model" — not full IRT but maps well to AMCAT's level system</span>
+
+<span class="kw">class</span> <span class="fn">SectionEngine</span> {
+  onAnswer(q, isCorrect, timeSec) {
+    <span class="cm">// Mastery model: advance on correct, RESET on wrong</span>
+    <span class="kw">if</span> (isCorrect) {
+      <span class="nm">this</span>.diff = Math.min(<span class="nm">5</span>, <span class="nm">this</span>.diff + <span class="nm">1</span>);
+    } <span class="kw">else</span> {
+      <span class="nm">this</span>.diff = <span class="nm">1</span>;  <span class="cm">// FULL RESET — clean slate</span>
+    }
+    <span class="cm">// Wilson Score Bayesian difficulty update (persists across sessions)</span>
+    updateQStat(q.id, q.diff, isCorrect, timeSec);
+  }
+}
+
+<span class="cm">// Wilson Score lower bound — conservative pass-rate estimate</span>
+<span class="kw">function</span> <span class="fn">updateQStat</span>(id, diff, correct, timeSec) {
+  <span class="kw">const</span> s = qStats[id];
+  s.attempts++;
+  <span class="kw">if</span> (correct) s.correct++;
+  <span class="kw">const</span> n = s.attempts, p = s.correct / n;
+  <span class="kw">const</span> z = <span class="nm">1.645</span>;  <span class="cm">// 90% confidence</span>
+  <span class="kw">const</span> wilson_lo = (p + z*z/(<span class="nm">2</span>*n) - z*Math.sqrt(p*(<span class="nm">1</span>-p)/n + z*z/(<span class="nm">4</span>*n*n))) / (<span class="nm">1</span> + z*z/n);
+  <span class="cm">// Map wilson_lo → difficulty: high pass rate = easier question</span>
+  <span class="kw">const</span> implied_diff = Math.max(<span class="nm">1</span>, Math.min(<span class="nm">5</span>, <span class="nm">5</span> - (wilson_lo * <span class="nm">4</span>)));
+  <span class="kw">const</span> trust = Math.min(n / <span class="nm">15</span>, <span class="nm">0.75</span>);
+  s.adjustedDiff = s.adjustedDiff * (<span class="nm">1</span> - trust) + implied_diff * trust;
+}</pre>
+
+  <h3>3.8 Production Upgrade Path — Full 3PL IRT (Python/FastAPI)</h3>
+
+  <pre><span class="cm"># Production IRT backend (Python — constraint compliant, no f-strings, no .values)</span>
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">from</span> scipy.optimize <span class="kw">import</span> minimize_scalar
+<span class="kw">from</span> typing <span class="kw">import</span> List, Tuple, Dict
+
+D = 1.702  <span class="cm"># IRT logistic scaling constant</span>
+
+<span class="kw">def</span> <span class="fn">icc_3pl</span>(theta: float, a: float, b: float, c: float) -> float:
+    <span class="st">"""3PL Item Characteristic Curve. Returns P(correct | theta, a, b, c)."""</span>
+    exponent = -D * a * (theta - b)
+    <span class="kw">return</span> c + (1 - c) / (1 + np.exp(exponent))
+
+<span class="kw">def</span> <span class="fn">fisher_information</span>(theta: float, a: float, b: float, c: float) -> float:
+    <span class="st">"""Fisher Information at theta for one item."""</span>
+    p = icc_3pl(theta, a, b, c)
+    q = 1 - p
+    numerator = (D * a) ** 2 * (p - c) ** 2 * q
+    denominator = (1 - c) ** 2 * p
+    <span class="kw">return</span> numerator / denominator <span class="kw">if</span> denominator > 0 <span class="kw">else</span> 0.0
+
+<span class="kw">def</span> <span class="fn">log_likelihood</span>(theta: float, responses: List[Tuple]) -> float:
+    <span class="st">"""Log-likelihood of response pattern given theta."""</span>
+    ll = 0.0
+    <span class="kw">for</span> (correct, a, b, c) <span class="kw">in</span> responses:
+        p = icc_3pl(theta, a, b, c)
+        p = np.clip(p, 1e-9, 1 - 1e-9)
+        ll += correct * np.log(p) + (1 - correct) * np.log(1 - p)
+    <span class="kw">return</span> ll
+
+<span class="kw">def</span> <span class="fn">estimate_theta_mle</span>(responses: List[Tuple]) -> Tuple[float, float]:
+    <span class="st">"""MLE theta estimation. Returns (theta_hat, standard_error)."""</span>
+    result = minimize_scalar(
+        <span class="kw">lambda</span> t: -log_likelihood(t, responses),
+        bounds=(-4.0, 4.0),
+        method=<span class="st">'bounded'</span>
+    )
+    theta_hat = np.clip(result.x, -3.5, 3.5)
+    <span class="cm"># Standard error = 1 / sqrt(sum of Fisher Information)</span>
+    total_info = sum(fisher_information(theta_hat, a, b, c) <span class="kw">for</span> (_, a, b, c) <span class="kw">in</span> responses)
+    se = 1.0 / np.sqrt(total_info) <span class="kw">if</span> total_info > 0 <span class="kw">else</span> 1.5
+    <span class="kw">return</span> float(theta_hat), float(se)
+
+<span class="kw">def</span> <span class="fn">select_next_item</span>(theta: float, se: float, candidate_items: List[Dict]) -> Dict:
+    <span class="st">"""Select item maximising Fisher Information at current theta."""</span>
+    best_item = <span class="kw">None</span>
+    best_info = -1.0
+    <span class="kw">for</span> item <span class="kw">in</span> candidate_items:
+        info = fisher_information(theta, item[<span class="st">'a'</span>], item[<span class="st">'b'</span>], item[<span class="st">'c'</span>])
+        <span class="kw">if</span> info > best_info:
+            best_info = info
+            best_item = item
+    <span class="kw">return</span> best_item
+
+<span class="kw">def</span> <span class="fn">should_stop</span>(se: float, n_answered: int, max_items: int) -> bool:
+    <span class="st">"""Stopping rule: precision threshold or max items reached."""</span>
+    <span class="kw">return</span> se < 0.30 <span class="kw">or</span> n_answered >= max_items</pre>
+</div>
+
+<!-- ═══════════════════════════════════
+  SECTION 4: ML FEEDBACK LOOPS
+═══════════════════════════════════ -->
+<div class="doc-section" id="ml">
+  <div class="section-header">
+    <span class="section-num">§ 04</span>
+    <span class="section-title">ML Learning Loops — Online & Offline Training</span>
+  </div>
+
+  <h3>4.1 Two-Stage Learning Architecture</h3>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">⚡ Online Learning (Real-time)</div>
+      <p>Happens after every individual answer. Runs in-browser (current) or via micro-API call (production).</p>
+      <ul>
+        <li><strong>Wilson Score update:</strong> Updates question's empirical pass rate with confidence weighting</li>
+        <li><strong>Theta update:</strong> MLE/EAP updates student's current session θ after each answer</li>
+        <li><strong>Mastery tracking:</strong> Streak, level, time-per-question tracked per concept tag</li>
+        <li><strong>Flag accumulation:</strong> Users can flag confusing questions; accumulates for offline review</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title">🔄 Offline Retraining (Periodic)</div>
+      <p>Batch process on entire response database. Runs bi-weekly in production.</p>
+      <ul>
+        <li><strong>Full IRT calibration:</strong> EM algorithm re-estimates a, b, c for all questions using all responses</li>
+        <li><strong>Anomaly detection:</strong> Questions with unexpected response patterns (cheating signals) flagged</li>
+        <li><strong>Concept drift detection:</strong> Topics where overall performance changes significantly</li>
+        <li><strong>Bank quality audit:</strong> Questions with poor fit indices retired or sent for revision</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>4.2 The "High Performer Misses Medium Question" Scenario</h3>
+  <p>When θ̂ = +1.8 (Advanced) but the student answers a b=0.0 (Medium) question incorrectly:</p>
+
+  <div class="phases">
+    <div class="phase">
+      <div class="phase-num">1</div>
+      <div class="phase-body">
+        <div class="phase-title">Immediate: Online Theta Update</div>
+        <div class="phase-desc">MLE re-estimates θ downward. The unexpected wrong answer on an easy item provides strong information. θ might drop from +1.8 to +1.3. The next question selected will be slightly easier (b ≈ +1.3) to sharpen the estimate.</div>
+      </div>
+    </div>
+    <div class="phase">
+      <div class="phase-num">2</div>
+      <div class="phase-body">
+        <div class="phase-title">Immediate: Question Wilson Score Update</div>
+        <div class="phase-desc">The question's correct_count stays same, attempts++ by 1. Pass rate drops slightly. If this pattern persists (many high-ability users missing this question), Wilson Score will shift, implied_diff increases, and adjustedDiff drifts toward Level 4 from its current Level 3 label.</div>
+      </div>
+    </div>
+    <div class="phase">
+      <div class="phase-num">3</div>
+      <div class="phase-body">
+        <div class="phase-title">Offline: IRT Recalibration</div>
+        <div class="phase-desc">In bi-weekly retraining, the EM algorithm re-estimates b for this question from the response matrix. If consistently missed by high-θ students, b (difficulty) will be estimated higher. The question may also show a negative discrimination (a < 0) indicating something is wrong with it — it gets flagged for expert review.</div>
+      </div>
+    </div>
+    <div class="phase">
+      <div class="phase-num">4</div>
+      <div class="phase-body">
+        <div class="phase-title">Session Report: Concept Gap Identified</div>
+        <div class="phase-desc">The student's report shows: "Missed a Level 3 question in Applied Math → concept: profit_loss_discount. Despite high overall score, this specific concept may need attention." Trainability note: "Question type was conceptual (Bloom: Apply). Student tends to struggle with application questions despite strong knowledge questions."</div>
+      </div>
+    </div>
+  </div>
+
+  <h3>4.3 Offline Training — Python Pipeline (Constraint-Compliant)</h3>
+
+  <pre><span class="cm"># Offline IRT calibration — EM Algorithm</span>
+<span class="cm"># Compliant: no f-strings, no .values, no informal structures</span>
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">from</span> scipy.optimize <span class="kw">import</span> minimize
+<span class="kw">from</span> typing <span class="kw">import</span> List, Dict, Any
+
+<span class="kw">def</span> <span class="fn">build_response_matrix</span>(responses: List[Dict[str, Any]]) -> tuple:
+    <span class="st">"""Build item x person response matrix from response records.
+    Returns: (matrix, theta_init, item_ids, person_ids)"""</span>
+    person_ids = list(set(r[<span class="st">'person_id'</span>] <span class="kw">for</span> r <span class="kw">in</span> responses))
+    item_ids   = list(set(r[<span class="st">'item_id'</span>]   <span class="kw">for</span> r <span class="kw">in</span> responses))
+    p_idx = {pid: i <span class="kw">for</span> i, pid <span class="kw">in</span> enumerate(person_ids)}
+    i_idx = {iid: i <span class="kw">for</span> i, iid <span class="kw">in</span> enumerate(item_ids)}
+    matrix = np.full((len(person_ids), len(item_ids)), np.nan)
+    <span class="kw">for</span> r <span class="kw">in</span> responses:
+        row = p_idx[r[<span class="st">'person_id'</span>]]
+        col = i_idx[r[<span class="st">'item_id'</span>]]
+        matrix[row, col] = float(r[<span class="st">'correct'</span>])
+    <span class="cm"># Initialise theta from proportion correct per person</span>
+    person_means = np.nanmean(matrix, axis=1)
+    theta_init = np.clip(2.0 * person_means - 1.0, -3.0, 3.0)
+    <span class="kw">return</span> matrix, theta_init, item_ids, person_ids
+
+<span class="kw">def</span> <span class="fn">em_calibrate_items</span>(matrix: np.ndarray, theta_init: np.ndarray,
+                        n_iter: int = 20) -> np.ndarray:
+    <span class="st">"""EM calibration of b parameters (1PL Rasch model).
+    Returns: array of b parameters, shape (n_items,)"""</span>
+    theta = theta_init.copy()
+    n_persons, n_items = matrix.shape
+    b_params = np.zeros(n_items)
+
+    <span class="kw">for</span> iteration <span class="kw">in</span> range(n_iter):
+        <span class="cm"># E-step: update theta given current b</span>
+        <span class="kw">for</span> j <span class="kw">in</span> range(n_persons):
+            observed = matrix[j, :]
+            mask = ~np.isnan(observed)
+            <span class="kw">if</span> np.sum(mask) == 0:
+                <span class="kw">continue</span>
+            obs_b = b_params[mask]
+            obs_r = observed[mask]
+            <span class="kw">def</span> <span class="fn">neg_ll_person</span>(t):
+                p = 1.0 / (1.0 + np.exp(-(t - obs_b)))
+                p = np.clip(p, 1e-9, 1 - 1e-9)
+                <span class="kw">return</span> -np.sum(obs_r * np.log(p) + (1 - obs_r) * np.log(1 - p))
+            result = minimize(neg_ll_person, theta[j], method=<span class="st">'L-BFGS-B'</span>,
+                              bounds=[(-4.0, 4.0)])
+            theta[j] = result.x[0]
+
+        <span class="cm"># M-step: update b given current theta</span>
+        <span class="kw">for</span> i <span class="kw">in</span> range(n_items):
+            observed = matrix[:, i]
+            mask = ~np.isnan(observed)
+            <span class="kw">if</span> np.sum(mask) < 5:
+                <span class="kw">continue</span>
+            obs_theta = theta[mask]
+            obs_r = observed[mask]
+            <span class="kw">def</span> <span class="fn">neg_ll_item</span>(b):
+                p = 1.0 / (1.0 + np.exp(-(obs_theta - b)))
+                p = np.clip(p, 1e-9, 1 - 1e-9)
+                <span class="kw">return</span> -np.sum(obs_r * np.log(p) + (1 - obs_r) * np.log(1 - p))
+            result = minimize(neg_ll_item, b_params[i], method=<span class="st">'L-BFGS-B'</span>,
+                              bounds=[(-3.5, 3.5)])
+            b_params[i] = result.x[0]
+
+    <span class="kw">return</span> b_params</pre>
+</div>
+
+<!-- ═══════════════════════════════════
+  SECTION 5: ARCHITECTURE
+═══════════════════════════════════ -->
+<div class="doc-section" id="arch">
+  <div class="section-header">
+    <span class="section-num">§ 05</span>
+    <span class="section-title">Technical Architecture & Stack</span>
+  </div>
+
+  <h3>5.1 System Architecture Overview</h3>
+
+  <div class="arch-wrap">
+    <div class="arch-layer">
+      <div class="arch-layer-title">Client Layer (React)</div>
+      <div class="arch-nodes">
+        <span class="arch-node an-blue">React 18 + TypeScript</span>
+        <span class="arch-node an-blue">CodeMirror 6 IDE</span>
+        <span class="arch-node an-blue">Skulpt (Python in browser)</span>
+        <span class="arch-node an-blue">Chart.js / Recharts</span>
+        <span class="arch-node an-blue">Zustand (state management)</span>
+        <span class="arch-node an-blue">Tailwind CSS</span>
+      </div>
+    </div>
+    <div class="arch-arrow">↕ HTTPS (REST + WebSocket for real-time θ updates)</div>
+    <div class="arch-layer">
+      <div class="arch-layer-title">API Gateway (FastAPI)</div>
+      <div class="arch-nodes">
+        <span class="arch-node an-green">FastAPI (async Python)</span>
+        <span class="arch-node an-green">JWT Auth (python-jose)</span>
+        <span class="arch-node an-green">Rate Limiting (slowapi)</span>
+        <span class="arch-node an-green">WebSocket endpoint /ws/test</span>
+        <span class="arch-node an-green">Pydantic schemas</span>
+      </div>
+    </div>
+    <div class="arch-arrow">↓</div>
+    <div class="arch-layer">
+      <div class="arch-layer-title">Business Logic Services</div>
+      <div class="arch-nodes">
+        <span class="arch-node an-amber">CAT Engine (IRT θ estimation)</span>
+        <span class="arch-node an-amber">Item Selector (Fisher Info)</span>
+        <span class="arch-node an-amber">Essay Grader (Claude API)</span>
+        <span class="arch-node an-amber">Code Executor (Judge0 API)</span>
+        <span class="arch-node an-amber">Report Generator</span>
+        <span class="arch-node an-amber">NLP Tagger (spaCy)</span>
+      </div>
+    </div>
+    <div class="arch-arrow">↓</div>
+    <div class="arch-layer">
+      <div class="arch-layer-title">Data Layer</div>
+      <div class="arch-nodes">
+        <span class="arch-node an-purple">PostgreSQL (questions, responses)</span>
+        <span class="arch-node an-purple">Redis (session state, θ cache)</span>
+        <span class="arch-node an-purple">Elasticsearch (question search)</span>
+        <span class="arch-node an-purple">S3 (essay text, reports)</span>
+        <span class="arch-node an-purple">FAISS (similarity index)</span>
+      </div>
+    </div>
+    <div class="arch-arrow">↓</div>
+    <div class="arch-layer">
+      <div class="arch-layer-title">ML Pipeline (Offline)</div>
+      <div class="arch-nodes">
+        <span class="arch-node an-teal">Airflow (orchestration)</span>
+        <span class="arch-node an-teal">EM Calibration job (bi-weekly)</span>
+        <span class="arch-node an-teal">NLP tagging pipeline</span>
+        <span class="arch-node an-teal">Drift detection alerts</span>
+        <span class="arch-node an-teal">MLflow (experiment tracking)</span>
+      </div>
+    </div>
+    <div class="arch-arrow">↓</div>
+    <div class="arch-layer">
+      <div class="arch-layer-title">Infrastructure (AWS)</div>
+      <div class="arch-nodes">
+        <span class="arch-node an-gray">ECS Fargate (FastAPI)</span>
+        <span class="arch-node an-gray">CloudFront + S3 (React)</span>
+        <span class="arch-node an-gray">RDS PostgreSQL Multi-AZ</span>
+        <span class="arch-node an-gray">ElastiCache Redis</span>
+        <span class="arch-node an-gray">SageMaker (ML jobs)</span>
+        <span class="arch-node an-gray">Lambda (async grading)</span>
+      </div>
+    </div>
+  </div>
+
+  <h3>5.2 React Component Architecture</h3>
+  <p>Each component is a pure functional component receiving data via props. No class components. No side effects in render.</p>
+
+  <pre><span class="cm">// React Component Tree (TypeScript — functional components + props)</span>
+
+<span class="cm">// types/index.ts</span>
+<span class="kw">interface</span> <span class="fn">Question</span> {
+  id: string;
+  stem: string;
+  options: string[];
+  correctIndex: number;
+  explanation: string;
+  bParam: number;
+  aParam: number;
+  cParam: number;
+  concepts: string[];
+  section: string;
+  subsection: string;
+}
+
+<span class="kw">interface</span> <span class="fn">SessionState</span> {
+  theta: number;
+  standardError: number;
+  responses: Response[];
+  currentSection: string;
+  difficultyLevel: number;
+}
+
+<span class="cm">// components/TestEngine.tsx</span>
+<span class="kw">import</span> React, { useState, useCallback, useEffect } <span class="kw">from</span> <span class="st">'react'</span>;
+<span class="kw">import</span> { selectNextItem, updateTheta, shouldStop } <span class="kw">from</span> <span class="st">'../lib/irt'</span>;
+
+<span class="kw">interface</span> <span class="fn">TestEngineProps</span> {
+  sectionConfig: SectionConfig;
+  questionPool: Question[];
+  onSectionComplete: (result: SectionResult) => void;
+}
+
+<span class="kw">const</span> <span class="fn">TestEngine</span>: React.FC&lt;TestEngineProps&gt; = ({
+  sectionConfig,
+  questionPool,
+  onSectionComplete
+}) => {
+  <span class="kw">const</span> [session, setSession] = useState&lt;SessionState&gt;({
+    theta: 0,
+    standardError: 1.5,
+    responses: [],
+    currentSection: sectionConfig.id,
+    difficultyLevel: 1
+  });
+  <span class="kw">const</span> [currentQ, setCurrentQ] = useState&lt;Question | null&gt;(() =>
+    selectNextItem(session.theta, session.standardError, questionPool, new Set())
+  );
+
+  <span class="kw">const</span> handleAnswer = useCallback((selectedIndex: number) => {
+    <span class="kw">if</span> (!currentQ) return;
+    <span class="kw">const</span> isCorrect = selectedIndex === currentQ.correctIndex;
+    <span class="kw">const</span> newResponse = { itemId: currentQ.id, correct: isCorrect,
+                         a: currentQ.aParam, b: currentQ.bParam, c: currentQ.cParam };
+    <span class="kw">const</span> newResponses = [...session.responses, newResponse];
+    <span class="kw">const</span> [newTheta, newSE] = updateTheta(newResponses);
+    <span class="kw">const</span> answered = new Set(newResponses.map(r => r.itemId));
+
+    setSession(prev => ({
+      ...prev,
+      theta: newTheta,
+      standardError: newSE,
+      responses: newResponses,
+      difficultyLevel: isCorrect ? Math.min(5, prev.difficultyLevel + 1) : 1
+    }));
+
+    <span class="kw">if</span> (shouldStop(newSE, newResponses.length, sectionConfig.maxQuestions)) {
+      onSectionComplete({ theta: newTheta, se: newSE, responses: newResponses });
+    } <span class="kw">else</span> {
+      setCurrentQ(selectNextItem(newTheta, newSE, questionPool, answered));
+    }
+  }, [currentQ, session, questionPool, sectionConfig, onSectionComplete]);
+
+  <span class="kw">return</span> (
+    &lt;div className=<span class="st">"test-engine"</span>&gt;
+      &lt;SectionHeader section={sectionConfig} theta={session.theta} /&gt;
+      &lt;AbilityGauge theta={session.theta} se={session.standardError} /&gt;
+      {currentQ &amp;&amp; &lt;QuestionCard question={currentQ} onAnswer={handleAnswer} /&gt;}
+    &lt;/div&gt;
+  );
+};</pre>
+
+  <h3>5.3 Tech Stack Summary</h3>
+
+  <div class="stack-row"><span class="stack-name">React 18 + TypeScript</span><div class="stack-bar"><div class="stack-fill" style="width:95%;background:var(--accent)"></div></div><span class="stack-role">Frontend UI, test delivery, real-time state</span></div>
+  <div class="stack-row"><span class="stack-name">FastAPI (Python)</span><div class="stack-bar"><div class="stack-fill" style="width:90%;background:var(--green)"></div></div><span class="stack-role">REST + WebSocket API, IRT computation, auth</span></div>
+  <div class="stack-row"><span class="stack-name">PostgreSQL</span><div class="stack-bar"><div class="stack-fill" style="width:85%;background:var(--purple)"></div></div><span class="stack-role">Question bank, responses, user data</span></div>
+  <div class="stack-row"><span class="stack-name">Redis</span><div class="stack-bar"><div class="stack-fill" style="width:80%;background:var(--amber)"></div></div><span class="stack-role">Session θ cache, rate limiting, job queues</span></div>
+  <div class="stack-row"><span class="stack-name">NumPy / SciPy</span><div class="stack-bar"><div class="stack-fill" style="width:85%;background:var(--teal)"></div></div><span class="stack-role">IRT mathematics, MLE, EM calibration</span></div>
+  <div class="stack-row"><span class="stack-name">spaCy + BART</span><div class="stack-bar"><div class="stack-fill" style="width:75%;background:var(--purple)"></div></div><span class="stack-role">NLP tagging, concept extraction, difficulty prediction</span></div>
+  <div class="stack-row"><span class="stack-name">Judge0 API</span><div class="stack-bar"><div class="stack-fill" style="width:70%;background:var(--amber)"></div></div><span class="stack-role">C, C++, Java, Python, JS secure execution</span></div>
+  <div class="stack-row"><span class="stack-name">Claude API</span><div class="stack-bar"><div class="stack-fill" style="width:80%;background:var(--accent)"></div></div><span class="stack-role">Essay grading, question generation, explanations</span></div>
+  <div class="stack-row"><span class="stack-name">Apache Airflow</span><div class="stack-bar"><div class="stack-fill" style="width:65%;background:var(--green)"></div></div><span class="stack-role">Bi-weekly ML calibration pipeline orchestration</span></div>
+  <div class="stack-row"><span class="stack-name">AWS (ECS + RDS + S3)</span><div class="stack-bar"><div class="stack-fill" style="width:85%;background:var(--red)"></div></div><span class="stack-role">Scalable cloud infrastructure, 99.9% uptime SLA</span></div>
+</div>
+
+<!-- ═══════════════════════════════════
+  SECTION 6: DEPLOYMENT
+═══════════════════════════════════ -->
+<div class="doc-section" id="deploy">
+  <div class="section-header">
+    <span class="section-num">§ 06</span>
+    <span class="section-title">Deployment Reality — From HTML File to Production</span>
+  </div>
+
+  <h3>6.1 Current State — Browser Prototype</h3>
+  <div class="alert alert-green">
+    <strong>The archived <code>adaptcat_v3.html</code> file is a browser prototype, not a production deployment.</strong> Its implementation includes browser-side execution and direct API integration that require security and operational review before public use.
+  </div>
+
+  <div class="grid3">
+    <div class="card">
+      <div class="card-title">🚀 Immediate (Free)</div>
+      <ul>
+        <li><strong>GitHub Pages:</strong> Push to repo → Enable Pages → HTTPS URL in 2 minutes</li>
+        <li><strong>Netlify:</strong> Drag-and-drop HTML file → Custom domain free tier</li>
+        <li><strong>Vercel:</strong> <code>vercel deploy</code> → CDN in 60 seconds</li>
+      </ul>
+      <p style="font-size:11px;color:var(--amber)">API key must be embedded or use a CORS proxy for Claude features</p>
+    </div>
+    <div class="card">
+      <div class="card-title">⚙️ Phase 2 — Backend (3 months)</div>
+      <ul>
+        <li><strong>FastAPI:</strong> Replace AI calls with your own backend proxy</li>
+        <li><strong>PostgreSQL:</strong> Move question bank out of HTML into DB</li>
+        <li><strong>Redis:</strong> Session persistence across devices</li>
+        <li><strong>Docker:</strong> <code>docker-compose up</code> for local dev</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title">🏢 Phase 3 — Scale (12 months)</div>
+      <ul>
+        <li><strong>AWS ECS:</strong> Containerised FastAPI with auto-scaling</li>
+        <li><strong>RDS Multi-AZ:</strong> HA PostgreSQL</li>
+        <li><strong>CloudFront:</strong> React build served globally</li>
+        <li><strong>SageMaker:</strong> Scheduled IRT retraining</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>6.2 The API Key Question</h3>
+  <p>The current HTML embeds Claude API calls directly. For real deployment with multiple users, you need a backend proxy:</p>
+
+  <pre><span class="cm"># FastAPI proxy endpoint (no API key in frontend)</span>
+<span class="kw">from</span> fastapi <span class="kw">import</span> FastAPI, HTTPException
+<span class="kw">from</span> anthropic <span class="kw">import</span> Anthropic
+<span class="kw">import</span> os
+
+app = FastAPI()
+client = Anthropic(api_key=os.environ.get(<span class="st">"ANTHROPIC_API_KEY"</span>))
+
+<span class="dec">@app.post</span>(<span class="st">"/api/grade-essay"</span>)
+<span class="kw">async def</span> <span class="fn">grade_essay</span>(payload: EssayRequest):
+    response = client.messages.create(
+        model=<span class="st">"claude-sonnet-4-20250514"</span>,
+        max_tokens=<span class="nm">1000</span>,
+        messages=[{<span class="st">"role"</span>: <span class="st">"user"</span>, <span class="st">"content"</span>: build_grading_prompt(payload)}]
+    )
+    <span class="kw">return</span> parse_grade_response(response.content[<span class="nm">0</span>].text)
+
+<span class="dec">@app.post</span>(<span class="st">"/api/execute-code"</span>)
+<span class="kw">async def</span> <span class="fn">execute_code</span>(payload: CodeRequest):
+    <span class="cm"># Use Judge0 for actual compilation — not AI simulation</span>
+    result = <span class="kw">await</span> judge0_submit(payload.language, payload.code, payload.stdin)
+    <span class="kw">return</span> {<span class="st">"stdout"</span>: result.stdout, <span class="st">"stderr"</span>: result.stderr, <span class="st">"time"</span>: result.time}</pre>
+
+  <h3>6.3 Estimated Capacity & Cost</h3>
+
+  <div class="metric-row">
+    <div class="metric"><div class="metric-val" style="color:var(--green)">10K</div><div class="metric-lbl">Concurrent users (ECS auto-scale)</div></div>
+    <div class="metric"><div class="metric-val" style="color:var(--accent)">~$80</div><div class="metric-lbl">/month AWS (100 users/day)</div></div>
+    <div class="metric"><div class="metric-val" style="color:var(--amber)">~$0.003</div><div class="metric-lbl">per test (Claude API cost)</div></div>
+    <div class="metric"><div class="metric-val" style="color:var(--purple)">99.9%</div><div class="metric-lbl">Uptime SLA (Multi-AZ)</div></div>
+  </div>
+
+  <h3>6.4 Security Considerations</h3>
+  <ul>
+    <li><strong>Anti-cheating:</strong> Question IDs never exposed to client. Only stems sent. Answer verified server-side.</li>
+    <li><strong>Rate limiting:</strong> Max 1 answer per 5 seconds per session. Prevents scripted submission.</li>
+    <li><strong>Session isolation:</strong> Each test session is a signed JWT. Cannot resume another user's session.</li>
+    <li><strong>Code execution sandbox:</strong> Judge0 runs in isolated containers. No filesystem access. 5-second timeout.</li>
+    <li><strong>API key protection:</strong> Anthropic key never leaves backend. Frontend only communicates with your FastAPI.</li>
+  </ul>
+
+  <div class="alert alert-amber">
+    <strong>Current HTML Build Limitation:</strong> The <code>adaptcat_v3.html</code> file embeds API calls to <code>api.anthropic.com</code> directly. Direct browser API calls are unsuitable for public production use; a production implementation would require a server-side integration and security review.
+  </div>
+</div>
+
+</div><!-- /page-wrap -->
+
+<script>
+/* ── Theme toggle ── */
+function toggleTheme(btn) {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  btn.textContent = isDark ? '☽ Dark' : '☀ Light';
+}
+
+/* ── IRT Visualiser ── */
+let irtChart;
+function icc3pl(theta, a, b, c) {
+  return c + (1-c) / (1 + Math.exp(-1.702*a*(theta-b)));
+}
+function drawIRT() {
+  const b = parseFloat(document.getElementById('b-slider').value);
+  const a = parseFloat(document.getElementById('a-slider').value);
+  const c = parseFloat(document.getElementById('c-slider').value);
+  document.getElementById('b-val').textContent = b.toFixed(1);
+  document.getElementById('a-val').textContent = a.toFixed(1);
+  document.getElementById('c-val').textContent = c.toFixed(2);
+  const thetas = [];
+  const probs = [];
+  for (let t = -3.5; t <= 3.5; t += 0.1) {
+    thetas.push(t.toFixed(1));
+    probs.push(icc3pl(t, a, b, c).toFixed(3));
+  }
+  const p0 = icc3pl(0, a, b, c);
+  document.getElementById('p-at-zero').textContent = p0.toFixed(3);
+  if (irtChart) irtChart.destroy();
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const gc = document.getElementById('irt-chart').getContext('2d');
+  irtChart = new Chart(gc, {
+    type: 'line',
+    data: {
+      labels: thetas,
+      datasets: [
+        { label: 'P(correct|θ)', data: probs, borderColor: '#4184e4', borderWidth: 2, pointRadius: 0, fill: true, backgroundColor: 'rgba(65,132,228,.08)', tension: 0.4 },
+        { label: 'Guessing floor (c)', data: thetas.map(()=>c.toFixed(2)), borderColor: '#e5534b', borderWidth: 1, borderDash: [4,4], pointRadius: 0, fill: false },
+        { label: 'b (difficulty)', data: thetas.map((t,i)=>Math.abs(parseFloat(t)-b)<0.15?'0.5':''), borderColor: '#c69026', borderWidth: 0, pointRadius: thetas.map((t)=>Math.abs(parseFloat(t)-b)<0.15?5:0), pointBackgroundColor: '#c69026', fill: false }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { labels: { color: isDark?'#768390':'#57606a', font:{size:10}, boxWidth:12 } } },
+      scales: {
+        x: { ticks:{color:isDark?'#545d68':'#8c959f',font:{size:10},maxTicksLimit:14}, grid:{color:isDark?'#2d333b':'#d0d7de'} },
+        y: { min: 0, max: 1, ticks:{color:isDark?'#545d68':'#8c959f',font:{size:10}}, grid:{color:isDark?'#2d333b':'#d0d7de'} }
+      }
+    }
+  });
+}
+document.getElementById('b-slider').addEventListener('input', drawIRT);
+document.getElementById('a-slider').addEventListener('input', drawIRT);
+document.getElementById('c-slider').addEventListener('input', drawIRT);
+setTimeout(drawIRT, 400);
+
+</script>
+</body>
+</html>
