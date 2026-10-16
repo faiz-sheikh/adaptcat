@@ -1,0 +1,1593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>AdaptCAT v7 — Engineering Assessment Suite</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+:root{
+  --bg:#060a10;--s0:#080d16;--s1:#0b1120;--s2:#101828;--s3:#162035;
+  --b0:#0f1d2e;--b1:#162640;--b2:#1e3655;--b3:#2a4d78;
+  --t1:#cfe2f5;--t2:#6b8fae;--t3:#2e4d66;--t4:#1a3044;
+  --blue:#1565d8;--blue-d:#1050b0;--blue-l:rgba(21,101,216,.1);--blue-b:rgba(21,101,216,.28);
+  --p1:#1565d8;--p1-l:rgba(21,101,216,.08);--p1-b:rgba(21,101,216,.25);
+  --p2:#d97706;--p2-l:rgba(217,119,6,.08);--p2-b:rgba(217,119,6,.25);
+  --p3:#059669;--p3-l:rgba(5,150,105,.08);--p3-b:rgba(5,150,105,.25);
+  --green:#00b874;--green-bg:rgba(0,184,116,.08);--green-b:rgba(0,184,116,.25);
+  --red:#dc2626;--red-bg:rgba(220,38,38,.08);--red-b:rgba(220,38,38,.25);
+  --amber:#d97706;--amber-bg:rgba(217,119,6,.08);--amber-b:rgba(217,119,6,.25);
+  --purple:#7c3aed;--teal:#0891b2;
+  --mono:'IBM Plex Mono',monospace;--sans:'IBM Plex Sans',sans-serif;--r:3px;
+}
+*,::before,::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--t1);font-size:13px;line-height:1.5;overflow-x:hidden}
+button{font-family:inherit;cursor:pointer}
+textarea,input,select{font-family:inherit}
+::-webkit-scrollbar{width:4px;height:4px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--b2);border-radius:2px}
+.screen{display:none!important}.screen.active{display:flex!important;flex-direction:column;min-height:100vh}
+.screen.fullscreen.active{height:100vh;min-height:unset;overflow:hidden}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 18px;border-radius:var(--r);border:1px solid var(--b2);background:var(--s2);color:var(--t1);font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;transition:all .12s;white-space:nowrap}
+.btn:hover{background:var(--s3);border-color:var(--b3)}.btn-primary{background:var(--blue);border-color:var(--blue);color:#fff}.btn-primary:hover{background:var(--blue-d)}
+.btn-ghost{background:transparent;border-color:transparent;color:var(--t2)}.btn-ghost:hover{background:var(--s2);color:var(--t1);border-color:var(--b1)}
+.btn-danger{background:var(--red);border-color:var(--red);color:#fff}
+.btn:disabled{opacity:.3;cursor:not-allowed}.btn-sm{padding:5px 12px;font-size:10px}.btn-lg{padding:10px 26px;font-size:13px}
+.btn-p1{background:var(--p1);border-color:var(--p1);color:#fff}.btn-p1:hover{background:var(--blue-d)}
+.btn-p2{background:var(--p2);border-color:var(--p2);color:#fff}.btn-p2:hover{background:#b45309}
+.btn-p3{background:var(--p3);border-color:var(--p3);color:#fff}.btn-p3:hover{background:#047857}
+.pill{display:inline-flex;align-items:center;padding:2px 8px;border-radius:2px;font-size:9px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;font-family:var(--mono)}
+.pill-blue{background:var(--blue-l);color:#60a5fa;border:1px solid var(--blue-b)}
+.pill-green{background:var(--green-bg);color:var(--green);border:1px solid var(--green-b)}
+.pill-amber{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-b)}
+.pill-red{background:var(--red-bg);color:#f87171;border:1px solid var(--red-b)}
+.pill-purple{background:rgba(124,58,237,.1);color:#a78bfa;border:1px solid rgba(124,58,237,.3)}
+.pill-teal{background:rgba(8,145,178,.1);color:#22d3ee;border:1px solid rgba(8,145,178,.3)}
+.pill-gray{background:var(--s2);color:var(--t3);border:1px solid var(--b1)}
+.pill-p3{background:var(--p3-l);color:#34d399;border:1px solid var(--p3-b)}
+.chrome{position:fixed;top:0;left:0;right:0;z-index:400;background:var(--s0);border-bottom:1px solid var(--b1);height:48px;padding:0 1.5rem;display:flex;align-items:center;gap:14px}
+.ch-logo{font-family:var(--mono);font-weight:700;font-size:15px;color:#fff;letter-spacing:-.3px}
+.ch-logo span{color:var(--blue)}.ch-sep{width:1px;height:18px;background:var(--b2)}
+.ch-sub{font-size:10px;color:var(--t3);font-weight:500;letter-spacing:.1em;text-transform:uppercase}
+.ch-r{margin-left:auto;display:flex;align-items:center;gap:10px}
+.ch-badge{font-family:var(--mono);font-size:9px;color:var(--t4);letter-spacing:.04em;padding:3px 9px;border:1px solid var(--b1);border-radius:var(--r)}
+.chrome-line{position:absolute;bottom:0;left:0;right:0;height:2px}
+
+/* HUB */
+#hub.active{padding:80px 1.5rem 2rem;align-items:flex-start;justify-content:flex-start}
+.hub-wrap{max-width:980px;width:100%;margin:0 auto}
+.hub-eyebrow{font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--blue);margin-bottom:.6rem;display:flex;align-items:center;gap:10px}
+.hub-eyebrow::after{content:'';flex:1;height:1px;background:linear-gradient(to right,var(--b2),transparent)}
+.hub-h1{font-family:var(--mono);font-size:26px;font-weight:700;letter-spacing:-.5px;margin-bottom:.4rem}
+.hub-lead{font-size:12px;color:var(--t2);max-width:640px;line-height:1.8;margin-bottom:2rem;border-bottom:1px solid var(--b1);padding-bottom:1.5rem}
+.product-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:1.5rem}
+.product-card{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);padding:1.5rem;display:flex;flex-direction:column;position:relative;overflow:hidden;transition:border-color .2s,transform .15s}
+.product-card:hover{transform:translateY(-1px)}
+.product-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.pc-p1::before{background:linear-gradient(90deg,var(--p1),#60a5fa)}.pc-p1:hover{border-color:var(--p1-b)}
+.pc-p2::before{background:linear-gradient(90deg,var(--p2),#fbbf24)}.pc-p2:hover{border-color:var(--p2-b)}
+.pc-p3::before{background:linear-gradient(90deg,var(--p3),#34d399)}.pc-p3:hover{border-color:var(--p3-b)}
+.pc-num{font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--t3);margin-bottom:.75rem;display:flex;align-items:center;justify-content:space-between}
+.pc-title{font-family:var(--mono);font-size:14px;font-weight:700;margin-bottom:.25rem;line-height:1.3}
+.pc-sub{font-size:10px;color:var(--t2);margin-bottom:1.25rem;line-height:1.6;flex:1}
+.pc-sections{display:flex;flex-direction:column;gap:5px;margin-bottom:1.25rem}
+.pc-sec{display:flex;align-items:center;gap:7px;font-size:10px;color:var(--t3)}
+.pc-sec-dot{width:4px;height:4px;border-radius:50%;flex-shrink:0}
+.pc-meta{display:flex;align-items:center;gap:8px;margin-bottom:1rem;padding-top:.75rem;border-top:1px solid var(--b1)}
+.pc-meta-item{font-family:var(--mono);font-size:9px;color:var(--t3)}
+.pc-actions{display:flex;gap:7px;flex-wrap:wrap}
+.status-badge{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:8px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.status-dot{width:5px;height:5px;border-radius:50%}
+.s-available .status-dot{background:var(--t3)}.s-completed .status-dot{background:var(--green);box-shadow:0 0 6px var(--green)}
+.hub-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--b1);border:1px solid var(--b1);border-radius:var(--r);overflow:hidden;margin-bottom:.75rem}
+.hs-c{background:var(--s0);padding:.875rem 1rem;text-align:center}
+.hs-v{font-family:var(--mono);font-size:22px;font-weight:700;color:var(--blue)}.hs-l{font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.08em;margin-top:3px}
+.hub-note{font-size:10px;color:var(--t4);line-height:1.65}
+
+/* OVERVIEW SCREENS */
+.ov-screen.active{align-items:center;justify-content:center;padding:80px 1.5rem 2rem}
+.ov-wrap{max-width:680px;width:100%}
+.ov-eyebrow{font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;margin-bottom:.4rem}
+.ov-title{font-family:var(--mono);font-size:22px;font-weight:700;margin-bottom:.3rem}
+.ov-desc{font-size:11px;color:var(--t2);line-height:1.7;margin-bottom:1.5rem}
+.sec-list{display:flex;flex-direction:column;gap:6px;margin-bottom:1.5rem}
+.sl-row{display:flex;align-items:center;gap:12px;padding:10px 15px;background:var(--s1);border:1px solid var(--b1);border-radius:var(--r)}
+.sl-num{width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:10px;font-weight:700;flex-shrink:0;border-radius:var(--r)}
+.sl-info{flex:1}.sl-name{font-size:12px;font-weight:600;margin-bottom:1px}.sl-meta{font-size:10px;color:var(--t2)}
+.sl-pills{display:flex;gap:5px;flex-shrink:0}
+.ov-warning{padding:10px 14px;background:var(--amber-bg);border:1px solid var(--amber-b);border-radius:var(--r);font-size:11px;color:var(--t2);margin-bottom:1.5rem;line-height:1.7}
+.ov-warning strong{color:var(--amber)}.ov-actions{display:flex;gap:8px;justify-content:flex-end}
+
+/* P2 CONFIG */
+#p2-config.active{align-items:center;justify-content:center;padding:80px 1.5rem 2rem}
+.cfg-wrap{max-width:840px;width:100%}
+.cfg-title{font-family:var(--mono);font-size:22px;font-weight:700;margin-bottom:.3rem}
+.cfg-sub{font-size:11px;color:var(--t2);margin-bottom:2rem}
+.cfg-lbl{font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--t3);margin-bottom:.75rem}
+.lang-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:2rem}
+.lang-card{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);padding:1rem;text-align:center;cursor:pointer;transition:all .15s}
+.lang-card:hover,.lang-card.selected{border-color:var(--amber);background:var(--p2-l)}
+.lang-icon{font-size:24px;margin-bottom:.4rem}.lang-name{font-family:var(--mono);font-size:11px;font-weight:700}
+.branch-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:2rem}
+.br-card{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);padding:1rem;cursor:pointer;transition:all .15s;position:relative;overflow:hidden}
+.br-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;opacity:0;background:var(--amber);transition:opacity .15s}
+.br-card:hover{border-color:var(--b3)}.br-card:hover::before,.br-card.selected::before{opacity:1}
+.br-card.selected{border-color:var(--amber)}.br-icon{font-size:18px;margin-bottom:.35rem}
+.br-name{font-family:var(--mono);font-size:11px;font-weight:700;margin-bottom:.2rem}.br-desc{font-size:10px;color:var(--t2);line-height:1.5}
+.cfg-actions{display:flex;gap:8px;justify-content:flex-end}
+
+/* TEST SCREEN */
+#test-screen.active{flex-direction:row!important;height:100vh;min-height:unset;overflow:hidden}
+.tsb{width:224px;flex-shrink:0;background:var(--s0);border-right:1px solid var(--b1);display:flex;flex-direction:column;overflow:hidden}
+.tsb-head{height:48px;padding:0 .875rem;border-bottom:1px solid var(--b1);display:flex;align-items:center;flex-shrink:0;border-top:3px solid var(--blue)}
+.tsb-logo{font-family:var(--mono);font-weight:700;font-size:12px;color:#fff}.tsb-logo span{color:var(--blue)}
+.tsb-body{flex:1;overflow-y:auto;padding:.875rem;display:flex;flex-direction:column;gap:1rem}
+.tsb-lbl{font-family:var(--mono);font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--t4);margin-bottom:6px}
+.theta-w{background:var(--s2);border:1px solid var(--b1);border-radius:var(--r);padding:10px}
+.tw-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px}
+.tw-theta{font-family:var(--mono);font-size:18px;font-weight:700;color:var(--blue)}.tw-se{font-family:var(--mono);font-size:9px;color:var(--t3)}
+.ci-track{position:relative;height:6px;background:var(--s3);border-radius:1px;margin-bottom:3px}
+.ci-band{position:absolute;top:0;height:100%;background:rgba(21,101,216,.2);border-radius:1px;transition:all .5s}
+.ci-needle{position:absolute;top:-3px;width:2px;height:12px;background:var(--blue);border-radius:1px;transition:left .5s}
+.tw-range{display:flex;justify-content:space-between;font-family:var(--mono);font-size:8px;color:var(--t4);margin-bottom:3px}
+.tw-lbl{font-size:10px;color:var(--t2);text-align:center}
+.sp-list{display:flex;flex-direction:column;gap:3px}
+.sp-item{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--t3);padding:5px 7px;border-radius:var(--r)}
+.sp-item.sp-active{background:var(--blue-l);color:#60a5fa;font-weight:600}.sp-item.sp-done{color:var(--green)}
+.sp-dot{width:5px;height:5px;border-radius:50%;background:var(--b2);flex-shrink:0}
+.sp-item.sp-active .sp-dot{background:var(--blue)}.sp-item.sp-done .sp-dot{background:var(--green)}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:3px}
+.sg-c{background:var(--s2);border:1px solid var(--b1);border-radius:var(--r);padding:5px 7px;text-align:center}
+.sg-v{font-family:var(--mono);font-size:14px;font-weight:700;color:var(--t1)}.sg-l{font-size:8px;color:var(--t3);text-transform:uppercase;letter-spacing:.05em}
+.deferred-notice{background:var(--s2);border:1px solid var(--amber-b);border-radius:var(--r);padding:8px 10px;font-size:10px;color:var(--amber);line-height:1.55}
+.deferred-notice strong{display:block;font-size:8px;letter-spacing:.05em;text-transform:uppercase;margin-bottom:2px}
+.test-main{flex:1;display:flex;flex-direction:column;min-width:0;overflow:hidden}
+.test-topbar{background:var(--s0);border-bottom:1px solid var(--b1);height:46px;padding:0 1.25rem;display:flex;align-items:center;gap:10px;flex-shrink:0}
+.ttb-sec{font-size:12px;font-weight:600;color:var(--t1)}.ttb-qs{font-family:var(--mono);font-size:10px;color:var(--t2);margin-right:auto;margin-left:8px}
+.ttb-prog{width:70px;height:2px;background:var(--b1);border-radius:1px;overflow:hidden}.ttb-prog-f{height:100%;background:var(--blue);transition:width .35s}
+.ttb-timer{font-family:var(--mono);font-size:14px;font-weight:700;color:var(--amber);min-width:50px;text-align:right}
+.ttb-timer.danger{color:var(--red)}.test-scroll{flex:1;overflow-y:auto;padding:1.25rem;background:var(--bg)}
+.q-card{max-width:840px;margin:0 auto;animation:qfade .18s ease}
+@keyframes qfade{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+.q-header{display:flex;align-items:center;gap:8px;margin-bottom:.875rem;flex-wrap:wrap}
+.q-num{font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--t3)}
+.q-meta-bar{display:flex;align-items:center;gap:10px;padding:5px 11px;background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);font-family:var(--mono);font-size:10px;color:var(--t3);margin-bottom:.875rem;flex-wrap:wrap}
+.qm-k{color:var(--t4)}.qm-v{color:var(--t2)}.qm-sep{width:1px;height:10px;background:var(--b1)}
+.qm-badge{margin-left:auto;font-size:8px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--blue);opacity:.8}
+.q-stem{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);padding:1.125rem;margin-bottom:.875rem}
+.q-text{font-size:14px;line-height:1.85;color:var(--t1);white-space:pre-wrap}
+.q-text code{font-family:var(--mono);font-size:12px;background:var(--s2);padding:1px 7px;border-radius:2px;color:#7dd3fc}
+.q-opts{display:flex;flex-direction:column;gap:6px;margin-bottom:.875rem}
+.q-opt{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);cursor:pointer;transition:all .1s}
+.q-opt:hover:not(.locked){border-color:var(--blue);background:var(--blue-l)}.q-opt.sel{border-color:var(--blue);background:var(--blue-l)}.q-opt.locked{cursor:default}
+.q-opt-key{width:22px;height:22px;border-radius:var(--r);background:var(--s2);border:1px solid var(--b1);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:10px;font-weight:700;flex-shrink:0}
+.q-opt.sel .q-opt-key{background:var(--blue);border-color:var(--blue);color:#fff}
+.q-opt-text{font-size:13px;line-height:1.55;color:var(--t1)}
+.q-actions{display:flex;align-items:center;gap:8px;justify-content:flex-end}
+.test-statusbar{background:var(--s0);border-top:1px solid var(--b1);height:26px;padding:0 1.25rem;display:flex;align-items:center;gap:16px;flex-shrink:0;font-family:var(--mono);font-size:9px;color:var(--t3)}
+.test-statusbar-r{margin-left:auto}
+
+/* SECTION END */
+#section-end.active{align-items:center;justify-content:center;padding:80px 1.5rem}
+.se-box{max-width:480px;width:100%;background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);padding:2rem}
+.se-icon{font-size:40px;margin-bottom:1rem}.se-title{font-family:var(--mono);font-size:20px;font-weight:700;margin-bottom:.4rem}
+.se-body{font-size:12px;color:var(--t2);line-height:1.7;margin-bottom:1.5rem}
+.se-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:1.5rem}
+.se-stat{background:var(--s2);border:1px solid var(--b1);border-radius:var(--r);padding:8px;text-align:center}
+.se-stat-v{font-family:var(--mono);font-size:18px;font-weight:700;color:var(--blue)}.se-stat-l{font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
+
+/* WRITEX */
+#writex-screen.active{align-items:center;justify-content:center;padding:80px 1.5rem 2rem}
+.wx-wrap{max-width:780px;width:100%}
+.wx-title{font-family:var(--mono);font-size:19px;font-weight:700;margin-bottom:.3rem}
+.wx-meta{font-size:11px;color:var(--t2);margin-bottom:1rem}
+.wx-prompt{background:var(--s1);border:1px solid var(--b1);border-left:3px solid var(--blue);border-radius:var(--r);padding:1.125rem 1.25rem;margin-bottom:1rem;font-size:13px;line-height:1.75;color:var(--t2)}
+.wx-prompt strong{color:var(--t1)}
+.wx-toolbar{display:flex;align-items:center;gap:8px;margin-bottom:.5rem;padding:7px 10px;background:var(--s1);border:1px solid var(--b1);border-radius:var(--r)}
+.wx-tool-btn{padding:3px 9px;background:var(--s2);border:1px solid var(--b1);border-radius:2px;font-size:10px;color:var(--t2);cursor:pointer;transition:all .1s}
+.wx-tool-btn:hover{background:var(--b2);color:var(--t1)}
+.wx-live-stats{margin-left:auto;display:flex;gap:12px;font-family:var(--mono);font-size:10px;color:var(--t3)}
+.wx-live-stats span{color:var(--t1)}.wx-timer-badge{font-family:var(--mono);font-size:14px;font-weight:700;color:var(--amber)}
+.wx-textarea{width:100%;height:240px;background:var(--s2);border:1px solid var(--b1);color:var(--t1);border-radius:var(--r);padding:1rem;font-size:13px;line-height:1.8;transition:border-color .15s;outline:none;resize:vertical}
+.wx-textarea:focus{border-color:var(--blue)}
+.wx-footer{display:flex;align-items:center;gap:12px;margin-top:.875rem}
+.wx-wc-badge{font-family:var(--mono);font-size:11px;padding:4px 10px;border-radius:var(--r);border:1px solid var(--b2);background:var(--s2);color:var(--t2);transition:all .3s}
+.wx-wc-badge.good{color:var(--green);border-color:var(--green-b);background:var(--green-bg)}.wx-wc-badge.warn{color:var(--amber);border-color:var(--amber-b);background:var(--amber-bg)}
+.wx-analysis-bar{margin-top:1rem;background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);padding:.875rem}
+.wx-analysis-bar h4{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--t3);margin-bottom:.625rem}
+.wx-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.wx-metric{background:var(--s2);border:1px solid var(--b1);border-radius:var(--r);padding:7px 10px;text-align:center}
+.wx-metric-v{font-family:var(--mono);font-size:16px;font-weight:700;color:var(--blue)}.wx-metric-l{font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
+
+/* PERSONALITY */
+#personality-screen.active{align-items:center;justify-content:center;padding:80px 1.5rem 2rem}
+.pers-wrap{max-width:700px;width:100%}
+.pers-title{font-family:var(--mono);font-size:19px;font-weight:700;margin-bottom:.3rem}
+.pers-meta{font-size:11px;color:var(--t2)}
+.pers-progress-bar{height:3px;background:var(--b1);border-radius:2px;margin:1rem 0;overflow:hidden}
+.pers-progress-fill{height:100%;background:var(--purple);transition:width .4s;border-radius:2px}
+.pers-q-block{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);padding:1.25rem;margin-bottom:.875rem}
+.pers-q-num{font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--t3);margin-bottom:.5rem}
+.pers-q-text{font-size:14px;line-height:1.7;margin-bottom:1rem}
+.likert-scale{display:flex;gap:5px}
+.likert-opt{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;padding:8px 4px;background:var(--s2);border:1px solid var(--b1);border-radius:var(--r);cursor:pointer;transition:all .1s}
+.likert-opt:hover,.likert-opt.selected{border-color:var(--purple);background:rgba(124,58,237,.12)}
+.likert-opt.selected .lo-dot{background:var(--purple);border-color:var(--purple)}
+.lo-dot{width:10px;height:10px;border-radius:50%;border:2px solid var(--b2);transition:all .1s}
+.lo-label{font-size:8px;color:var(--t3);text-align:center;line-height:1.3}
+.pers-nav{display:flex;justify-content:space-between;align-items:center;margin-top:.5rem}
+.pers-counter{font-family:var(--mono);font-size:10px;color:var(--t3)}
+
+/* CODE FIXER */
+#code-fixer-screen.active{flex-direction:column!important;height:100vh;min-height:unset;overflow:hidden}
+.cf-header{background:var(--s0);border-bottom:1px solid var(--b1);height:48px;padding:0 1.5rem;display:flex;align-items:center;gap:12px;flex-shrink:0}
+.cf-title{font-family:var(--mono);font-size:13px;font-weight:700}
+.cf-progress{font-family:var(--mono);font-size:10px;color:var(--t2);margin-left:auto}
+.cf-body{flex:1;display:grid;grid-template-columns:1fr 1fr;overflow:hidden}
+.cf-left{border-right:1px solid var(--b1);display:flex;flex-direction:column;overflow:hidden}
+.cf-right{display:flex;flex-direction:column;overflow:hidden}
+.cf-pane-hdr{padding:.75rem 1.125rem;border-bottom:1px solid var(--b1);background:var(--s1);font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--t3);display:flex;align-items:center;gap:8px;flex-shrink:0}
+.cf-lang-badge{padding:2px 7px;background:var(--amber-bg);border:1px solid var(--amber-b);border-radius:2px;color:var(--amber);font-size:8px;font-weight:700}
+.cf-code-area{flex:1;overflow-y:auto;background:var(--bg);font-family:var(--mono);font-size:12px;line-height:1.8;color:#cdd6f4;padding:1rem}
+.cf-line{display:flex;gap:10px;white-space:pre}
+.cf-line-num{color:var(--t4);width:30px;text-align:right;flex-shrink:0;user-select:none}
+.cf-line-code{flex:1;min-width:0}
+.cf-line.bug{background:rgba(220,38,38,.1);border-left:2px solid var(--red)}
+.cf-right-inner{flex:1;padding:1.25rem;overflow-y:auto;display:flex;flex-direction:column;gap:1rem}
+.cf-desc{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);padding:1rem;font-size:12px;line-height:1.7}
+.cf-desc strong{color:var(--amber);font-family:var(--mono)}
+.cf-fix-label{font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--t3);margin-bottom:.4rem}
+.cf-textarea{width:100%;min-height:100px;background:var(--s2);border:1px solid var(--b1);color:var(--t1);border-radius:var(--r);padding:.875rem;font-family:var(--mono);font-size:12px;line-height:1.7;outline:none;resize:vertical;transition:border-color .15s}
+.cf-textarea:focus{border-color:var(--amber)}
+.cf-hint{font-size:10px;color:var(--t3);line-height:1.6;padding:.625rem .875rem;background:var(--s1);border:1px solid var(--b1);border-radius:var(--r)}
+.cf-hint::before{content:'💡 Hint: ';color:var(--amber);font-weight:600}
+.cf-footer{border-top:1px solid var(--b1);padding:.875rem 1.25rem;background:var(--s0);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+
+/* SVAR */
+#svar-screen.active{align-items:center;justify-content:center;padding:80px 1.5rem 2rem}
+.svar-wrap{max-width:700px;width:100%}
+.svar-title{font-family:var(--mono);font-size:19px;font-weight:700;margin-bottom:.3rem}
+.svar-progress-bar{height:3px;background:var(--b1);border-radius:2px;margin:.75rem 0;overflow:hidden}
+.svar-progress-fill{height:100%;background:var(--p3);transition:width .4s;border-radius:2px}
+.svar-scenario{background:var(--s1);border:1px solid var(--b1);border-left:3px solid var(--p3);border-radius:var(--r);padding:1.125rem 1.25rem;margin-bottom:1rem;font-size:13px;line-height:1.75;color:var(--t2)}
+.svar-scenario strong{color:var(--t1)}
+.svar-opts{display:flex;flex-direction:column;gap:6px;margin-bottom:1rem}
+.svar-opt{display:flex;gap:10px;padding:10px 14px;background:var(--s2);border:1px solid var(--b1);border-radius:var(--r);cursor:pointer;transition:all .1s;align-items:flex-start}
+.svar-opt:hover,.svar-opt.selected{border-color:var(--p3);background:var(--p3-l)}
+.svar-opt-key{width:22px;height:22px;border-radius:var(--r);background:var(--s1);border:1px solid var(--b1);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:10px;font-weight:700;flex-shrink:0}
+.svar-opt.selected .svar-opt-key{background:var(--p3);border-color:var(--p3);color:#fff}
+.svar-nav{display:flex;align-items:center;justify-content:space-between}
+.svar-counter{font-family:var(--mono);font-size:10px;color:var(--t3)}
+
+/* REPORT */
+#report-screen.active{padding:80px 1.5rem 3rem;align-items:flex-start;justify-content:flex-start;overflow-y:auto}
+.rpt-wrap{max-width:1040px;width:100%;margin:0 auto}
+.rpt-hero{display:grid;grid-template-columns:1fr auto;gap:2rem;margin-bottom:1.5rem;padding-bottom:1.5rem;border-bottom:1px solid var(--b1);align-items:start}
+.rpt-eyebrow{font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--t3);margin-bottom:.4rem}
+.rpt-title{font-family:var(--mono);font-size:24px;font-weight:700;margin-bottom:.3rem}
+.rpt-sub{font-size:11px;color:var(--t2);margin-bottom:1rem;line-height:1.7}
+.rpt-score-ring{position:relative;width:120px;height:120px}
+.rpt-score-ring svg{transform:rotate(-90deg)}
+.rpt-score-text{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.rpt-pct{font-family:var(--mono);font-size:26px;font-weight:700;line-height:1}.rpt-pct-label{font-size:9px;color:var(--t3);margin-top:2px;text-transform:uppercase;letter-spacing:.07em}
+.rpt-kpi{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--b1);border:1px solid var(--b1);border-radius:var(--r);overflow:hidden;margin-bottom:1.5rem}
+.rk-c{background:var(--s1);padding:.875rem 1rem;text-align:center}
+.rk-v{font-family:var(--mono);font-size:20px;font-weight:700}.rk-l{font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.08em;margin-top:3px}
+.rpt-sections-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:1.5rem}
+.rpt-sec-card{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);padding:1rem}
+.rsc-title{font-family:var(--mono);font-size:11px;font-weight:700;margin-bottom:.875rem;display:flex;align-items:center;justify-content:space-between}
+.rsc-row{display:flex;align-items:center;gap:10px;margin-bottom:7px}
+.rsc-name{font-size:11px;flex:1;color:var(--t2)}.rsc-bar-wrap{width:80px;height:5px;background:var(--s3);border-radius:1px;overflow:hidden}
+.rsc-bar-fill{height:100%;border-radius:1px;transition:width .8s}.rsc-pct{font-family:var(--mono);font-size:10px;font-weight:700;width:32px;text-align:right}
+.rpt-charts{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:1.5rem}
+.rpt-chart-card{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);padding:1rem}
+.rcc-title{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--t3);margin-bottom:.875rem}
+.chart-container{position:relative;height:200px}
+.rpt-card{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);padding:1rem;margin-bottom:1rem}
+.rpt-card-title{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--t3);margin-bottom:.875rem}
+.trait-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.trait-name{font-size:11px;color:var(--t2);width:130px;flex-shrink:0}
+.trait-bar-wrap{flex:1;height:6px;background:var(--s3);border-radius:1px;overflow:hidden}
+.trait-bar-fill{height:100%;border-radius:1px;transition:width .8s}
+.trait-val{font-family:var(--mono);font-size:10px;font-weight:700;width:28px;text-align:right}
+.trait-label{font-size:10px;color:var(--t3);width:80px}
+.pers-insight{margin-top:.875rem;padding:.875rem;background:var(--s2);border:1px solid var(--b1);border-radius:var(--r);font-size:11px;color:var(--t2);line-height:1.7}
+.wx-report-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:.875rem}
+.wxr-c{background:var(--s2);border:1px solid var(--b1);border-radius:var(--r);padding:.75rem;text-align:center}
+.wxr-v{font-family:var(--mono);font-size:18px;font-weight:700;color:var(--blue)}.wxr-l{font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
+.wx-feedback-text{font-size:11px;color:var(--t2);line-height:1.7;white-space:pre-wrap}
+.wx-essay-preview{margin-top:.875rem;padding:.875rem;background:var(--s2);border:1px solid var(--b1);border-radius:var(--r);font-size:11px;color:var(--t2);line-height:1.75;max-height:160px;overflow-y:auto;white-space:pre-wrap}
+.rec-item{display:flex;gap:10px;padding:10px 14px;background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);margin-bottom:6px;align-items:flex-start}
+.rec-icon{font-size:16px;flex-shrink:0;line-height:1}.rec-content{flex:1}
+.rec-title{font-size:12px;font-weight:600;margin-bottom:2px}.rec-body{font-size:10px;color:var(--t2);line-height:1.6}
+.review-table{width:100%;border-collapse:collapse;font-size:11px}
+.review-table th{background:var(--s2);padding:8px 10px;text-align:left;font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--t3);border-bottom:1px solid var(--b1)}
+.review-table td{padding:7px 10px;border-bottom:1px solid var(--b0);color:var(--t2)}
+.review-table tr:last-child td{border-bottom:none}.review-table tr:hover td{background:var(--s2)}
+.ans-correct{color:var(--green);font-weight:600}.ans-wrong{color:#f87171;font-weight:600}.ans-skip{color:var(--t3)}
+.rpt-actions{display:flex;gap:8px;justify-content:space-between;align-items:center;border-top:1px solid var(--b1);padding-top:1.25rem;margin-top:1rem}
+</style>
+</head>
+<body>
+<!-- HUB -->
+<div id="hub" class="screen active">
+  <div class="chrome">
+    <div class="ch-logo">Adapt<span>CAT</span></div><div class="ch-sep"></div>
+    <div class="ch-sub">Engineering Assessment Suite</div>
+    <div class="ch-r"><span class="ch-badge">v7 · Three-Product Suite · IRT 3PL · EAP · Deferred Feedback</span></div>
+    <div class="chrome-line" style="background:linear-gradient(90deg,#1565d8,#7c3aed,#059669)"></div>
+  </div>
+  <div class="hub-wrap">
+    <div class="hub-eyebrow">AMCAT-Aligned · RS Aggarwal · LeetCode Standards · Big Five · WriteX</div>
+    <h1 class="hub-h1">Assessment Command Centre</h1>
+    <p class="hub-lead">Three independent product suites — Core Cognitive, Technical Domain, and Specialized Modules. Complete each independently and return to the dashboard to begin the next. Full analytics generated after each product submission.</p>
+    <div class="product-grid" id="product-grid"></div>
+    <div class="hub-stats">
+      <div class="hs-c"><div class="hs-v" id="hub-completed">0</div><div class="hs-l">Products Completed</div></div>
+      <div class="hs-c"><div class="hs-v" id="hub-best">—</div><div class="hs-l">Best Score</div></div>
+      <div class="hs-c"><div class="hs-v" id="hub-bank">267</div><div class="hs-l">Item Bank Size</div></div>
+      <div class="hs-c"><div class="hs-v" id="hub-last">—</div><div class="hs-l">Last Attempt</div></div>
+    </div>
+    <div class="hub-note">⚠ Feedback Policy: Zero per-question answer confirmation during any active test. Comprehensive Analysis Reports with sectional percentiles, speed-accuracy matrices, WriteX/Personality insights, and AI-powered recommendations are generated exclusively after full product submission.</div>
+  </div>
+</div>
+
+<!-- P1 OVERVIEW -->
+<div id="p1-overview" class="screen ov-screen">
+  <div class="chrome">
+    <div class="ch-logo">Adapt<span>CAT</span></div><div class="ch-sep"></div>
+    <div class="ch-sub" style="color:#60a5fa">Product 1 — Core Cognitive &amp; Behavioral</div>
+    <div class="ch-r"><button class="btn btn-ghost btn-sm" onclick="goHub()">← Dashboard</button></div>
+    <div class="chrome-line" style="background:var(--p1)"></div>
+  </div>
+  <div class="ov-wrap">
+    <div class="ov-eyebrow" style="color:var(--p1)">Product 01 · ~100 Minutes · AMCAT Standard</div>
+    <div class="ov-title">Core Cognitive &amp; Behavioral</div>
+    <div class="ov-desc">Full cognitive battery — Verbal English, Logical Reasoning, Quantitative Aptitude, Data Interpretation — followed by the WriteX essay module and the 50-question Big Five Personality Inventory.</div>
+    <div class="sec-list">
+      <div class="sl-row"><div class="sl-num" style="background:rgba(21,101,216,.12);color:#60a5fa;border:1px solid rgba(21,101,216,.25)">01</div><div class="sl-info"><div class="sl-name">Verbal English</div><div class="sl-meta">Vocabulary · Grammar · Reading Comprehension · Sentence Correction</div></div><div class="sl-pills"><span class="pill pill-blue">16 Q</span><span class="pill pill-gray">18 MIN</span></div></div>
+      <div class="sl-row"><div class="sl-num" style="background:rgba(124,58,237,.12);color:#a78bfa;border:1px solid rgba(124,58,237,.25)">02</div><div class="sl-info"><div class="sl-name">Logical Reasoning</div><div class="sl-meta">Series · Analogy · Syllogism · Data Sufficiency · Critical Reasoning</div></div><div class="sl-pills"><span class="pill pill-purple">14 Q</span><span class="pill pill-gray">16 MIN</span></div></div>
+      <div class="sl-row"><div class="sl-num" style="background:rgba(8,145,178,.12);color:#22d3ee;border:1px solid rgba(8,145,178,.25)">03</div><div class="sl-info"><div class="sl-name">Quantitative Aptitude</div><div class="sl-meta">Arithmetic · Algebra · Geometry · Probability — RS Aggarwal standards</div></div><div class="sl-pills"><span class="pill pill-teal">18 Q</span><span class="pill pill-gray">22 MIN</span></div></div>
+      <div class="sl-row"><div class="sl-num" style="background:rgba(0,184,116,.12);color:#34d399;border:1px solid rgba(0,184,116,.25)">04</div><div class="sl-info"><div class="sl-name">Data Interpretation</div><div class="sl-meta">Tables · Bar Charts · Percentage Change · Mixed Data Sets</div></div><div class="sl-pills"><span class="pill pill-green">8 Q</span><span class="pill pill-gray">12 MIN</span></div></div>
+      <div class="sl-row"><div class="sl-num" style="background:rgba(217,119,6,.12);color:#fbbf24;border:1px solid rgba(217,119,6,.25)">05</div><div class="sl-info"><div class="sl-name">WriteX — Essay Analysis Engine</div><div class="sl-meta">Professional essay with live word-count, paragraph, and keyword analysis</div></div><div class="sl-pills"><span class="pill pill-amber">1 Essay</span><span class="pill pill-gray">25 MIN</span></div></div>
+      <div class="sl-row"><div class="sl-num" style="background:rgba(124,58,237,.12);color:#a78bfa;border:1px solid rgba(124,58,237,.25)">06</div><div class="sl-info"><div class="sl-name">Personality Inventory — Big Five</div><div class="sl-meta">50-item Likert scale — Extraversion · Conscientiousness · Emotional Stability · Agreeableness · Openness</div></div><div class="sl-pills"><span class="pill pill-purple">50 Q</span><span class="pill pill-gray">15 MIN</span></div></div>
+    </div>
+    <div class="ov-warning"><strong>⚠ Deferred Feedback Mode:</strong> No answer confirmation during the test. Full Analysis Report with percentile scores, speed-accuracy matrix, WriteX essay analysis and Big Five insights revealed after submission.</div>
+    <div class="ov-actions"><button class="btn btn-ghost" onclick="goHub()">Cancel</button><button class="btn btn-p1" onclick="startP1()">Begin Assessment →</button></div>
+  </div>
+</div>
+
+<!-- P2 CONFIG -->
+<div id="p2-config" class="screen">
+  <div class="chrome">
+    <div class="ch-logo">Adapt<span>CAT</span></div><div class="ch-sep"></div>
+    <div class="ch-sub" style="color:#fbbf24">Product 2 — Technical Configuration</div>
+    <div class="ch-r"><button class="btn btn-ghost btn-sm" onclick="goHub()">← Dashboard</button></div>
+    <div class="chrome-line" style="background:var(--p2)"></div>
+  </div>
+  <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:80px 1.5rem 2rem">
+  <div class="cfg-wrap">
+    <div class="cfg-title">Technical Configuration</div>
+    <div class="cfg-sub">Select your programming language and engineering branch. Questions are dynamically loaded to match your configuration.</div>
+    <div class="cfg-lbl">Step 1 — Select Programming Language</div>
+    <div class="lang-grid">
+      <div class="lang-card" id="lang-python" onclick="selectLang('python')"><div class="lang-icon">🐍</div><div class="lang-name">Python</div></div>
+      <div class="lang-card" id="lang-java" onclick="selectLang('java')"><div class="lang-icon">☕</div><div class="lang-name">Java</div></div>
+      <div class="lang-card" id="lang-cpp" onclick="selectLang('cpp')"><div class="lang-icon">⚡</div><div class="lang-name">C++</div></div>
+      <div class="lang-card" id="lang-c" onclick="selectLang('c')"><div class="lang-icon">🔧</div><div class="lang-name">C</div></div>
+      <div class="lang-card" id="lang-php" onclick="selectLang('php')"><div class="lang-icon">🐘</div><div class="lang-name">PHP</div></div>
+    </div>
+    <div class="cfg-lbl">Step 2 — Select Engineering Branch</div>
+    <div class="branch-grid">
+      <div class="br-card" id="br-robotics" onclick="selectBranch('robotics')"><div class="br-icon">🤖</div><div class="br-name">Robotics &amp; AI</div><div class="br-desc">Microcontrollers (8051, Arduino, ESP32), PID Control, Sensors, Mechatronics</div></div>
+      <div class="br-card" id="br-cs" onclick="selectBranch('cs')"><div class="br-icon">💻</div><div class="br-name">Computer Science / IT</div><div class="br-desc">DSA, OS, DBMS, Computer Networks, Algorithms</div></div>
+      <div class="br-card" id="br-me" onclick="selectBranch('me')"><div class="br-icon">⚙️</div><div class="br-name">Mechanical Engineering</div><div class="br-desc">Thermodynamics, Fluid Mechanics, Manufacturing, Kinematics</div></div>
+      <div class="br-card" id="br-ec" onclick="selectBranch('ec')"><div class="br-icon">🔌</div><div class="br-name">Electronics &amp; Communication</div><div class="br-desc">Analog, Digital, Signals, VLSI, Communication Theory</div></div>
+      <div class="br-card" id="br-civil" onclick="selectBranch('civil')"><div class="br-icon">🏗️</div><div class="br-name">Civil Engineering</div><div class="br-desc">Structural Analysis, Geotechnical, Fluid Mechanics, Transportation</div></div>
+      <div class="br-card" id="br-gen" onclick="selectBranch('gen')"><div class="br-icon">🎓</div><div class="br-name">General / MBA</div><div class="br-desc">Business Concepts, Finance, Economics, Operations Research</div></div>
+    </div>
+    <div class="cfg-actions"><button class="btn btn-ghost" onclick="goHub()">Cancel</button><button class="btn btn-p2" id="cfg-start-btn" onclick="startP2()" disabled>Start Technical Test →</button></div>
+  </div>
+  </div>
+</div>
+
+<!-- P2 OVERVIEW -->
+<div id="p2-overview" class="screen ov-screen">
+  <div class="chrome">
+    <div class="ch-logo">Adapt<span>CAT</span></div><div class="ch-sep"></div>
+    <div class="ch-sub" style="color:#fbbf24">Product 2 — Technical &amp; Domain</div>
+    <div class="ch-r"><button class="btn btn-ghost btn-sm" onclick="goHub()">← Dashboard</button></div>
+    <div class="chrome-line" style="background:var(--p2)"></div>
+  </div>
+  <div class="ov-wrap">
+    <div class="ov-eyebrow" style="color:var(--p2)">Product 02 · ~70 Minutes</div>
+    <div class="ov-title">Technical &amp; Domain Assessment</div>
+    <div class="ov-desc" id="p2-ov-desc">Loading…</div>
+    <div class="sec-list" id="p2-sec-list"></div>
+    <div class="ov-warning"><strong>⚠ Code Fixer Mode:</strong> The debugging section requires you to identify and fix bugs in real code snippets. No validation during the test — full results revealed on submission.</div>
+    <div class="ov-actions"><button class="btn btn-ghost" onclick="showScreen('p2-config')">← Reconfigure</button><button class="btn btn-p2" onclick="launchP2()">Begin Technical Assessment →</button></div>
+  </div>
+</div>
+
+<!-- P3 OVERVIEW -->
+<div id="p3-overview" class="screen ov-screen">
+  <div class="chrome">
+    <div class="ch-logo">Adapt<span>CAT</span></div><div class="ch-sep"></div>
+    <div class="ch-sub" style="color:#34d399">Product 3 — Specialized Modules</div>
+    <div class="ch-r"><button class="btn btn-ghost btn-sm" onclick="goHub()">← Dashboard</button></div>
+    <div class="chrome-line" style="background:var(--p3)"></div>
+  </div>
+  <div class="ov-wrap">
+    <div class="ov-eyebrow" style="color:var(--p3)">Product 03 · Optional · ~35 Minutes</div>
+    <div class="ov-title">SVAR &amp; Communication Intelligence</div>
+    <div class="ov-desc">Situational Judgment Tests and professional Communication Intelligence — assessing real-world decision-making and workplace communication skills.</div>
+    <div class="sec-list">
+      <div class="sl-row"><div class="sl-num" style="background:rgba(5,150,105,.12);color:#34d399;border:1px solid rgba(5,150,105,.25)">01</div><div class="sl-info"><div class="sl-name">Situational Judgment Test</div><div class="sl-meta">Real workplace scenarios — best/worst professional response assessment</div></div><div class="sl-pills"><span class="pill pill-p3">12 Q</span><span class="pill pill-gray">18 MIN</span></div></div>
+      <div class="sl-row"><div class="sl-num" style="background:rgba(5,150,105,.12);color:#34d399;border:1px solid rgba(5,150,105,.25)">02</div><div class="sl-info"><div class="sl-name">Communication Intelligence</div><div class="sl-meta">Email etiquette · Feedback delivery · Conflict resolution · Active listening</div></div><div class="sl-pills"><span class="pill pill-p3">10 Q</span><span class="pill pill-gray">15 MIN</span></div></div>
+    </div>
+    <div class="ov-warning"><strong>⚠ Optimum Response Model:</strong> Each scenario has a professionally validated "best" response. No feedback during the test — Communication Intelligence Score computed post-submission.</div>
+    <div class="ov-actions"><button class="btn btn-ghost" onclick="goHub()">Cancel</button><button class="btn btn-p3" onclick="startP3()">Begin SVAR Assessment →</button></div>
+  </div>
+</div>
+
+<!-- TEST SCREEN -->
+<div id="test-screen" class="screen fullscreen">
+  <div class="tsb">
+    <div class="tsb-head"><div class="tsb-logo">Adapt<span>CAT</span></div></div>
+    <div class="tsb-body">
+      <div><div class="tsb-lbl">Ability Estimate (θ)</div>
+        <div class="theta-w">
+          <div class="tw-top"><span class="tw-theta" id="tsb-theta">0.00</span><span class="tw-se" id="tsb-se">SE: —</span></div>
+          <div class="ci-track"><div class="ci-band" id="ci-band"></div><div class="ci-needle" id="ci-needle"></div></div>
+          <div class="tw-range"><span>−3</span><span>0</span><span>+3</span></div>
+          <div class="tw-lbl" id="tsb-ability-lbl">—</div>
+        </div>
+      </div>
+      <div><div class="tsb-lbl">Section Progress</div><div class="sp-list" id="tsb-sec-list"></div></div>
+      <div><div class="tsb-lbl">Live Stats</div>
+        <div class="stat-grid">
+          <div class="sg-c"><div class="sg-v" id="tsb-answered">0</div><div class="sg-l">Answered</div></div>
+          <div class="sg-c"><div class="sg-v" id="tsb-skipped">0</div><div class="sg-l">Skipped</div></div>
+          <div class="sg-c"><div class="sg-v" id="tsb-qnum">1</div><div class="sg-l">Question</div></div>
+          <div class="sg-c"><div class="sg-v" id="tsb-diff">—</div><div class="sg-l">Difficulty</div></div>
+        </div>
+      </div>
+      <div class="deferred-notice"><strong>⚠ Silent Mode Active</strong>No answer confirmation shown. Full results after product completion.</div>
+    </div>
+  </div>
+  <div class="test-main">
+    <div class="test-topbar">
+      <div class="ttb-sec" id="ttb-sec-name">Section</div>
+      <div class="ttb-qs" id="ttb-qs">Q 1 / 16</div>
+      <div class="ttb-prog"><div class="ttb-prog-f" id="ttb-prog-f" style="width:0%"></div></div>
+      <div class="ttb-timer" id="ttb-timer">20:00</div>
+    </div>
+    <div class="test-scroll"><div class="q-card" id="q-card"></div></div>
+    <div class="test-statusbar"><span id="sb-product">Product 1</span><span>IRT 3PL Adaptive Engine</span><span class="test-statusbar-r">Deferred Feedback Active</span></div>
+  </div>
+</div>
+
+<!-- SECTION END -->
+<div id="section-end" class="screen">
+  <div class="chrome">
+    <div class="ch-logo">Adapt<span>CAT</span></div><div class="ch-sep"></div>
+    <div class="ch-sub" id="se-chrome-sub">Section Complete</div>
+    <div class="chrome-line" style="background:var(--green)"></div>
+  </div>
+  <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:80px 1.5rem">
+    <div class="se-box">
+      <div class="se-icon">✅</div>
+      <div class="se-title" id="se-title">Section Complete</div>
+      <div class="se-body" id="se-body">Your responses have been recorded.</div>
+      <div class="se-stats">
+        <div class="se-stat"><div class="se-stat-v" id="se-answered">—</div><div class="se-stat-l">Answered</div></div>
+        <div class="se-stat"><div class="se-stat-v" id="se-time">—</div><div class="se-stat-l">Time Used</div></div>
+        <div class="se-stat"><div class="se-stat-v" id="se-theta">—</div><div class="se-stat-l">θ Estimate</div></div>
+      </div>
+      <button class="btn btn-primary" style="width:100%" id="se-next-btn" onclick="sectionEndNext()">Continue →</button>
+    </div>
+  </div>
+</div>
+
+<!-- WRITEX SCREEN -->
+<div id="writex-screen" class="screen">
+  <div class="chrome">
+    <div class="ch-logo">Adapt<span>CAT</span></div><div class="ch-sep"></div>
+    <div class="ch-sub">WriteX — Essay Analysis Engine</div>
+    <div class="ch-r"><div class="deferred-notice" style="margin:0;font-size:9px;padding:4px 10px;border-radius:2px">SILENT MODE</div><div class="ttb-timer" id="wx-timer-display" style="font-size:13px;margin-left:10px">25:00</div></div>
+    <div class="chrome-line" style="background:var(--p1)"></div>
+  </div>
+  <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:80px 1.5rem 2rem">
+  <div class="wx-wrap">
+    <div class="wx-title">WriteX — Professional Essay Module</div>
+    <div class="wx-meta">Topic: <span id="wx-topic-name" style="color:var(--t1)">—</span> · 25-minute limit · Minimum 200 words recommended</div>
+    <div class="wx-prompt" id="wx-prompt-box">Loading…</div>
+    <div class="wx-toolbar">
+      <button class="wx-tool-btn" onclick="wxInsert('[Introduction] ')">Intro</button>
+      <button class="wx-tool-btn" onclick="wxInsert('\n\n[Body Paragraph]\n')">Body ¶</button>
+      <button class="wx-tool-btn" onclick="wxInsert('\n\n[Conclusion]\n')">Conclusion</button>
+      <button class="wx-tool-btn" onclick="wxInsert(' For example, ')">Example</button>
+      <button class="wx-tool-btn" onclick="wxInsert(' Furthermore, ')">Transition</button>
+      <div class="wx-live-stats">Words: <span id="wx-wc-live" style="color:var(--blue)">0</span>&nbsp;&nbsp;Paras: <span id="wx-para-live" style="color:var(--blue)">0</span></div>
+    </div>
+    <textarea class="wx-textarea" id="wx-textarea" placeholder="Begin writing your essay here. Structure: Introduction → Body → Conclusion…" oninput="wxUpdate()"></textarea>
+    <div class="wx-footer">
+      <div class="wx-wc-badge" id="wx-wc-badge">0 words</div>
+      <span style="font-size:10px;color:var(--t3)">Aim for 200–350 words · Clear paragraphs · Specific examples</span>
+      <button class="btn btn-p1" style="margin-left:auto" onclick="submitWritex()">Submit Essay →</button>
+    </div>
+    <div class="wx-analysis-bar">
+      <h4>Live Analysis Engine</h4>
+      <div class="wx-metrics">
+        <div class="wx-metric"><div class="wx-metric-v" id="wx-m-wc">0</div><div class="wx-metric-l">Words</div></div>
+        <div class="wx-metric"><div class="wx-metric-v" id="wx-m-para">0</div><div class="wx-metric-l">Paragraphs</div></div>
+        <div class="wx-metric"><div class="wx-metric-v" id="wx-m-sents">0</div><div class="wx-metric-l">Sentences</div></div>
+        <div class="wx-metric"><div class="wx-metric-v" id="wx-m-grade">—</div><div class="wx-metric-l">CEFR Grade</div></div>
+      </div>
+    </div>
+  </div>
+  </div>
+</div>
+
+<!-- PERSONALITY SCREEN -->
+<div id="personality-screen" class="screen">
+  <div class="chrome">
+    <div class="ch-logo">Adapt<span>CAT</span></div><div class="ch-sep"></div>
+    <div class="ch-sub">Personality Inventory — Big Five</div>
+    <div class="ch-r"><div class="deferred-notice" style="margin:0;font-size:9px;padding:4px 10px;border-radius:2px">SILENT MODE</div></div>
+    <div class="chrome-line" style="background:var(--purple)"></div>
+  </div>
+  <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:80px 1.5rem 2rem">
+  <div class="pers-wrap">
+    <div class="pers-title">AMCAT Personality Inventory</div>
+    <div class="pers-meta">50 questions · Likert scale · No right or wrong answers — respond naturally.</div>
+    <div class="pers-progress-bar"><div class="pers-progress-fill" id="pers-prog-fill" style="width:0%"></div></div>
+    <div id="pers-q-block"></div>
+    <div class="pers-nav">
+      <button class="btn btn-ghost btn-sm" id="pers-prev-btn" onclick="persNav(-1)" disabled>← Previous</button>
+      <div class="pers-counter" id="pers-counter">Question 1 of 50</div>
+      <button class="btn btn-primary btn-sm" id="pers-next-btn" onclick="persNav(1)">Next →</button>
+    </div>
+  </div>
+  </div>
+</div>
+
+<!-- CODE FIXER -->
+<div id="code-fixer-screen" class="screen fullscreen">
+  <div class="cf-header">
+    <div class="cf-title">Automata Fix — Code Debugging Module</div><div class="ch-sep"></div>
+    <span id="cf-lang-display" class="cf-lang-badge">PYTHON</span>
+    <div class="cf-progress" id="cf-progress">Snippet 1 / 5</div>
+    <div class="ttb-timer" id="cf-timer" style="font-size:13px;margin-left:8px">60:00</div>
+  </div>
+  <div class="cf-body">
+    <div class="cf-left">
+      <div class="cf-pane-hdr"><span id="cf-snippet-title">Snippet 01</span><span class="cf-lang-badge" id="cf-lang-badge2">PYTHON</span><span style="margin-left:auto;font-size:9px;color:var(--red)">Bug Found — Fix It</span></div>
+      <div class="cf-code-area" id="cf-code-display"></div>
+    </div>
+    <div class="cf-right">
+      <div class="cf-pane-hdr">Debug Interface</div>
+      <div class="cf-right-inner">
+        <div class="cf-desc" id="cf-desc-box"><strong>Task</strong><br>Loading…</div>
+        <div>
+          <div class="cf-fix-label">Your Fix — Write the corrected line(s):</div>
+          <textarea class="cf-textarea" id="cf-fix-input" placeholder="Type your corrected code here…"></textarea>
+        </div>
+        <div class="cf-hint" id="cf-hint-box">Loading hint…</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-ghost btn-sm" onclick="cfNav(-1)" id="cf-prev-btn" disabled>← Prev</button>
+          <button class="btn btn-p2 btn-sm" onclick="cfRecord()" id="cf-record-btn">Record Answer</button>
+          <button class="btn btn-primary btn-sm" onclick="cfNav(1)" id="cf-next-btn">Next →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="cf-footer">
+    <span style="font-size:10px;color:var(--t3)">Identify the bug and type the corrected line(s). No validation during test.</span>
+    <button class="btn btn-p2" onclick="cfFinish()">Complete Code Fixer →</button>
+  </div>
+</div>
+
+<!-- SVAR SCREEN -->
+<div id="svar-screen" class="screen">
+  <div class="chrome">
+    <div class="ch-logo">Adapt<span>CAT</span></div><div class="ch-sep"></div>
+    <div class="ch-sub" style="color:#34d399">SVAR — Situational &amp; Communication</div>
+    <div class="ch-r"><div class="deferred-notice" style="margin:0;font-size:9px;padding:4px 10px;border-radius:2px">SILENT MODE</div><div class="ttb-timer" id="svar-timer" style="font-size:13px;margin-left:10px">33:00</div></div>
+    <div class="chrome-line" style="background:var(--p3)"></div>
+  </div>
+  <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:80px 1.5rem 2rem">
+  <div class="svar-wrap">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.3rem">
+      <span class="pill pill-p3" id="svar-sec-badge">Situational Judgment</span>
+      <span class="svar-counter" id="svar-counter">1 / 22</span>
+    </div>
+    <div class="svar-progress-bar"><div class="svar-progress-fill" id="svar-prog-fill" style="width:0%"></div></div>
+    <div class="svar-scenario" id="svar-scenario-box">Loading…</div>
+    <div class="svar-opts" id="svar-opts-container"></div>
+    <div class="svar-nav">
+      <button class="btn btn-ghost btn-sm" onclick="svarNav(-1)" id="svar-prev-btn" disabled>← Previous</button>
+      <button class="btn btn-p3 btn-sm" onclick="svarNav(1)" id="svar-next-btn">Next →</button>
+    </div>
+  </div>
+  </div>
+</div>
+
+<!-- REPORT SCREEN -->
+<div id="report-screen" class="screen">
+  <div class="chrome">
+    <div class="ch-logo">Adapt<span>CAT</span></div><div class="ch-sep"></div>
+    <div class="ch-sub" id="rpt-chrome-sub">Analysis Report</div>
+    <div class="ch-r"><button class="btn btn-ghost btn-sm" onclick="goHub()">← Dashboard</button></div>
+    <div class="chrome-line" id="rpt-chrome-line" style="background:var(--p1)"></div>
+  </div>
+  <div style="padding:80px 1.5rem 3rem">
+  <div class="rpt-wrap">
+    <div class="rpt-hero">
+      <div>
+        <div class="rpt-eyebrow" id="rpt-eyebrow">Product Report</div>
+        <div class="rpt-title" id="rpt-title">Analysis Report</div>
+        <div class="rpt-sub" id="rpt-sub">Loading…</div>
+        <div id="rpt-tags" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+      </div>
+      <div class="rpt-score-ring">
+        <svg width="120" height="120" viewBox="0 0 120 120">
+          <circle cx="60" cy="60" r="50" fill="none" stroke="var(--s3)" stroke-width="10"/>
+          <circle cx="60" cy="60" r="50" fill="none" stroke="var(--blue)" stroke-width="10"
+            stroke-dasharray="314" stroke-dashoffset="314" id="rpt-ring-circle" stroke-linecap="round"/>
+        </svg>
+        <div class="rpt-score-text"><div class="rpt-pct" id="rpt-pct-val">—</div><div class="rpt-pct-label">Overall</div></div>
+      </div>
+    </div>
+    <div class="rpt-kpi">
+      <div class="rk-c"><div class="rk-v" id="rk-correct" style="color:var(--green)">—</div><div class="rk-l">Correct</div></div>
+      <div class="rk-c"><div class="rk-v" id="rk-wrong" style="color:#f87171">—</div><div class="rk-l">Incorrect</div></div>
+      <div class="rk-c"><div class="rk-v" id="rk-skip" style="color:var(--t3)">—</div><div class="rk-l">Skipped</div></div>
+      <div class="rk-c"><div class="rk-v" id="rk-time" style="color:var(--amber)">—</div><div class="rk-l">Avg Time/Q</div></div>
+      <div class="rk-c"><div class="rk-v" id="rk-theta" style="color:var(--blue)">—</div><div class="rk-l">θ Estimate</div></div>
+    </div>
+    <div class="rpt-sections-grid" id="rpt-sections-grid"></div>
+    <div class="rpt-charts">
+      <div class="rpt-chart-card"><div class="rcc-title">Speed–Accuracy Matrix</div><div class="chart-container"><canvas id="chart-scatter"></canvas></div></div>
+      <div class="rpt-chart-card"><div class="rcc-title">Sectional Performance</div><div class="chart-container"><canvas id="chart-radar"></canvas></div></div>
+    </div>
+    <div id="rpt-writex-section" style="display:none">
+      <div class="rpt-card">
+        <div class="rpt-card-title">WriteX — Essay Analysis</div>
+        <div class="wx-report-grid">
+          <div class="wxr-c"><div class="wxr-v" id="wx-rep-wc">—</div><div class="wxr-l">Words</div></div>
+          <div class="wxr-c"><div class="wxr-v" id="wx-rep-para">—</div><div class="wxr-l">Paragraphs</div></div>
+          <div class="wxr-c"><div class="wxr-v" id="wx-rep-grade">—</div><div class="wxr-l">CEFR</div></div>
+          <div class="wxr-c"><div class="wxr-v" id="wx-rep-time">—</div><div class="wxr-l">Time Used</div></div>
+        </div>
+        <div class="wx-feedback-text" id="wx-rep-feedback"></div>
+        <div class="wx-essay-preview" id="wx-rep-essay"></div>
+      </div>
+    </div>
+    <div id="rpt-personality-section" style="display:none">
+      <div class="rpt-card">
+        <div class="rpt-card-title">Big Five Personality Inventory — Results</div>
+        <div id="pers-trait-bars"></div>
+        <div class="pers-insight" id="pers-insight-text"></div>
+      </div>
+    </div>
+    <div id="rpt-codefixer-section" style="display:none">
+      <div class="rpt-card">
+        <div class="rpt-card-title">Automata Fix — Debugging Results</div>
+        <div id="cf-results-list"></div>
+      </div>
+    </div>
+    <div class="rpt-card" id="rpt-recs-card">
+      <div class="rpt-card-title">Recommendations &amp; Improvement Plan</div>
+      <div id="rpt-recs-container"></div>
+    </div>
+    <div class="rpt-card">
+      <div class="rpt-card-title">Question-by-Question Review</div>
+      <div style="overflow-x:auto">
+        <table class="review-table">
+          <thead><tr><th>#</th><th>Section</th><th>Topic</th><th>Diff</th><th>Your Ans</th><th>Correct</th><th>Result</th><th>Time</th></tr></thead>
+          <tbody id="rpt-review-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="rpt-actions">
+      <button class="btn btn-ghost" onclick="goHub()">← Return to Dashboard</button>
+      <button class="btn" onclick="window.print()">🖨 Print Report</button>
+    </div>
+  </div>
+  </div>
+</div>
+<script>
+'use strict';
+/* ═══════════════════════════════════════════════
+   ITEM BANKS
+═══════════════════════════════════════════════ */
+const BANK_ENGLISH=[
+  {id:'EN01',sub:'Vocabulary',diff:1,topic_tag:'Vocabulary',estimated_time:40,q:'"Benevolent" most nearly means:',opts:['Hostile','Kind and generous','Fearful','Reluctant'],ans:1},
+  {id:'EN02',sub:'Grammar',diff:1,topic_tag:'Grammar',estimated_time:40,q:'Choose the correct sentence:',opts:['Neither of them are correct.','Neither of them is correct.','Neither of them were correct.','Neither of them have been correct.'],ans:1},
+  {id:'EN03',sub:'Vocabulary',diff:1,topic_tag:'Vocabulary',estimated_time:40,q:'"Ephemeral" means:',opts:['Extremely rare','Short-lived; transient','Deeply meaningful','Very heavy'],ans:1},
+  {id:'EN04',sub:'Grammar',diff:2,topic_tag:'Grammar',estimated_time:55,q:'"By the time I arrived, she __ already left."',opts:['has','had','have','was'],ans:1},
+  {id:'EN05',sub:'Vocabulary',diff:2,topic_tag:'Vocabulary',estimated_time:50,q:'"Equivocal" most nearly means:',opts:['Definite and clear','Ambiguous; open to multiple interpretations','Extremely fair','Very loud'],ans:1},
+  {id:'EN06',sub:'Grammar',diff:2,topic_tag:'Grammar',estimated_time:55,q:'"He is one of those students who __ always late." Correct verb?',opts:['is','are','was','were'],ans:1},
+  {id:'EN07',sub:'Reading Comprehension',diff:2,topic_tag:'Reading Comprehension',estimated_time:80,q:'"The policy was a double-edged sword." The writer implies:',opts:['The policy was dangerous','The policy had both benefits and drawbacks','The policy was extremely sharp','The policy was physical'],ans:1},
+  {id:'EN08',sub:'Vocabulary',diff:3,topic_tag:'Vocabulary',estimated_time:55,q:'"Obfuscate" means:',opts:['To clarify thoroughly','To render unclear; to confuse','To simplify','To strengthen an argument'],ans:1},
+  {id:'EN09',sub:'Sentence Correction',diff:3,topic_tag:'Sentence Correction',estimated_time:65,q:'Choose the correctly constructed sentence:',opts:['Being tired, the couch was sat on by him.','Tired, he sat on the couch.','He sat on the couch, being tired.','The couch was sat on, being tired.'],ans:1},
+  {id:'EN10',sub:'Vocabulary',diff:3,topic_tag:'Vocabulary',estimated_time:60,q:'"Laconic" speech is characterized by:',opts:['Being verbose and ornate','Being very brief and concise','Being highly emotional','Being technically dense'],ans:1},
+  {id:'EN11',sub:'Grammar',diff:3,topic_tag:'Grammar',estimated_time:65,q:'"Scarcely had she spoken __ someone knocked." Correct connector:',opts:['when','than','before','that'],ans:0},
+  {id:'EN12',sub:'Reading Comprehension',diff:3,topic_tag:'Reading Comprehension',estimated_time:80,q:'"Ameliorate" most nearly means:',opts:['To make worse','To improve; to make better','To evaluate','To delay indefinitely'],ans:1},
+  {id:'EN13',sub:'Vocabulary',diff:4,topic_tag:'Vocabulary',estimated_time:65,q:'"Turpitude" refers to:',opts:['Extreme bravery','Depravity or wickedness','Extreme beauty','A state of calm'],ans:1},
+  {id:'EN14',sub:'Grammar',diff:4,topic_tag:'Grammar',estimated_time:70,q:'Error in: "Each of the boys have submitted their assignment."',opts:['Each of','the boys','have submitted','their assignment'],ans:2},
+  {id:'EN15',sub:'Sentence Correction',diff:4,topic_tag:'Sentence Correction',estimated_time:75,q:'"The news are disturbing." — The error is:',opts:['The','news are','disturbing','No error'],ans:1},
+  {id:'EN16',sub:'Vocabulary',diff:5,topic_tag:'Vocabulary',estimated_time:80,q:'"Sanguine" most nearly means:',opts:['Pessimistic','Optimistic and positive','Aggressive','Melancholy'],ans:1},
+];
+const BANK_LOGICAL=[
+  {id:'LR01',sub:'Number Series',diff:1,topic_tag:'Series',estimated_time:45,q:'3, 9, 27, 81, ? — Next term:',opts:['162','243','324','405'],ans:1},
+  {id:'LR02',sub:'Number Series',diff:1,topic_tag:'Series',estimated_time:45,q:'2, 6, 12, 20, 30, ? — Next term:',opts:['36','40','42','44'],ans:2},
+  {id:'LR03',sub:'Analogy',diff:1,topic_tag:'Analogy',estimated_time:45,q:'Eye : Sight :: Ear : ?',opts:['Face','Hearing','Touch','Smell'],ans:1},
+  {id:'LR04',sub:'Analogy',diff:2,topic_tag:'Analogy',estimated_time:50,q:'Calendar : Date :: Clock : ?',opts:['Hour','Time','Minute','Watch'],ans:1},
+  {id:'LR05',sub:'Blood Relations',diff:2,topic_tag:'Blood Relations',estimated_time:60,q:'A is father of B. B is sister of C. C is son of D. What is A to D?',opts:['Son-in-law','Father-in-law','Uncle','Brother-in-law'],ans:1},
+  {id:'LR06',sub:'Syllogism',diff:2,topic_tag:'Syllogism',estimated_time:60,q:'All A are B. Some B are C. Which definitely follows?',opts:['All A are C','Some A are C','No A is C','Cannot be determined'],ans:3},
+  {id:'LR07',sub:'Directions',diff:3,topic_tag:'Directions',estimated_time:75,q:'A walks 5km N, turns right, walks 3km, turns right, walks 5km. Distance from start?',opts:['3 km','5 km','8 km','0 km'],ans:0},
+  {id:'LR08',sub:'Clocks',diff:3,topic_tag:'Clocks',estimated_time:75,q:'Angle between clock hands at 3:30?',opts:['60°','65°','75°','90°'],ans:2},
+  {id:'LR09',sub:'Calendars',diff:3,topic_tag:'Calendars',estimated_time:70,q:'Jan 1, 2000 was Saturday. Jan 1, 2001 was:',opts:['Sunday','Monday','Tuesday','Wednesday'],ans:1},
+  {id:'LR10',sub:'Venn Diagrams',diff:3,topic_tag:'Venn Diagrams',estimated_time:80,q:'30 play cricket, 25 football, 15 both. How many play at least one?',opts:['40','45','50','55'],ans:0},
+  {id:'LR11',sub:'Coding-Decoding',diff:3,topic_tag:'Coding',estimated_time:70,q:'If BOOK=2+15+15+11=43, then PEN = ?',opts:['29','33','31','28'],ans:1},
+  {id:'LR12',sub:'Critical Reasoning',diff:4,topic_tag:'Critical Reasoning',estimated_time:100,q:'Only people who work hard get promoted. Rahul was not promoted. Therefore:',opts:['Rahul does not work hard','Rahul may not work hard','Rahul works hard','Cannot be determined'],ans:0},
+  {id:'LR13',sub:'Data Sufficiency',diff:4,topic_tag:'Data Sufficiency',estimated_time:90,q:'Is x>y? (1) x²>y² (2) x>0. Are both together sufficient?',opts:['Only (1)','Only (2)','Both together sufficient','Neither sufficient'],ans:2},
+  {id:'LR14',sub:'Seating',diff:4,topic_tag:'Seating Arrangement',estimated_time:95,q:'In ABCDE sitting in a row: A not at ends, D leftmost, B right of C. E can NOT be at:',opts:['1st (leftmost)','3rd','4th','5th'],ans:0},
+];
+const BANK_QUANT=[
+  {id:'QA01',sub:'Percentages',diff:1,topic_tag:'Percentages',estimated_time:50,q:'15% of 240 = ?',opts:['30','34','36','40'],ans:2},
+  {id:'QA02',sub:'Profit & Loss',diff:1,topic_tag:'Profit & Loss',estimated_time:55,q:'Sells at ₹120 with 20% profit. Cost price?',opts:['₹90','₹95','₹100','₹108'],ans:2},
+  {id:'QA03',sub:'Ratio & Proportion',diff:2,topic_tag:'Ratio',estimated_time:60,q:'A and B share ₹480 in ratio 5:7. B\'s share?',opts:['₹180','₹200','₹240','₹280'],ans:3},
+  {id:'QA04',sub:'Simple Interest',diff:2,topic_tag:'Interest',estimated_time:60,q:'SI on ₹5000 at 8% p.a. for 3 years?',opts:['₹900','₹1000','₹1200','₹1500'],ans:2},
+  {id:'QA05',sub:'Speed & Distance',diff:2,topic_tag:'Speed & Distance',estimated_time:65,q:'200m train passes a pole in 10 sec. Speed in km/h?',opts:['60','68','72','80'],ans:2},
+  {id:'QA06',sub:'Time & Work',diff:2,topic_tag:'Time & Work',estimated_time:65,q:'A does job in 10 days, B in 15 days. Together in?',opts:['5 days','6 days','7 days','8 days'],ans:1},
+  {id:'QA07',sub:'Ages',diff:2,topic_tag:'Ages',estimated_time:60,q:'Ravi is twice Sam\'s age. 5 yrs ago Ravi was 3× Sam. Ravi\'s age now?',opts:['15','20','25','30'],ans:1},
+  {id:'QA08',sub:'Compound Interest',diff:3,topic_tag:'Interest',estimated_time:80,q:'CI on ₹1000 at 10% p.a. for 2 years (compounded annually)?',opts:['₹200','₹210','₹220','₹190'],ans:1},
+  {id:'QA09',sub:'Mixture & Alligation',diff:3,topic_tag:'Mixtures',estimated_time:85,q:'40L mixture is 30% acid. Litres of water to make it 20% acid?',opts:['15L','20L','22L','25L'],ans:1},
+  {id:'QA10',sub:'Geometry',diff:3,topic_tag:'Geometry',estimated_time:80,q:'Diagonal of square = 10√2 cm. Area?',opts:['50 cm²','75 cm²','100 cm²','150 cm²'],ans:2},
+  {id:'QA11',sub:'Number Theory',diff:3,topic_tag:'Number Theory',estimated_time:75,q:'HCF of 120 and 180?',opts:['30','45','60','90'],ans:2},
+  {id:'QA12',sub:'Probability',diff:3,topic_tag:'Probability',estimated_time:80,q:'Bag: 5 red, 4 green. P(drawing 2 red balls)?',opts:['5/18','10/18','5/9','4/9'],ans:0},
+  {id:'QA13',sub:'Algebra',diff:3,topic_tag:'Algebra',estimated_time:75,q:'x + 1/x = 5. Find x² + 1/x².',opts:['21','23','25','27'],ans:1},
+  {id:'QA14',sub:'Permutations',diff:4,topic_tag:'Combinatorics',estimated_time:100,q:'5 people in a row — number of arrangements?',opts:['60','100','120','240'],ans:2},
+  {id:'QA15',sub:'Number Theory',diff:4,topic_tag:'Number Theory',estimated_time:90,q:'x²+y²=25, xy=12. Find x⁴+y⁴.',opts:['337','338','400','625'],ans:0},
+  {id:'QA16',sub:'Logarithms',diff:4,topic_tag:'Logarithms',estimated_time:90,q:'log₁₀(2)=0.3010. Find log₁₀(8).',opts:['0.6020','0.9030','0.3010','0.2408'],ans:1},
+  {id:'QA17',sub:'Sequences',diff:4,topic_tag:'Sequences',estimated_time:95,q:'Sum of first 20 terms of AP: 5,8,11,14,…?',opts:['650','680','710','740'],ans:0},
+  {id:'QA18',sub:'Geometry',diff:5,topic_tag:'Geometry',estimated_time:110,q:'Cone: radius=6cm, height=8cm. Slant height?',opts:['9cm','10cm','12cm','14cm'],ans:1},
+];
+const BANK_DI=[
+  {id:'DI01',sub:'Table Reading',diff:2,topic_tag:'DI',estimated_time:75,q:'Sales (₹Cr): Q1=45,Q2=52,Q3=48,Q4=55. Highest QoQ growth?',opts:['Q2','Q3','Q4','Equal'],ans:0},
+  {id:'DI02',sub:'Table Reading',diff:2,topic_tag:'DI',estimated_time:75,q:'Same data. Total annual sales?',opts:['₹190Cr','₹195Cr','₹200Cr','₹205Cr'],ans:2},
+  {id:'DI03',sub:'Percentage Change',diff:3,topic_tag:'DI',estimated_time:85,q:'Sales: ₹45Cr to ₹52Cr in Q2. % increase ≈?',opts:['13.3%','14.1%','15.6%','16.2%'],ans:2},
+  {id:'DI04',sub:'Average',diff:2,topic_tag:'DI',estimated_time:70,q:'Average quarterly sales from same table?',opts:['₹47Cr','₹48.75Cr','₹50Cr','₹52Cr'],ans:1},
+  {id:'DI05',sub:'Bar Chart',diff:2,topic_tag:'DI',estimated_time:80,q:'Employees: IT=120,Mktg=80,Ops=60,HR=40. IT is what % of total?',opts:['30%','35%','40%','42%'],ans:2},
+  {id:'DI06',sub:'Bar Chart',diff:3,topic_tag:'DI',estimated_time:85,q:'Same data. Ratio of IT to non-IT employees?',opts:['2:3','3:2','4:5','2:1'],ans:1},
+  {id:'DI07',sub:'Mixed Data',diff:4,topic_tag:'DI',estimated_time:100,q:'IT: ₹120Cr/120 staff; Mktg: ₹60Cr/80 staff. Higher revenue/head?',opts:['IT','Marketing','Equal','Cannot determine'],ans:0},
+  {id:'DI08',sub:'Pie Chart',diff:3,topic_tag:'DI',estimated_time:85,q:'Budget ₹200Cr: Salary 40%, R&D 25%, Mktg 20%, Others 15%. R&D spend?',opts:['₹40Cr','₹45Cr','₹50Cr','₹55Cr'],ans:2},
+];
+const BANK_AUTOMATA=[
+  {id:'AT01',sub:'DFA/NFA',diff:2,topic_tag:'Finite Automata',estimated_time:70,q:'Which is NOT a property of a DFA?',opts:['Exactly one start state','Total transition function','Multiple transitions for same input','Finite-step acceptance'],ans:2},
+  {id:'AT02',sub:'DFA/NFA',diff:2,topic_tag:'Finite Automata',estimated_time:70,q:'NFA with n states → equivalent DFA has at most how many states?',opts:['n','n²','2ⁿ','n!'],ans:2},
+  {id:'AT03',sub:'Regular Languages',diff:2,topic_tag:'Regular Languages',estimated_time:65,q:'Which language is NOT regular?',opts:['L={aⁿbⁿ | n≥0}','L={w | w ends in 00}','L={a,b}*','L={w | w contains "aba"}'],ans:0},
+  {id:'AT04',sub:'Regular Expressions',diff:2,topic_tag:'Regular Expressions',estimated_time:65,q:'(a+b)*abb generates:',opts:['All strings ending in abb','All strings containing abb','All strings starting with abb','All strings over {a,b}'],ans:0},
+  {id:'AT05',sub:'Context-Free Grammars',diff:3,topic_tag:'CFG',estimated_time:85,q:'L={aⁿbⁿ | n≥1} is:',opts:['Regular','Context-Free but not Regular','Context-Sensitive but not CF','Recursively Enumerable only'],ans:1},
+  {id:'AT06',sub:'Pushdown Automata',diff:3,topic_tag:'PDA',estimated_time:90,q:'A PDA differs from DFA primarily because:',opts:['Reads input bidirectionally','It has a stack memory','Has multiple start states','Only uses non-determinism'],ans:1},
+  {id:'AT07',sub:'Turing Machines',diff:3,topic_tag:'Turing Machines',estimated_time:90,q:'A TM that always halts on all inputs is called:',opts:['Decidable','Recognizable','Enumerator','Universal TM'],ans:0},
+  {id:'AT08',sub:'Pumping Lemma',diff:4,topic_tag:'Pumping Lemma',estimated_time:110,q:'The Pumping Lemma for regular languages is used to:',opts:['Prove a language IS regular','Prove a language is NOT regular','Construct a DFA','Simplify a grammar'],ans:1},
+  {id:'AT09',sub:'Complexity',diff:4,topic_tag:'Complexity',estimated_time:100,q:'The Halting Problem is:',opts:['Decidable','Semi-decidable but not Decidable','Context-Free','P-complete'],ans:1},
+  {id:'AT10',sub:'Complexity',diff:4,topic_tag:'Complexity',estimated_time:100,q:'If P=NP, which is true?',opts:['All NP solvable in poly time','P becomes NP-Hard','All problems decidable','NP-Complete unsolvable'],ans:0},
+  {id:'AT11',sub:'Chomsky Hierarchy',diff:3,topic_tag:'Chomsky Hierarchy',estimated_time:85,q:'Type 2 grammars (Chomsky) correspond to:',opts:['Regular languages','Context-Free languages','Context-Sensitive','Unrestricted'],ans:1},
+  {id:'AT12',sub:'DFA/NFA',diff:3,topic_tag:'Finite Automata',estimated_time:80,q:'Minimum DFA for "even number of 0s" has:',opts:['1 state','2 states','3 states','4 states'],ans:1},
+];
+const BANK_BRANCHES={
+  robotics:[
+    {id:'RB01',sub:'Microcontrollers',diff:2,topic_tag:'8051',estimated_time:70,q:'The 8051 microcontroller has how many I/O ports?',opts:['2','4','6','8'],ans:1},
+    {id:'RB02',sub:'Microcontrollers',diff:2,topic_tag:'Arduino',estimated_time:65,q:'Arduino Uno\'s MCU clock speed?',opts:['8 MHz','16 MHz','32 MHz','64 MHz'],ans:1},
+    {id:'RB03',sub:'Microcontrollers',diff:3,topic_tag:'ESP32',estimated_time:80,q:'ESP32 natively supports which wireless protocols?',opts:['Only WiFi','Only Bluetooth','WiFi and Bluetooth','WiFi, Bluetooth and Zigbee'],ans:2},
+    {id:'RB04',sub:'Microcontrollers',diff:3,topic_tag:'8051',estimated_time:85,q:'8051 DPTR (Data Pointer) is a __ register:',opts:['8-bit','16-bit','32-bit','4-bit'],ans:1},
+    {id:'RB05',sub:'Control Systems',diff:2,topic_tag:'PID Control',estimated_time:70,q:'PID Integral (I) term is used to:',opts:['Predict future errors','Eliminate steady-state error','Reduce overshoot only','Improve rise time only'],ans:1},
+    {id:'RB06',sub:'Control Systems',diff:3,topic_tag:'PID Control',estimated_time:85,q:'Increasing Derivative (D) gain in PID:',opts:['Increases steady-state error','Reduces noise sensitivity','Reduces overshoot; improves stability','Increases oscillation'],ans:2},
+    {id:'RB07',sub:'Control Systems',diff:3,topic_tag:'Stability',estimated_time:90,q:'BIBO stable system requires impulse response to be:',opts:['Absolutely integrable','Periodic','Unbounded','Sinusoidal'],ans:0},
+    {id:'RB08',sub:'Control Systems',diff:4,topic_tag:'Transfer Functions',estimated_time:100,q:'Transfer function of unity feedback system with G(s):',opts:['G(s)','G(s)/(1+G(s))','1/(1+G(s))','G(s)·(1+G(s))'],ans:1},
+    {id:'RB09',sub:'Sensors',diff:2,topic_tag:'Sensors',estimated_time:65,q:'LVDT measures:',opts:['Temperature','Pressure','Linear displacement','Rotational speed'],ans:2},
+    {id:'RB10',sub:'Sensors',diff:2,topic_tag:'Sensors',estimated_time:65,q:'An optical encoder converts:',opts:['Light to temperature','Mechanical position to digital pulses','Digital signals to motion','Pressure to voltage'],ans:1},
+    {id:'RB11',sub:'Sensors',diff:3,topic_tag:'Mechatronics',estimated_time:80,q:'Mechatronics is best described as:',opts:['Pure mechanical engineering','Integration of mechanics, electronics, and computing','A type of robotics only','Only about control systems'],ans:1},
+    {id:'RB12',sub:'Control Systems',diff:4,topic_tag:'PID Tuning',estimated_time:105,q:'Ziegler-Nichols tuning method is used for:',opts:['First-order systems','PID controller tuning','Kalman filter design','FFT analysis'],ans:1},
+    {id:'RB13',sub:'Microcontrollers',diff:3,topic_tag:'ESP32',estimated_time:85,q:'ESP32 dual-core Tensilica LX6 max clock speed:',opts:['80 MHz','160 MHz','240 MHz','320 MHz'],ans:2},
+    {id:'RB14',sub:'Sensors',diff:3,topic_tag:'Actuators',estimated_time:80,q:'Most common motor for precise position control in servo applications?',opts:['Stepper motor','DC shunt motor','Induction motor','Synchronous motor'],ans:0},
+    {id:'RB15',sub:'Control Systems',diff:3,topic_tag:'Feedback',estimated_time:85,q:'Negative feedback in a control system generally:',opts:['Increases gain','Reduces stability','Improves stability and reduces sensitivity','Increases bandwidth only'],ans:2},
+  ],
+  cs:[
+    {id:'CS01',sub:'OS',diff:2,topic_tag:'Operating Systems',estimated_time:70,q:'Algorithm minimizing average waiting time?',opts:['FCFS','Shortest Job First','Round Robin','Priority'],ans:1},
+    {id:'CS02',sub:'OS',diff:3,topic_tag:'Operating Systems',estimated_time:80,q:'Deadlock requires all four Coffman conditions. Which is NOT one?',opts:['Mutual Exclusion','Hold and Wait','No Preemption','Circular Wait and Starvation'],ans:3},
+    {id:'CS03',sub:'OS',diff:3,topic_tag:'Virtual Memory',estimated_time:85,q:'OPT page replacement is:',opts:['Implementable','Theoretically optimal but not implementable','Equivalent to LRU','Always worse than FIFO'],ans:1},
+    {id:'CS04',sub:'Networks',diff:2,topic_tag:'Computer Networks',estimated_time:70,q:'HTTP operates at which OSI layer?',opts:['Layer 3','Layer 4','Layer 5','Layer 7'],ans:3},
+    {id:'CS05',sub:'Networks',diff:3,topic_tag:'Computer Networks',estimated_time:80,q:'OSPF uses which routing algorithm?',opts:['Bellman-Ford','Dijkstra\'s SPF','Floyd-Warshall','Prim\'s'],ans:1},
+    {id:'CS06',sub:'DBMS',diff:2,topic_tag:'DBMS',estimated_time:70,q:'ACID stands for:',opts:['Atomicity, Consistency, Isolation, Durability','Accuracy, Concurrency, Integrity, Dependability','Atomicity, Currency, Isolation, Distribution','Availability, Consistency, Integrity, Dependability'],ans:0},
+    {id:'CS07',sub:'DBMS',diff:3,topic_tag:'DBMS',estimated_time:85,q:'3NF relation has:',opts:['No partial/transitive dependencies','No functional dependencies','Only a primary key','No NULL values'],ans:0},
+    {id:'CS08',sub:'DSA',diff:3,topic_tag:'Data Structures',estimated_time:85,q:'Insert into AVL Tree (balanced BST) time complexity?',opts:['O(1)','O(log n)','O(n)','O(n log n)'],ans:1},
+    {id:'CS09',sub:'Algorithms',diff:3,topic_tag:'Algorithms',estimated_time:90,q:'QuickSort worst-case time complexity?',opts:['O(n log n)','O(n²)','O(n)','O(log n)'],ans:1},
+    {id:'CS10',sub:'DSA',diff:4,topic_tag:'Data Structures',estimated_time:100,q:'Find minimum in min-heap with n elements:',opts:['O(log n)','O(n)','O(1)','O(n log n)'],ans:2},
+    {id:'CS11',sub:'OS',diff:4,topic_tag:'Operating Systems',estimated_time:100,q:'Banker\'s Algorithm is used for:',opts:['Memory allocation','Deadlock avoidance','CPU scheduling','Page replacement'],ans:1},
+    {id:'CS12',sub:'Networks',diff:4,topic_tag:'Computer Networks',estimated_time:95,q:'TCP slow start doubles congestion window every:',opts:['Second','RTT','Packet loss event','Timeout'],ans:1},
+    {id:'CS13',sub:'DBMS',diff:4,topic_tag:'DBMS',estimated_time:100,q:'Two-Phase Locking ensures:',opts:['Atomicity','Serializability','Isolation only','All ACID'],ans:1},
+    {id:'CS14',sub:'Algorithms',diff:4,topic_tag:'Algorithms',estimated_time:105,q:'0/1 Knapsack solved optimally using:',opts:['Greedy','Dynamic Programming','Divide and Conquer','Backtracking only'],ans:1},
+    {id:'CS15',sub:'DSA',diff:5,topic_tag:'Data Structures',estimated_time:115,q:'Amortized complexity of dynamic array push (doubling)?',opts:['O(n)','O(log n)','O(1)','O(n²)'],ans:2},
+  ],
+  me:[
+    {id:'ME01',sub:'Thermodynamics',diff:2,topic_tag:'Thermodynamics',estimated_time:70,q:'Carnot efficiency depends on:',opts:['Working fluid only','Hot and cold reservoir temperatures','Pressure only','Volume of cylinder'],ans:1},
+    {id:'ME02',sub:'Thermodynamics',diff:2,topic_tag:'Thermodynamics',estimated_time:70,q:'First law of thermodynamics:',opts:['Entropy always increases','Energy cannot be created or destroyed','Heat flows cold to hot','P×V=constant'],ans:1},
+    {id:'ME03',sub:'Fluid Mechanics',diff:2,topic_tag:'Fluid Mechanics',estimated_time:70,q:'Bernoulli\'s equation is based on:',opts:['Mass conservation','Energy conservation','Momentum conservation','Continuity only'],ans:1},
+    {id:'ME04',sub:'Manufacturing',diff:2,topic_tag:'Manufacturing',estimated_time:65,q:'Turning produces:',opts:['Flat surfaces','Cylindrical parts by removing material','Joins two metals','Bends metal'],ans:1},
+    {id:'ME05',sub:'Kinematics',diff:3,topic_tag:'Kinematics',estimated_time:85,q:'A slider-crank mechanism converts:',opts:['Rotary to linear only','Linear to rotary only','Both (depending on driver)','Oscillatory to linear'],ans:2},
+    {id:'ME06',sub:'Thermodynamics',diff:3,topic_tag:'Thermodynamics',estimated_time:85,q:'Otto cycle models:',opts:['Diesel engines','Petrol (spark ignition) engines','Jet engines','Refrigerators'],ans:1},
+    {id:'ME07',sub:'Fluid Mechanics',diff:3,topic_tag:'Fluid Mechanics',estimated_time:90,q:'Turbulent flow when Reynolds number Re >',opts:['1000','2000','4000','10000'],ans:2},
+    {id:'ME08',sub:'Strength of Materials',diff:3,topic_tag:'SoM',estimated_time:85,q:'Hooke\'s Law holds within the:',opts:['Plastic limit','Elastic limit','Ultimate tensile strength','Fracture point'],ans:1},
+    {id:'ME09',sub:'Manufacturing',diff:4,topic_tag:'Manufacturing',estimated_time:100,q:'Surface roughness in CNC most affected by:',opts:['Feed rate and tool nose radius','Spindle speed only','Coolant type','Material hardness only'],ans:0},
+    {id:'ME10',sub:'Thermodynamics',diff:4,topic_tag:'Thermodynamics',estimated_time:100,q:'COP of refrigerator =',opts:['Work/Heat removed','Heat removed/Work input','Heat added/Work','Work/Heat added'],ans:1},
+  ],
+  ec:[
+    {id:'EC01',sub:'Analog',diff:2,topic_tag:'Analog Electronics',estimated_time:70,q:'Common-emitter BJT voltage gain is:',opts:['Very low (<1)','High (>>1)','Exactly 1','Zero'],ans:1},
+    {id:'EC02',sub:'Digital',diff:2,topic_tag:'Digital Electronics',estimated_time:65,q:'NAND gate is functionally complete because:',opts:['Only implements OR and NOT','Implements AND, OR, and NOT','Faster than other gates','Uses less power'],ans:1},
+    {id:'EC03',sub:'Signals',diff:2,topic_tag:'Signals & Systems',estimated_time:70,q:'Fourier Transform converts signal from:',opts:['Amplitude to phase','Time to frequency domain','Frequency to Laplace','Digital to analog'],ans:1},
+    {id:'EC04',sub:'Communication',diff:2,topic_tag:'Communication',estimated_time:70,q:'AM bandwidth equals:',opts:['Carrier frequency','Twice message bandwidth','Half message bandwidth','Message bandwidth'],ans:1},
+    {id:'EC05',sub:'VLSI',diff:3,topic_tag:'VLSI',estimated_time:85,q:'CMOS static power dissipation is:',opts:['High','Very low (nearly zero)','Equal to NMOS','Temperature-dependent only'],ans:1},
+    {id:'EC06',sub:'Analog',diff:3,topic_tag:'Op-Amps',estimated_time:85,q:'Ideal op-amp has:',opts:['Finite input, infinite output impedance','Infinite input, zero output impedance','Zero gain','Finite bandwidth'],ans:1},
+    {id:'EC07',sub:'Digital',diff:3,topic_tag:'Digital Electronics',estimated_time:80,q:'D flip-flop stores:',opts:['2 bits','Previous state indefinitely','Value of D at clock edge','Complement of D'],ans:2},
+    {id:'EC08',sub:'Signals',diff:4,topic_tag:'Signals & Systems',estimated_time:100,q:'Nyquist theorem: sampling rate must be at least:',opts:['Signal frequency','2× max signal frequency','Half signal frequency','10× signal frequency'],ans:1},
+    {id:'EC09',sub:'VLSI',diff:4,topic_tag:'VLSI',estimated_time:100,q:'Moore\'s Law: transistor count doubles approximately every:',opts:['1 year','2 years','5 years','10 years'],ans:1},
+    {id:'EC10',sub:'Communication',diff:4,topic_tag:'Communication',estimated_time:100,q:'Shannon\'s channel capacity C = ?',opts:['B log₂(1+S/N)','B×SNR','S/N×B²','log₂(B×S/N)'],ans:0},
+  ],
+  civil:[
+    {id:'CI01',sub:'Structural',diff:2,topic_tag:'Structures',estimated_time:70,q:'Cantilever deflection under point load P at free end:',opts:['PL³/2EI','PL³/3EI','PL²/2EI','PL/EI'],ans:1},
+    {id:'CI02',sub:'Fluid Mechanics',diff:2,topic_tag:'Hydraulics',estimated_time:70,q:'Hydrostatic pressure at depth h in fluid density ρ:',opts:['ρh','ρgh','ρg/h','ρg²h'],ans:1},
+    {id:'CI03',sub:'Geotechnical',diff:2,topic_tag:'Soil Mechanics',estimated_time:70,q:'Mohr-Coulomb shear strength equation:',opts:['τ=c+σtan(φ)','τ=c×σ','τ=σ/tan(φ)','τ=c-σtan(φ)'],ans:0},
+    {id:'CI04',sub:'Structural',diff:3,topic_tag:'Structures',estimated_time:85,q:'Simply supported beam: degree of static indeterminacy?',opts:['0','1','2','-1'],ans:0},
+    {id:'CI05',sub:'Transportation',diff:2,topic_tag:'Transportation',estimated_time:65,q:'CBR test is used to design:',opts:['Bridge foundations','Flexible pavement thickness','Retaining walls','Dam foundations'],ans:1},
+    {id:'CI06',sub:'Concrete',diff:3,topic_tag:'Concrete Technology',estimated_time:85,q:'Water-cement ratio primarily affects:',opts:['Setting time only','Strength and workability','Colour','Aggregate bonding only'],ans:1},
+    {id:'CI07',sub:'Fluid Mechanics',diff:3,topic_tag:'Hydraulics',estimated_time:90,q:'Venturimeter converging section purpose:',opts:['Measure flow rate via Bernoulli','Increase velocity only','Create turbulent flow','Measure viscosity'],ans:0},
+    {id:'CI08',sub:'Structural',diff:4,topic_tag:'Structures',estimated_time:105,q:'Truss member carrying zero force is called:',opts:['Redundant member','Zero-force member','Primary member','Secondary member'],ans:1},
+    {id:'CI09',sub:'Geotechnical',diff:4,topic_tag:'Soil Mechanics',estimated_time:100,q:'Proctor\'s compaction test determines:',opts:['Shear strength','Optimum moisture content for max dry density','Permeability','Consolidation settlement'],ans:1},
+    {id:'CI10',sub:'Concrete',diff:4,topic_tag:'Concrete Technology',estimated_time:100,q:'M25 grade concrete means characteristic compressive strength of:',opts:['25 kN/m²','25 MPa (N/mm²)','25 kPa','250 N/mm²'],ans:1},
+  ],
+  gen:[
+    {id:'GN01',sub:'Management',diff:2,topic_tag:'Management',estimated_time:65,q:'SWOT stands for:',opts:['Strengths,Weaknesses,Objectives,Threats','Strengths,Weaknesses,Opportunities,Threats','Strategy,Workflow,Operations,Tactics','Skills,Workforce,Outlook,Targets'],ans:1},
+    {id:'GN02',sub:'Finance',diff:2,topic_tag:'Finance',estimated_time:65,q:'NPV > 0 indicates a project should be:',opts:['Rejected','Accepted','Break-even','Deferred'],ans:1},
+    {id:'GN03',sub:'Economics',diff:2,topic_tag:'Economics',estimated_time:65,q:'Law of diminishing marginal utility:',opts:['Total utility always decreases','Marginal utility decreases as consumption increases','Price and demand directly related','Supply equals demand always'],ans:1},
+    {id:'GN04',sub:'Statistics',diff:2,topic_tag:'Statistics',estimated_time:70,q:'Most affected by extreme values:',opts:['Mode','Median','Mean','Range'],ans:2},
+    {id:'GN05',sub:'Management',diff:3,topic_tag:'Management',estimated_time:80,q:'Maslow\'s hierarchy base to top:',opts:['Safety,Physiological,Social,Esteem,Self-actualization','Physiological,Safety,Social,Esteem,Self-actualization','Social,Safety,Physiological,Esteem,Self-actualization','Esteem,Safety,Social,Physiological,Self-actualization'],ans:1},
+    {id:'GN06',sub:'Finance',diff:3,topic_tag:'Finance',estimated_time:85,q:'Beta (β) in CAPM measures:',opts:['Total risk','Systematic (market) risk','Unsystematic risk','Risk-free rate'],ans:1},
+    {id:'GN07',sub:'Operations Research',diff:3,topic_tag:'Operations',estimated_time:85,q:'In Linear Programming, optimal solution is at:',opts:['Center of feasible region','Corner (vertex) of feasible region','Any interior point','On objective function'],ans:1},
+    {id:'GN08',sub:'Management',diff:3,topic_tag:'Management',estimated_time:80,q:'Herzberg\'s Two-Factor Theory distinguishes:',opts:['Type A and B workers','Hygiene factors and Motivators','Extrinsic and intrinsic goals','Theory X and Y managers'],ans:1},
+    {id:'GN09',sub:'Economics',diff:4,topic_tag:'Economics',estimated_time:100,q:'Gini coefficient measures:',opts:['GDP growth rate','Income inequality','Unemployment rate','Inflation rate'],ans:1},
+    {id:'GN10',sub:'Finance',diff:4,topic_tag:'Finance',estimated_time:100,q:'Bond duration measures sensitivity to:',opts:['Credit risk','Interest rate changes','Inflation','Currency risk'],ans:1},
+  ]
+};
+const PERS_Q=[
+  {text:'I enjoy being the centre of attention at social gatherings.',trait:'E'},
+  {text:'I complete tasks methodically and to a high standard.',trait:'C'},
+  {text:'I remain calm and composed in stressful situations.',trait:'ES'},
+  {text:'I try to be courteous to everyone I meet.',trait:'A'},
+  {text:'I enjoy exploring abstract ideas and theories.',trait:'O'},
+  {text:'I find it easy to start conversations with strangers.',trait:'E'},
+  {text:'I always prepare a plan before beginning a task.',trait:'C'},
+  {text:'I rarely feel anxious or worried about things.',trait:'ES'},
+  {text:'I tend to assume the best about people.',trait:'A'},
+  {text:'I seek out new experiences and enjoy novelty.',trait:'O'},
+  {text:'I often take charge in group situations.',trait:'E'},
+  {text:'I pay attention to every detail in my work.',trait:'C'},
+  {text:'I handle criticism without becoming upset.',trait:'ES'},
+  {text:'I am sympathetic to others\' problems.',trait:'A'},
+  {text:'I enjoy artistic or creative activities.',trait:'O'},
+  {text:'I prefer working with others to working alone.',trait:'E'},
+  {text:'I set high standards and consistently meet deadlines.',trait:'C'},
+  {text:'I am generally in a good mood.',trait:'ES'},
+  {text:'I make time to help others, even when busy.',trait:'A'},
+  {text:'I like to think about complex philosophical questions.',trait:'O'},
+  {text:'I feel energized after time with large groups of people.',trait:'E'},
+  {text:'I keep my workspace organized and tidy.',trait:'C'},
+  {text:'I can manage my emotions well under pressure.',trait:'ES'},
+  {text:'I avoid hurting others\' feelings when possible.',trait:'A'},
+  {text:'I appreciate beauty in art, music, and nature.',trait:'O'},
+  {text:'I am talkative and outgoing.',trait:'E'},
+  {text:'I am reliable and follow through on commitments.',trait:'C'},
+  {text:'I rarely get irritated by small setbacks.',trait:'ES'},
+  {text:'I am considerate and kind to nearly everyone.',trait:'A'},
+  {text:'I enjoy reading broadly on diverse topics.',trait:'O'},
+  {text:'I feel comfortable being the focus of attention.',trait:'E'},
+  {text:'I think carefully before making decisions.',trait:'C'},
+  {text:'I feel emotionally stable most of the time.',trait:'ES'},
+  {text:'I try to understand the perspectives of others.',trait:'A'},
+  {text:'I have a vivid imagination.',trait:'O'},
+  {text:'I am assertive and confident in expressing views.',trait:'E'},
+  {text:'I am disciplined and follow a daily routine.',trait:'C'},
+  {text:'I recover quickly from difficult situations.',trait:'ES'},
+  {text:'I am cooperative and work well in teams.',trait:'A'},
+  {text:'I enjoy solving creative or novel problems.',trait:'O'},
+  {text:'I enjoy meeting new people regularly.',trait:'E'},
+  {text:'I double-check my work before submitting.',trait:'C'},
+  {text:'I feel secure and confident in my abilities.',trait:'ES'},
+  {text:'I avoid confrontation and prefer peaceful resolutions.',trait:'A'},
+  {text:'I am imaginative and like to think about possibilities.',trait:'O'},
+  {text:'I take initiative in social situations.',trait:'E'},
+  {text:'I work hard to meet the standards I set for myself.',trait:'C'},
+  {text:'I feel confident and secure in most situations.',trait:'ES'},
+  {text:'I am genuinely interested in other people\'s problems.',trait:'A'},
+  {text:'I enjoy visiting new places and experiencing different cultures.',trait:'O'},
+];
+const WX_PROMPTS=[
+  {topic:'Technology & Society',prompt:'<strong>Essay Topic:</strong> "The rapid advancement of Artificial Intelligence will create more jobs than it displaces in the coming decade."\n\nDo you agree or disagree? Present a structured argument with relevant examples. (200–350 words)'},
+  {topic:'Professional Development',prompt:'<strong>Essay Topic:</strong> "Soft skills — communication, adaptability, and emotional intelligence — are more important than technical skills for long-term career success."\n\nAgree or disagree? Support your position with examples. (200–350 words)'},
+  {topic:'Education Reform',prompt:'<strong>Essay Topic:</strong> "Marks and academic grades are not an accurate measure of a student\'s true potential or future success."\n\nPresent your perspective with structured arguments. (200–350 words)'},
+  {topic:'Remote Work',prompt:'<strong>Essay Topic:</strong> "Remote work has permanently changed the workplace for the better, benefiting both employees and organizations."\n\nDo you agree or disagree? (200–350 words)'},
+  {topic:'Leadership',prompt:'<strong>Essay Topic:</strong> "A great manager is more important to organizational success than innovative technology or abundant resources."\n\nTake a stance and support it with reasoned arguments. (200–350 words)'},
+];
+const CODE_SNIPPETS={
+  python:[
+    {title:'Fibonacci Bug',desc:'This recursive function should return the nth Fibonacci number. It has a logic error in the recursive call.',buggyLines:['def fibonacci(n):','    if n <= 0: return 0','    elif n == 1: return 1','    else:','        return fibonacci(n-1) + fibonacci(n-3)  # BUG HERE'],bugLine:4,hint:'The recursive case should sum the previous TWO Fibonacci numbers.',fix:'return fibonacci(n-1) + fibonacci(n-2)'},
+    {title:'List Reversal',desc:'Should reverse a list and return it. The slice step value is wrong.',buggyLines:['def reverse_list(lst):','    return lst[::-2]  # BUG HERE'],bugLine:1,hint:'To reverse a list with slicing, use step -1.',fix:'return lst[::-1]'},
+    {title:'Digit Sum',desc:'Should return sum of all digits of a number. Wrong modulo divisor.',buggyLines:['def digit_sum(n):','    total = 0','    while n > 0:','        total += n % 100  # BUG HERE','        n //= 10','    return total'],bugLine:3,hint:'Extract last digit using modulo 10, not 100.',fix:'total += n % 10'},
+    {title:'Binary Search',desc:'Binary search with off-by-one: upper bound should be len(arr)-1.',buggyLines:['def binary_search(arr, target):','    lo, hi = 0, len(arr)  # BUG HERE','    while lo <= hi:','        mid = (lo + hi) // 2','        if arr[mid] == target: return mid','        elif arr[mid] < target: lo = mid+1','        else: hi = mid-1','    return -1'],bugLine:1,hint:'Upper bound should be len(arr)-1 to avoid index out of range.',fix:'lo, hi = 0, len(arr) - 1'},
+    {title:'Palindrome Check',desc:'Should return True if string is a palindrome. Comparison is wrong.',buggyLines:['def is_palindrome(s):','    s = s.lower()','    return s == s[::-1] + s  # BUG HERE'],bugLine:2,hint:'A palindrome equals its own reverse — nothing extra appended.',fix:'return s == s[::-1]'},
+  ],
+  java:[
+    {title:'Array Max',desc:'Should find max value in integer array. Wrong initialization.',buggyLines:['public static int findMax(int[] arr) {','    int max = 0;  // BUG HERE','    for (int x : arr) {','        if (x > max) max = x;','    }','    return max;','}'],bugLine:1,hint:'Initialize max to arr[0] or Integer.MIN_VALUE to handle negative values.',fix:'int max = arr[0];'},
+    {title:'String Reverse',desc:'Reverse a String — loop bounds are wrong causing ArrayIndexOutOfBoundsException.',buggyLines:['public static String reverse(String s) {','    StringBuilder sb = new StringBuilder();','    for (int i = s.length(); i >= 0; i--) {  // BUG HERE','        sb.append(s.charAt(i));','    }','    return sb.toString();','}'],bugLine:2,hint:'Start at s.length()-1, not s.length().',fix:'for (int i = s.length() - 1; i >= 0; i--) {'},
+    {title:'Factorial',desc:'Recursive factorial — base case is wrong causing all results to be 0.',buggyLines:['public static long factorial(int n) {','    if (n == 0) return 0;  // BUG HERE','    return n * factorial(n - 1);','}'],bugLine:1,hint:'0! = 1, not 0. This causes all recursive results to multiply to zero.',fix:'if (n == 0) return 1;'},
+    {title:'LinkedList Count',desc:'Count nodes — traversal skips head node.',buggyLines:['public int count(Node head) {','    int c = 0;','    Node curr = head.next;  // BUG HERE','    while (curr != null) { c++; curr = curr.next; }','    return c;','}'],bugLine:2,hint:'Start from head, not head.next, to count all nodes.',fix:'Node curr = head;'},
+    {title:'Even Numbers',desc:'Should print even numbers 1-10 — condition is inverted.',buggyLines:['for (int i = 1; i <= 10; i++) {','    if (i % 2 != 0) {  // BUG HERE','        System.out.println(i);','    }','}'],bugLine:1,hint:'Even numbers have remainder 0 when divided by 2.',fix:'if (i % 2 == 0) {'},
+  ],
+  cpp:[
+    {title:'Pointer Swap',desc:'Should swap two integers via pointers — missing dereference operator.',buggyLines:['void swap(int* a, int* b) {','    int temp = a;  // BUG HERE','    a = b; b = temp;','}'],bugLine:1,hint:'Use * to dereference: int temp = *a; *a = *b; *b = temp;',fix:'int temp = *a; *a = *b; *b = temp;'},
+    {title:'Array Sum',desc:'Sum array — off-by-one in loop causes out-of-bounds access.',buggyLines:['int sumArray(int arr[], int n) {','    int sum = 0;','    for (int i = 0; i <= n; i++) {  // BUG HERE','        sum += arr[i];','    }','    return sum;','}'],bugLine:2,hint:'Array indices are 0 to n-1. Use i < n.',fix:'for (int i = 0; i < n; i++) {'},
+    {title:'String Length',desc:'Custom strlen — decrements instead of incrementing counter.',buggyLines:['int myStrlen(const char* s) {','    int len = 0;','    while (s[len] != \'\\0\') {','        len--;  // BUG HERE','    }','    return len;','}'],bugLine:3,hint:'Move forward through the string by incrementing len.',fix:'len++;'},
+    {title:'Constructor Bug',desc:'Rectangle constructor — uses == (comparison) instead of = (assignment).',buggyLines:['class Rectangle {','public:','    int w, h;','    Rectangle(int width, int height) {','        w == width;  // BUG HERE','        h == height;','    }','};'],bugLine:4,hint:'Use = for assignment, not == which is a comparison operator.',fix:'w = width; h = height;'},
+    {title:'Base Case Error',desc:'Power function — uses = instead of == in condition.',buggyLines:['double power(double base, int exp) {','    if (exp = 0) return 1;  // BUG HERE','    return base * power(base, exp - 1);','}'],bugLine:1,hint:'Use == for equality check. = assigns 0, which is always false.',fix:'if (exp == 0) return 1;'},
+  ],
+  c:[
+    {title:'Array Max',desc:'Find max in array — initializing to 0 fails for all-negative arrays.',buggyLines:['int findMax(int arr[], int n) {','    int max = 0;  // BUG HERE','    for (int i = 0; i < n; i++)','        if (arr[i] > max) max = arr[i];','    return max;','}'],bugLine:1,hint:'Initialize max to arr[0] to correctly handle negative values.',fix:'int max = arr[0];'},
+    {title:'String Length',desc:'Should count string length — decrements i instead of incrementing.',buggyLines:['int myLen(char* s) {','    int i = 0;','    while (s[i]) i--;  // BUG HERE','    return i;','}'],bugLine:2,hint:'Traverse forward through the string by incrementing i.',fix:'while (s[i]) i++;'},
+    {title:'Struct Pointer',desc:'Point struct init — uses . operator instead of -> for pointer.',buggyLines:['struct Point { int x; int y; };','void init(struct Point* p) {','    p.x = 10;  // BUG HERE','    p.y = 20;','}'],bugLine:2,hint:'For pointer to struct, use -> not . operator.',fix:'p->x = 10; p->y = 20;'},
+    {title:'Recursive Sum',desc:'Sum 1 to n recursively — base case returns 0 instead of 1.',buggyLines:['int sumN(int n) {','    if (n == 1) return 0;  // BUG HERE','    return n + sumN(n - 1);','}'],bugLine:1,hint:'sum(1) should return 1, not 0.',fix:'if (n == 1) return 1;'},
+    {title:'Malloc Check',desc:'Should check malloc return before use — missing null check.',buggyLines:['int* arr = (int*)malloc(n * sizeof(int));','// BUG: no null check before use','for (int i = 0; i < n; i++) arr[i] = i;'],bugLine:1,hint:'Always check if malloc returned NULL before dereferencing.',fix:'if (!arr) { fprintf(stderr,"malloc failed"); exit(1); }'},
+  ],
+  php:[
+    {title:'Array Append',desc:'Should append to end of array — uses wrong function that adds to beginning.',buggyLines:['<?php','$arr = [1, 2, 3];','array_unshift($arr, 4);  // BUG HERE','echo end($arr);'],bugLine:2,hint:'array_push() appends to end; array_unshift() prepends to start.',fix:'array_push($arr, 4);'},
+    {title:'Case-Insensitive Compare',desc:'Should compare strings case-insensitively — == is case-sensitive.',buggyLines:['<?php','$a = "Hello"; $b = "hello";','if ($a == $b) {  // BUG HERE','    echo "Equal";','}'],bugLine:2,hint:'Use strcasecmp() for case-insensitive comparison.',fix:'if (strcasecmp($a, $b) == 0) {'},
+    {title:'Loop Counter',desc:'Should print 1 to 5 — starts at 0 so prints 0 to 5.',buggyLines:['<?php','for ($i = 0; $i <= 5; $i++) {  // BUG HERE','    echo $i . "\\n";','}'],bugLine:1,hint:'Start loop at $i = 1 to print 1 through 5.',fix:'for ($i = 1; $i <= 5; $i++) {'},
+    {title:'JSON Variable',desc:'Variable name typo after json_decode.',buggyLines:['<?php','$json = \'{"name":"Alice","age":25}\';','$data = json_decode($json, true);','echo $dat["name"];  // BUG HERE'],bugLine:3,hint:'Variable is $data not $dat — check the name.',fix:'echo $data["name"];'},
+    {title:'Division Safety',desc:'Should divide safely — missing zero check causes division by zero error.',buggyLines:['<?php','function safeDivide($a, $b) {','    return $a / $b;  // BUG HERE — no zero check','}'],bugLine:2,hint:'Always check if divisor equals zero before dividing.',fix:'if ($b == 0) return null; return $a / $b;'},
+  ],
+};
+const BANK_SVAR=[
+  {section:'Situational Judgment',q:'You are given a project deadline impossible to meet with current resources. Your manager insists. You:',opts:['Agree and work unlimited overtime','Present a resource-deadline trade-off analysis and propose alternatives','Quietly miss the deadline and apologize','Delegate all work without informing anyone'],ans:1},
+  {section:'Situational Judgment',q:'A colleague takes credit for your idea in a meeting. You:',opts:['Confront them aggressively in the meeting','Calmly raise it privately with the colleague first','Complain to others but avoid direct action','Say nothing and accept it'],ans:1},
+  {section:'Situational Judgment',q:'During a client meeting, you realize your team\'s data is incorrect. You:',opts:['Continue to avoid embarrassment','Acknowledge the error and commit to correct data by a specific time','Blame a junior teammate in front of the client','End the meeting without explanation'],ans:1},
+  {section:'Situational Judgment',q:'You disagree with your manager\'s decision. Most professional approach:',opts:['Ignore the decision; do what you think is right','Publicly criticize the decision','Request a private meeting and share concerns with supporting data','Resign immediately'],ans:2},
+  {section:'Situational Judgment',q:'A peer consistently underperforms affecting project delivery. As a colleague you should:',opts:['Report them to HR immediately','Offer private, constructive support','Ignore it — not your responsibility','Publicly call them out in team meeting'],ans:1},
+  {section:'Situational Judgment',q:'Two urgent tasks arrive simultaneously from different managers. You:',opts:['Split attention between both','Inform both managers and ask for prioritization','Complete the senior manager\'s and ignore the other','Delay both until someone follows up'],ans:1},
+  {section:'Situational Judgment',q:'You discover a company policy that seems unethical but not illegal. You:',opts:['Immediately leak to media','Raise concern through proper internal channels (HR, ethics committee)','Ignore it — not your problem','Confront the CEO without prior escalation'],ans:1},
+  {section:'Situational Judgment',q:'A long-term client is unhappy with service quality. As account manager, first:',opts:['Apologize and offer a large discount immediately','Acknowledge concern, investigate root cause, set a resolution timeline','Blame internal teams to the client','Transfer account to another manager'],ans:1},
+  {section:'Situational Judgment',q:'In a brainstorm one member dominates and others stay silent. As facilitator:',opts:['Let them continue — best ideas anyway','Actively invite quieter members to contribute','Shut down the dominant member\'s input','End and restart the session later'],ans:1},
+  {section:'Situational Judgment',q:'Asked to sign off on a report with data you believe is inaccurate. You:',opts:['Sign to avoid delay','Raise the concern and request verification before signing','Sign but add a personal note of disagreement','Refuse without explanation'],ans:1},
+  {section:'Situational Judgment',q:'A new hire makes repeated mistakes. As their mentor:',opts:['Report to HR after first repeat','Identify if knowledge gap or process issue, then coach accordingly','Correct silently without telling them','Tell other colleagues about their struggles'],ans:1},
+  {section:'Situational Judgment',q:'Offered a significant pay raise by a competitor. Most professional response:',opts:['Accept immediately; email resignation same day','Use as leverage to threaten current employer','Have an honest conversation with manager about growth and compensation','Reject without further thought'],ans:2},
+  {section:'Communication',q:'Most professional email subject for a meeting summary:',opts:['Re: Stuff from the meeting','Meeting Summary — Project Alpha Kickoff — April 16, 2026','Meeting update pls read','Notes from today'],ans:1},
+  {section:'Communication',q:'Best approach for giving critical feedback to a peer:',opts:['Email a list of everything wrong','Use the SBI model (Situation, Behavior, Impact) — delivered privately','Share publicly for transparency','Avoid feedback to maintain harmony'],ans:1},
+  {section:'Communication',q:'Best opening to respond to an angry customer email:',opts:['I understand your frustration and apologize that this experience did not meet your expectations.','You are wrong about this.','Please calm down before contacting us again.','We cannot help you with this issue.'],ans:0},
+  {section:'Communication',q:'Presenting technical content to a non-technical audience, you should:',opts:['Use maximum acronyms to demonstrate expertise','Translate concepts into business impact using analogies and plain language','Present raw data and let them interpret it','Skip the Q&A to save time'],ans:1},
+  {section:'Communication',q:'Assertive communication means:',opts:['Expressing needs clearly while respecting others\' rights','Demanding outcomes regardless of others','Always agreeing to avoid conflict','Only speaking when spoken to'],ans:0},
+  {section:'Communication',q:'The most effective way to confirm shared understanding in a meeting:',opts:['Ask "Does everyone understand?"','Summarize key decisions and action items at the end','Send a follow-up email three days later','Assume understanding if no one raises concerns'],ans:1},
+  {section:'Communication',q:'Active listening includes:',opts:['Interrupting to show engagement','Formulating response while others speak','Paraphrasing the speaker\'s main points to confirm understanding','Occasionally checking your phone'],ans:2},
+  {section:'Communication',q:'When declining a request from a stakeholder, professionally you should:',opts:['Say no with no explanation','Ignore the request','Acknowledge, explain the reason, and offer an alternative','Agree and then fail to deliver'],ans:2},
+  {section:'Communication',q:'Cross-cultural communication best practice in international teams:',opts:['Assume everyone operates as you do','Be aware of cultural nuances, avoid idioms, confirm understanding','Use local slang to seem friendly','Avoid direct communication to prevent offence'],ans:1},
+  {section:'Communication',q:'When writing a formal business report, paragraphs should:',opts:['Be as long as possible','Focus on one main idea with a clear topic sentence','Consist exclusively of bullet points','Be written in first person throughout'],ans:1},
+];
+/* ═══════════════════════════════════════════════
+   APP STATE
+═══════════════════════════════════════════════ */
+const APP={
+  currentProduct:null,
+  products:{
+    1:{status:'available',report:null,bestScore:null},
+    2:{status:'available',report:null,bestScore:null},
+    3:{status:'available',report:null,bestScore:null},
+  },
+  p2Config:{lang:null,branch:null},
+  test:{productId:null,sections:[],secIdx:0,answers:[],theta:0,se:2.0,timeLeft:0,timer:null,qStartTime:0,answered:0,skipped:0,_onComplete:null,_nextAction:null,_selectedOpt:null},
+  writex:{essay:'',timeUsed:0,timer:null,promptIdx:0},
+  personality:{responses:{},qIdx:0},
+  codeFixer:{snippets:[],answers:[],qIdx:0,timer:null,timeLeft:0},
+  svar:{answers:[],qIdx:0,timer:null,timeLeft:0},
+};
+
+/* ═══════════════════════════════════════════════
+   IRT ENGINE (3PL)
+═══════════════════════════════════════════════ */
+const IRT={
+  P(t,a,b,c){return c+(1-c)/(1+Math.exp(-1.702*a*(t-b)));},
+  info(t,a,b,c){const p=this.P(t,a,b,c),q=1-p;return 1.702*1.702*a*a*(q/p)*Math.pow((p-c)/(1-c),2);},
+  update(theta,se,correct,a,b,c){
+    const p=this.P(theta,a,b,c),inf=this.info(theta,a,b,c);
+    const step=(correct?1:0)-p;
+    return {theta:Math.max(-3.5,Math.min(3.5,theta+(inf>0?step/inf*1.8:step*0.3))),se:Math.max(0.25,inf>0?1/Math.sqrt(inf):se*0.95)};
+  },
+  selectNext(bank,usedIds,theta){
+    const av=bank.filter(q=>!usedIds.has(q.id));
+    if(!av.length)return null;
+    return av.reduce((best,q)=>{
+      const bd=q.b!==undefined?q.b:(q.diff-2)*1.2,bestD=best.b!==undefined?best.b:(best.diff-2)*1.2;
+      return Math.abs(bd-theta)<Math.abs(bestD-theta)?q:best;
+    });
+  },
+  label(t){if(t>2)return'Expert';if(t>1)return'Advanced';if(t>0)return'Above Average';if(t>-1)return'Average';if(t>-2)return'Below Average';return'Developing';}
+};
+function enrich(bank){return bank.map(q=>({...q,a:q.a||(1.0+q.diff*0.2),b:q.b!==undefined?q.b:(q.diff-2)*1.2,c:q.c||0.20}));}
+
+/* ═══════════════════════════════════════════════
+   SCREEN MANAGER
+═══════════════════════════════════════════════ */
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const el=document.getElementById(id);
+  if(el){el.classList.add('active');window.scrollTo(0,0);}
+}
+function goHub(){clearAllTimers();renderHub();showScreen('hub');}
+function clearAllTimers(){
+  ['test','writex','codeFixer','svar'].forEach(k=>{if(APP[k]&&APP[k].timer){clearInterval(APP[k].timer);APP[k].timer=null;}});
+}
+
+/* ═══════════════════════════════════════════════
+   HUB RENDERER
+═══════════════════════════════════════════════ */
+const PMETA={
+  1:{label:'Product 01 · ~100 Min',color:'var(--p1)',cardClass:'pc-p1',btnClass:'btn-p1',title:'Core Cognitive &amp; Behavioral',sub:'Full AMCAT cognitive battery with WriteX essay evaluation and Big Five Personality Inventory.',sections:['Verbal English (16 Q)','Logical Reasoning (14 Q)','Quantitative Aptitude (18 Q)','Data Interpretation (8 Q)','WriteX Essay Module','Personality Inventory (50 Q)'],dots:['#60a5fa','#a78bfa','#22d3ee','#34d399','#fbbf24','#c084fc'],time:'~100 min',qs:'106+'},
+  2:{label:'Product 02 · ~70 Min',color:'var(--p2)',cardClass:'pc-p2',btnClass:'btn-p2',title:'Technical &amp; Domain Assessment',sub:'Automata Theory, Code Debugging (Automata Fix), and branch-specific Technical Questions.',sections:['Automata Theory (12 Q)','Code Fixer — 5 Debug Snippets','Branch Technical (15 Q)'],dots:['#60a5fa','#fbbf24','#f87171'],time:'~70 min',qs:'27+'},
+  3:{label:'Product 03 · Optional · ~35 Min',color:'var(--p3)',cardClass:'pc-p3',btnClass:'btn-p3',title:'SVAR &amp; Communication Intelligence',sub:'Situational Judgment Tests and professional Communication Intelligence assessment.',sections:['Situational Judgment (12 Q)','Communication Intelligence (10 Q)'],dots:['#34d399','#34d399'],time:'~35 min',qs:'22'},
+};
+function renderHub(){
+  const grid=document.getElementById('product-grid');
+  let completed=0,bestScore=0;
+  grid.innerHTML=[1,2,3].map(pid=>{
+    const m=PMETA[pid],p=APP.products[pid],done=p.status==='completed';
+    if(done){completed++;if(p.bestScore>bestScore)bestScore=p.bestScore;}
+    const status=done?`<span class="status-badge s-completed"><span class="status-dot"></span>Completed</span>`:`<span class="status-badge s-available"><span class="status-dot"></span>Available</span>`;
+    const secs=m.sections.map((s,i)=>`<div class="pc-sec"><span class="pc-sec-dot" style="background:${m.dots[i]||'var(--t3)'}"></span>${s}</div>`).join('');
+    const btns=done?`<button class="btn ${m.btnClass}" onclick="viewReport(${pid})">View Report</button><button class="btn btn-ghost btn-sm" onclick="openProduct(${pid})">Retake</button>`:`<button class="btn ${m.btnClass}" onclick="openProduct(${pid})">Start Test →</button>`;
+    return `<div class="product-card ${m.cardClass}"><div class="pc-num"><span>${m.label}</span>${status}</div><div class="pc-title">${m.title}</div><div class="pc-sub">${m.sub}</div><div class="pc-sections">${secs}</div><div class="pc-meta"><span class="pc-meta-item">⏱ ${m.time}</span><span class="pc-meta-item">📋 ${m.qs} Q</span>${done&&p.bestScore?`<span class="pc-meta-item" style="margin-left:auto;color:${m.color}">Best: ${p.bestScore}%</span>`:''}</div><div class="pc-actions">${btns}</div></div>`;
+  }).join('');
+  document.getElementById('hub-completed').textContent=completed;
+  document.getElementById('hub-best').textContent=bestScore?bestScore+'%':'—';
+  document.getElementById('hub-last').textContent='Today';
+}
+
+/* ═══════════════════════════════════════════════
+   PRODUCT LAUNCHERS
+═══════════════════════════════════════════════ */
+function openProduct(pid){APP.currentProduct=pid;if(pid===1)showScreen('p1-overview');else if(pid===2)showScreen('p2-config');else showScreen('p3-overview');}
+function viewReport(pid){APP.currentProduct=pid;renderReport(pid);showScreen('report-screen');}
+
+function startP1(){
+  const secs=[
+    {id:'english',name:'Verbal English',bank:enrich(BANK_ENGLISH),maxQ:16,timeMin:18,color:'#60a5fa'},
+    {id:'logical',name:'Logical Reasoning',bank:enrich(BANK_LOGICAL),maxQ:14,timeMin:16,color:'#a78bfa'},
+    {id:'quant',name:'Quantitative Aptitude',bank:enrich(BANK_QUANT),maxQ:18,timeMin:22,color:'#22d3ee'},
+    {id:'di',name:'Data Interpretation',bank:enrich(BANK_DI),maxQ:8,timeMin:12,color:'#34d399'},
+  ];
+  initTest(1,secs,()=>launchWritex());
+}
+
+function selectLang(lang){
+  APP.p2Config.lang=lang;
+  document.querySelectorAll('.lang-card').forEach(c=>c.classList.remove('selected'));
+  document.getElementById('lang-'+lang).classList.add('selected');
+  checkCfgReady();
+}
+function selectBranch(br){
+  APP.p2Config.branch=br;
+  document.querySelectorAll('.br-card').forEach(c=>c.classList.remove('selected'));
+  document.getElementById('br-'+br).classList.add('selected');
+  checkCfgReady();
+}
+function checkCfgReady(){document.getElementById('cfg-start-btn').disabled=!(APP.p2Config.lang&&APP.p2Config.branch);}
+
+function startP2(){
+  const bnames={robotics:'Robotics & AI',cs:'Computer Science / IT',me:'Mechanical Engineering',ec:'Electronics & Communication',civil:'Civil Engineering',gen:'General / MBA'};
+  const {lang,branch}=APP.p2Config;
+  document.getElementById('p2-ov-desc').textContent=`Language: ${lang.toUpperCase()} · Branch: ${bnames[branch]}. Sections: Automata Theory (12 Q), Code Fixer — 5 debugging challenges in ${lang.toUpperCase()}, and ${bnames[branch]} Technical (15 Q).`;
+  document.getElementById('p2-sec-list').innerHTML=`
+    <div class="sl-row"><div class="sl-num" style="background:rgba(21,101,216,.12);color:#60a5fa;border:1px solid rgba(21,101,216,.25)">01</div><div class="sl-info"><div class="sl-name">Automata Theory</div><div class="sl-meta">DFA/NFA · Regular Languages · CFG · Turing Machines · Complexity Theory</div></div><div class="sl-pills"><span class="pill pill-blue">12 Q</span><span class="pill pill-gray">20 MIN</span></div></div>
+    <div class="sl-row"><div class="sl-num" style="background:rgba(217,119,6,.12);color:#fbbf24;border:1px solid rgba(217,119,6,.25)">02</div><div class="sl-info"><div class="sl-name">Automata Fix — Code Debugger (${lang.toUpperCase()})</div><div class="sl-meta">Debug 5 real broken ${lang} snippets in a professional code editor UI</div></div><div class="sl-pills"><span class="pill pill-amber">5 Snippets</span><span class="pill pill-gray">25 MIN</span></div></div>
+    <div class="sl-row"><div class="sl-num" style="background:rgba(220,38,38,.12);color:#f87171;border:1px solid rgba(220,38,38,.25)">03</div><div class="sl-info"><div class="sl-name">${bnames[branch]} Technical</div><div class="sl-meta">Branch-specific AMCAT domain questions</div></div><div class="sl-pills"><span class="pill pill-red">15 Q</span><span class="pill pill-gray">25 MIN</span></div></div>`;
+  showScreen('p2-overview');
+}
+
+function launchP2(){
+  const brBank=enrich(BANK_BRANCHES[APP.p2Config.branch]||BANK_BRANCHES.cs);
+  const bnames={robotics:'Robotics & AI',cs:'CS / IT',me:'Mechanical',ec:'Electronics',civil:'Civil',gen:'General'};
+  const secs=[
+    {id:'automata',name:'Automata Theory',bank:enrich(BANK_AUTOMATA),maxQ:12,timeMin:20,color:'#60a5fa'},
+    {id:'branch',name:`${bnames[APP.p2Config.branch]} Technical`,bank:brBank,maxQ:15,timeMin:25,color:'#f87171'},
+  ];
+  initTest(2,secs,()=>launchCodeFixer());
+}
+
+function startP3(){initSvar();}
+
+/* ═══════════════════════════════════════════════
+   UNIVERSAL TEST ENGINE
+═══════════════════════════════════════════════ */
+function initTest(productId,sections,onComplete){
+  Object.assign(APP.test,{productId,sections,secIdx:0,answers:[],theta:0,se:2.0,answered:0,skipped:0,_onComplete:onComplete,_nextAction:null,_selectedOpt:null});
+  sections.forEach(s=>{s.usedIds=new Set();s.history=[];});
+  document.getElementById('tsb-sec-list').innerHTML=sections.map((s,i)=>`<div class="sp-item" id="sp-${i}"><span class="sp-dot"></span>${s.name}</div>`).join('');
+  document.getElementById('sb-product').textContent=`Product ${productId}`;
+  loadSection(0);
+  showScreen('test-screen');
+}
+
+function loadSection(idx){
+  const s=APP.test.sections[idx];
+  APP.test.secIdx=idx;
+  APP.test.timeLeft=s.timeMin*60;
+  APP.test.sections.forEach((_,i)=>{const el=document.getElementById('sp-'+i);if(el)el.className='sp-item'+(i===idx?' sp-active':i<idx?' sp-done':'');});
+  document.getElementById('ttb-sec-name').textContent=s.name;
+  if(APP.test.timer){clearInterval(APP.test.timer);}
+  APP.test.timer=setInterval(()=>{
+    APP.test.timeLeft--;updateTimerDisplay();
+    if(APP.test.timeLeft<=0){clearInterval(APP.test.timer);APP.test.timer=null;finishSection(true);}
+  },1000);
+  updateTimerDisplay();
+  loadNextQuestion();
+}
+
+function loadNextQuestion(){
+  const sec=APP.test.sections[APP.test.secIdx];
+  if(sec.history.length>=sec.maxQ){finishSection(false);return;}
+  const q=IRT.selectNext(sec.bank,sec.usedIds,APP.test.theta);
+  if(!q){finishSection(false);return;}
+  sec.usedIds.add(q.id);
+  APP.test.qStartTime=Date.now();
+  APP.test._selectedOpt=null;
+  renderQuestion(q,sec);
+  updateSidebar(sec);
+}
+
+function renderQuestion(q,sec){
+  const qi=sec.history.length+1,tot=sec.maxQ;
+  const dl=q.diff<=1?'Easy':q.diff<=2?'Medium':q.diff<=3?'Hard':'Expert';
+  const dPill=q.diff<=1?'pill-green':q.diff<=2?'pill-blue':q.diff<=3?'pill-amber':'pill-red';
+  document.getElementById('ttb-qs').textContent=`Q ${qi} / ${tot}`;
+  document.getElementById('ttb-prog-f').style.width=`${(qi/tot)*100}%`;
+  document.getElementById('tsb-qnum').textContent=qi;
+  document.getElementById('tsb-diff').textContent=dl;
+  document.getElementById('q-card').innerHTML=`
+    <div class="q-header"><span class="q-num">Q${qi} of ${tot}</span><span class="pill ${dPill}">${dl}</span><span class="pill pill-gray">${q.sub}</span></div>
+    <div class="q-meta-bar"><span class="qm-k">Topic:</span><span class="qm-v">${q.topic_tag}</span><div class="qm-sep"></div><span class="qm-k">Est:</span><span class="qm-v">${q.estimated_time}s</span><div class="qm-sep"></div><span class="qm-k">Section:</span><span class="qm-v">${sec.name}</span><span class="qm-badge">SILENT MODE</span></div>
+    <div class="q-stem"><div class="q-text">${q.q}</div></div>
+    <div class="q-opts">${q.opts.map((o,i)=>`<div class="q-opt" id="qo-${i}" onclick="selectOpt(${i})"><div class="q-opt-key">${['A','B','C','D'][i]}</div><div class="q-opt-text">${o}</div></div>`).join('')}</div>
+    <div class="q-actions"><button class="btn btn-ghost btn-sm" onclick="submitAnswer(null)">Skip →</button><button class="btn btn-primary" id="submit-q-btn" onclick="submitAnswer(APP.test._selectedOpt)" disabled>Submit →</button></div>`;
+}
+
+function selectOpt(idx){
+  APP.test._selectedOpt=idx;
+  document.querySelectorAll('.q-opt').forEach((el,i)=>el.classList.toggle('sel',i===idx));
+  document.getElementById('submit-q-btn').disabled=false;
+}
+
+function submitAnswer(chosen){
+  const sec=APP.test.sections[APP.test.secIdx];
+  const usedArr=[...sec.usedIds];
+  const lastId=usedArr[usedArr.length-1];
+  const q=sec.bank.find(x=>x.id===lastId);
+  if(!q)return;
+  const timeSec=Math.round((Date.now()-APP.test.qStartTime)/1000);
+  const correct=chosen!==null&&chosen===q.ans;
+  const res=IRT.update(APP.test.theta,APP.test.se,correct,q.a,q.b,q.c);
+  APP.test.theta=res.theta;APP.test.se=res.se;
+  if(chosen!==null)APP.test.answered++;else APP.test.skipped++;
+  sec.history.push(q);
+  APP.test.answers.push({sectionName:sec.name,sectionId:sec.id,q,chosen,correct,timeSec,diff:q.diff,topic:q.topic_tag});
+  updateSidebar(sec);
+  loadNextQuestion();
+}
+
+function finishSection(timeout){
+  clearInterval(APP.test.timer);APP.test.timer=null;
+  const sec=APP.test.sections[APP.test.secIdx];
+  const next=APP.test.secIdx+1;
+  const secAns=APP.test.answers.filter(a=>a.sectionId===sec.id);
+  const timeUsed=sec.timeMin*60-APP.test.timeLeft;
+  document.getElementById('se-chrome-sub').textContent=`${sec.name} — Complete`;
+  document.getElementById('se-title').textContent=`${sec.name} Complete`;
+  document.getElementById('se-body').textContent=timeout?`Time expired. ${secAns.length} question(s) recorded.`:`Section complete. ${secAns.length} question(s) answered. Feedback revealed after full product completion.`;
+  document.getElementById('se-answered').textContent=secAns.length;
+  document.getElementById('se-time').textContent=`${Math.floor(timeUsed/60)}m ${timeUsed%60}s`;
+  document.getElementById('se-theta').textContent=APP.test.theta.toFixed(2);
+  if(next<APP.test.sections.length){
+    document.getElementById('se-next-btn').textContent='Continue to Next Section →';
+    APP.test._nextAction=()=>{loadSection(next);showScreen('test-screen');};
+  } else {
+    document.getElementById('se-next-btn').textContent='Complete Assessment →';
+    APP.test._nextAction=()=>{APP.test._onComplete&&APP.test._onComplete();};
+  }
+  showScreen('section-end');
+}
+function sectionEndNext(){if(APP.test._nextAction){APP.test._nextAction();APP.test._nextAction=null;}}
+
+function updateSidebar(sec){
+  document.getElementById('tsb-theta').textContent=APP.test.theta.toFixed(2);
+  document.getElementById('tsb-se').textContent=`SE: ${APP.test.se.toFixed(2)}`;
+  document.getElementById('tsb-ability-lbl').textContent=IRT.label(APP.test.theta);
+  const pct=((APP.test.theta+3.5)/7)*100;
+  const bw=APP.test.se*14;
+  document.getElementById('ci-needle').style.left=`calc(${pct}% - 1px)`;
+  document.getElementById('ci-band').style.left=`${Math.max(0,pct-bw/2)}%`;
+  document.getElementById('ci-band').style.width=`${Math.min(bw,100)}%`;
+  document.getElementById('tsb-answered').textContent=APP.test.answered;
+  document.getElementById('tsb-skipped').textContent=APP.test.skipped;
+}
+function updateTimerDisplay(){
+  const el=document.getElementById('ttb-timer');
+  const m=Math.floor(APP.test.timeLeft/60),s=APP.test.timeLeft%60;
+  el.textContent=`${m}:${String(s).padStart(2,'0')}`;
+  el.className='ttb-timer'+(APP.test.timeLeft<=60?' danger':'');
+}
+
+/* ═══════════════════════════════════════════════
+   WRITEX ENGINE
+═══════════════════════════════════════════════ */
+function launchWritex(){
+  const pi=Math.floor(Math.random()*WX_PROMPTS.length);
+  APP.writex={essay:'',timeUsed:0,timer:null,promptIdx:pi};
+  const p=WX_PROMPTS[pi];
+  document.getElementById('wx-topic-name').textContent=p.topic;
+  document.getElementById('wx-prompt-box').innerHTML=p.prompt;
+  document.getElementById('wx-textarea').value='';
+  wxUpdate();
+  let left=25*60;
+  APP.writex.timer=setInterval(()=>{
+    left--;APP.writex.timeUsed++;
+    const m=Math.floor(left/60),s=left%60;
+    const el=document.getElementById('wx-timer-display');
+    if(el)el.textContent=`${m}:${String(s).padStart(2,'0')}`;
+    if(left<=0){clearInterval(APP.writex.timer);APP.writex.timer=null;submitWritex();}
+  },1000);
+  showScreen('writex-screen');
+}
+function wxInsert(t){
+  const ta=document.getElementById('wx-textarea'),pos=ta.selectionStart,v=ta.value;
+  ta.value=v.substring(0,pos)+t+v.substring(pos);
+  ta.selectionStart=ta.selectionEnd=pos+t.length;ta.focus();wxUpdate();
+}
+function wxUpdate(){
+  const text=document.getElementById('wx-textarea').value;
+  APP.writex.essay=text;
+  const wc=(text.match(/\S+/g)||[]).length;
+  const paras=text.split(/\n\s*\n/).filter(p=>p.trim()).length;
+  const sents=text.split(/[.!?]+/).filter(s=>s.trim().length>10).length;
+  const grade=wc>=280?'B2':wc>=200?'B1':wc>=130?'A2':'A1';
+  document.getElementById('wx-wc-live').textContent=wc;
+  document.getElementById('wx-para-live').textContent=paras;
+  document.getElementById('wx-m-wc').textContent=wc;
+  document.getElementById('wx-m-para').textContent=paras;
+  document.getElementById('wx-m-sents').textContent=sents;
+  document.getElementById('wx-m-grade').textContent=grade;
+  const badge=document.getElementById('wx-wc-badge');
+  badge.textContent=`${wc} words`;
+  badge.className='wx-wc-badge'+(wc>=200?' good':wc>=130?' warn':'');
+}
+function submitWritex(){clearInterval(APP.writex.timer);APP.writex.timer=null;launchPersonality();}
+
+/* ═══════════════════════════════════════════════
+   PERSONALITY ENGINE
+═══════════════════════════════════════════════ */
+function launchPersonality(){APP.personality={responses:{},qIdx:0};renderPersQ(0);showScreen('personality-screen');}
+function renderPersQ(idx){
+  const q=PERS_Q[idx];
+  const resp=APP.personality.responses[idx];
+  const LABELS=['Strongly Disagree','Disagree','Neutral','Agree','Strongly Agree'];
+  document.getElementById('pers-prog-fill').style.width=`${(idx/PERS_Q.length)*100}%`;
+  document.getElementById('pers-counter').textContent=`Question ${idx+1} of ${PERS_Q.length}`;
+  document.getElementById('pers-prev-btn').disabled=idx===0;
+  document.getElementById('pers-next-btn').textContent=idx===PERS_Q.length-1?'Submit Inventory':'Next →';
+  document.getElementById('pers-q-block').innerHTML=`
+    <div class="pers-q-block">
+      <div class="pers-q-num">Statement ${idx+1} of ${PERS_Q.length} · Trait Group: ${q.trait}</div>
+      <div class="pers-q-text">${q.text}</div>
+      <div class="likert-scale">${LABELS.map((l,i)=>`<div class="likert-opt ${resp===(i+1)?'selected':''}" onclick="selectLikert(${idx},${i+1})"><div class="lo-dot"></div><div class="lo-label">${l}</div></div>`).join('')}</div>
+    </div>`;
+}
+function selectLikert(qi,val){APP.personality.responses[qi]=val;renderPersQ(qi);}
+function persNav(dir){
+  const next=APP.personality.qIdx+dir;
+  if(next<0)return;
+  if(next>=PERS_Q.length){submitPersonality();return;}
+  APP.personality.qIdx=next;renderPersQ(next);
+}
+function submitPersonality(){finishProduct1();}
+
+/* ═══════════════════════════════════════════════
+   CODE FIXER ENGINE
+═══════════════════════════════════════════════ */
+function launchCodeFixer(){
+  const lang=APP.p2Config.lang||'python';
+  const snips=CODE_SNIPPETS[lang]||CODE_SNIPPETS.python;
+  APP.codeFixer={snippets:snips,answers:snips.map(()=>({userFix:'',recorded:false})),qIdx:0,timer:null,timeLeft:60*60};
+  document.getElementById('cf-lang-display').textContent=lang.toUpperCase();
+  document.getElementById('cf-lang-badge2').textContent=lang.toUpperCase();
+  APP.codeFixer.timer=setInterval(()=>{
+    APP.codeFixer.timeLeft--;
+    const m=Math.floor(APP.codeFixer.timeLeft/60),s=APP.codeFixer.timeLeft%60;
+    const el=document.getElementById('cf-timer');
+    if(el)el.textContent=`${m}:${String(s).padStart(2,'0')}`;
+    if(APP.codeFixer.timeLeft<=0){clearInterval(APP.codeFixer.timer);cfFinish();}
+  },1000);
+  renderCfSnippet(0);
+  showScreen('code-fixer-screen');
+}
+function renderCfSnippet(idx){
+  const s=APP.codeFixer.snippets[idx];
+  if(!s)return;
+  APP.codeFixer.qIdx=idx;
+  document.getElementById('cf-progress').textContent=`Snippet ${idx+1} / ${APP.codeFixer.snippets.length}`;
+  document.getElementById('cf-snippet-title').textContent=`Snippet ${String(idx+1).padStart(2,'0')} — ${s.title}`;
+  document.getElementById('cf-prev-btn').disabled=idx===0;
+  const isLast=idx===APP.codeFixer.snippets.length-1;
+  document.getElementById('cf-next-btn').textContent=isLast?'Finish →':'Next →';
+  document.getElementById('cf-next-btn').onclick=isLast?cfFinish:()=>cfNav(1);
+  document.getElementById('cf-code-display').innerHTML=s.buggyLines.map((line,i)=>`
+    <div class="cf-line ${i===s.bugLine?'bug':''}">
+      <span class="cf-line-num">${i+1}</span>
+      <span class="cf-line-code">${escH(line)}</span>
+    </div>`).join('');
+  document.getElementById('cf-desc-box').innerHTML=`<strong>Task</strong><br>${s.desc}`;
+  document.getElementById('cf-hint-box').textContent=s.hint;
+  document.getElementById('cf-fix-input').value=APP.codeFixer.answers[idx].userFix;
+}
+function cfNav(dir){cfSave();const next=APP.codeFixer.qIdx+dir;if(next>=0&&next<APP.codeFixer.snippets.length)renderCfSnippet(next);}
+function cfSave(){const idx=APP.codeFixer.qIdx;APP.codeFixer.answers[idx].userFix=document.getElementById('cf-fix-input').value;}
+function cfRecord(){
+  cfSave();APP.codeFixer.answers[APP.codeFixer.qIdx].recorded=true;
+  const btn=document.getElementById('cf-record-btn');
+  btn.textContent='Recorded ✓';btn.style.background='var(--green)';
+  setTimeout(()=>{btn.textContent='Record Answer';btn.style.background='';},1500);
+}
+function cfFinish(){cfSave();clearInterval(APP.codeFixer.timer);APP.codeFixer.timer=null;finishProduct2();}
+
+/* ═══════════════════════════════════════════════
+   SVAR ENGINE
+═══════════════════════════════════════════════ */
+function initSvar(){
+  APP.svar={answers:BANK_SVAR.map(()=>null),qIdx:0,timer:null,timeLeft:33*60};
+  APP.svar.timer=setInterval(()=>{
+    APP.svar.timeLeft--;
+    const m=Math.floor(APP.svar.timeLeft/60),s=APP.svar.timeLeft%60;
+    const el=document.getElementById('svar-timer');
+    if(el)el.textContent=`${m}:${String(s).padStart(2,'0')}`;
+    if(APP.svar.timeLeft<=0){clearInterval(APP.svar.timer);submitSvar();}
+  },1000);
+  renderSvarQ(0);showScreen('svar-screen');
+}
+function renderSvarQ(idx){
+  const q=BANK_SVAR[idx];if(!q)return;
+  APP.svar.qIdx=idx;
+  const sel=APP.svar.answers[idx];
+  document.getElementById('svar-prog-fill').style.width=`${((idx+1)/BANK_SVAR.length)*100}%`;
+  document.getElementById('svar-counter').textContent=`${idx+1} / ${BANK_SVAR.length}`;
+  document.getElementById('svar-sec-badge').textContent=q.section;
+  document.getElementById('svar-prev-btn').disabled=idx===0;
+  const isLast=idx===BANK_SVAR.length-1;
+  document.getElementById('svar-next-btn').textContent=isLast?'Submit Assessment →':'Next →';
+  document.getElementById('svar-next-btn').onclick=isLast?submitSvar:()=>svarNav(1);
+  document.getElementById('svar-scenario-box').innerHTML=`<strong>Scenario ${idx+1}:</strong> ${q.q}`;
+  document.getElementById('svar-opts-container').innerHTML=q.opts.map((o,i)=>`
+    <div class="svar-opt ${sel===i?'selected':''}" onclick="selectSvar(${idx},${i})">
+      <div class="svar-opt-key">${['A','B','C','D'][i]}</div>
+      <div style="font-size:13px;line-height:1.55;color:var(--t1)">${o}</div>
+    </div>`).join('');
+}
+function selectSvar(qi,oi){APP.svar.answers[qi]=oi;renderSvarQ(qi);}
+function svarNav(dir){const next=APP.svar.qIdx+dir;if(next>=0&&next<BANK_SVAR.length)renderSvarQ(next);}
+function submitSvar(){clearInterval(APP.svar.timer);APP.svar.timer=null;finishProduct3();}
+
+/* ═══════════════════════════════════════════════
+   PRODUCT FINISHERS
+═══════════════════════════════════════════════ */
+function finishProduct1(){
+  const ans=APP.test.answers,correct=ans.filter(a=>a.correct).length,total=ans.length,pct=total?Math.round(correct/total*100):0;
+  APP.products[1]={status:'completed',bestScore:pct,report:{productId:1,pct,correct,wrong:total-correct,total,theta:APP.test.theta,answers:ans,writex:{essay:APP.writex.essay,timeUsed:APP.writex.timeUsed,promptIdx:APP.writex.promptIdx},personality:{responses:{...APP.personality.responses}}}};
+  APP.currentProduct=1;renderReport(1);showScreen('report-screen');
+}
+function finishProduct2(){
+  const ans=APP.test.answers,correct=ans.filter(a=>a.correct).length,total=ans.length,pct=total?Math.round(correct/total*100):0;
+  APP.products[2]={status:'completed',bestScore:pct,report:{productId:2,pct,correct,wrong:total-correct,total,theta:APP.test.theta,answers:ans,codeFixer:{snippets:APP.codeFixer.snippets,answers:[...APP.codeFixer.answers],lang:APP.p2Config.lang},config:{...APP.p2Config}}};
+  APP.currentProduct=2;renderReport(2);showScreen('report-screen');
+}
+function finishProduct3(){
+  const correct=APP.svar.answers.filter((a,i)=>a===BANK_SVAR[i].ans).length,total=BANK_SVAR.length,pct=Math.round(correct/total*100);
+  const ans=BANK_SVAR.map((q,i)=>({sectionName:q.section,sectionId:q.section,q,chosen:APP.svar.answers[i],correct:APP.svar.answers[i]===q.ans,timeSec:90,diff:2,topic:q.section}));
+  APP.products[3]={status:'completed',bestScore:pct,report:{productId:3,pct,correct,wrong:total-correct,total,theta:null,answers:ans}};
+  APP.currentProduct=3;renderReport(3);showScreen('report-screen');
+}
+
+/* ═══════════════════════════════════════════════
+   REPORT RENDERER
+═══════════════════════════════════════════════ */
+const PCOLS={1:'var(--p1)',2:'var(--p2)',3:'var(--p3)'};
+const PNAMES={1:'Core Cognitive & Behavioral',2:'Technical & Domain Assessment',3:'SVAR & Communication Intelligence'};
+function renderReport(pid){
+  const rpt=APP.products[pid].report;if(!rpt){goHub();return;}
+  const pct=rpt.pct,color=PCOLS[pid];
+  document.getElementById('rpt-chrome-sub').textContent=`Product ${pid} — Analysis Report`;
+  document.getElementById('rpt-chrome-line').style.background=color;
+  document.getElementById('rpt-eyebrow').textContent=`Product 0${pid} · Complete Analysis Report`;
+  document.getElementById('rpt-title').textContent=PNAMES[pid];
+  document.getElementById('rpt-sub').textContent='Assessment complete. Results unlocked. All responses analysed across sections below.';
+  /* Score ring */
+  const offset=314-(314*(pct/100));
+  const ringColor=pct>=70?'var(--green)':pct>=50?'var(--blue)':'var(--amber)';
+  const circle=document.getElementById('rpt-ring-circle');
+  circle.style.strokeDashoffset=offset;circle.style.stroke=ringColor;
+  document.getElementById('rpt-pct-val').textContent=pct+'%';
+  document.getElementById('rpt-pct-val').style.color=ringColor;
+  /* Tags */
+  const tags=['AMCAT Standard','IRT 3PL Adaptive','Deferred Feedback'];
+  if(pid===1)tags.push('WriteX Analysis','Big Five Personality');
+  if(pid===2)tags.push('Automata Fix','Branch Technical');
+  if(pid===3)tags.push('Situational Judgment','Communication Intel');
+  const pillCls=pid===1?'pill-blue':pid===2?'pill-amber':'pill-p3';
+  document.getElementById('rpt-tags').innerHTML=tags.map(t=>`<span class="pill ${pillCls}">${t}</span>`).join(' ');
+  /* KPIs */
+  const ans=rpt.answers,avgTime=ans.length?Math.round(ans.reduce((s,a)=>s+a.timeSec,0)/ans.length):0;
+  document.getElementById('rk-correct').textContent=rpt.correct;
+  document.getElementById('rk-wrong').textContent=rpt.wrong;
+  document.getElementById('rk-skip').textContent=ans.filter(a=>a.chosen===null||a.chosen===undefined).length;
+  document.getElementById('rk-time').textContent=avgTime+'s';
+  document.getElementById('rk-theta').textContent=rpt.theta!=null?rpt.theta.toFixed(2):'N/A';
+  /* Section cards */
+  const sections={};
+  ans.forEach(a=>{if(!sections[a.sectionName])sections[a.sectionName]={name:a.sectionName,total:0,correct:0};sections[a.sectionName].total++;if(a.correct)sections[a.sectionName].correct++;});
+  const sColors={1:'#60a5fa',2:'#22d3ee',3:'#34d399',4:'#a78bfa',5:'#fbbf24',6:'#f87171'};
+  document.getElementById('rpt-sections-grid').innerHTML=Object.values(sections).map((sec,ci)=>{
+    const sp=sec.total?Math.round(sec.correct/sec.total*100):0,c=sColors[ci+1]||'var(--blue)';
+    return `<div class="rpt-sec-card"><div class="rsc-title">${sec.name}<span class="pill pill-gray">${sec.total} Q</span></div>
+      <div class="rsc-row"><span class="rsc-name">Accuracy</span><div class="rsc-bar-wrap"><div class="rsc-bar-fill" style="width:${sp}%;background:${c}"></div></div><span class="rsc-pct" style="color:${c}">${sp}%</span></div>
+      <div class="rsc-row"><span class="rsc-name">Score</span><div class="rsc-bar-wrap"><div class="rsc-bar-fill" style="width:${sp}%;background:var(--green)"></div></div><span class="rsc-pct" style="color:var(--green)">${sec.correct}/${sec.total}</span></div>
+    </div>`;
+  }).join('');
+  /* Charts */
+  renderCharts(ans);
+  /* Conditional sections */
+  document.getElementById('rpt-writex-section').style.display='none';
+  document.getElementById('rpt-personality-section').style.display='none';
+  document.getElementById('rpt-codefixer-section').style.display='none';
+  if(pid===1&&rpt.writex)renderWritexReport(rpt.writex);
+  if(pid===1&&rpt.personality)renderPersReport(rpt.personality);
+  if(pid===2&&rpt.codeFixer)renderCfReport(rpt.codeFixer);
+  /* Review table */
+  document.getElementById('rpt-review-tbody').innerHTML=ans.map((a,i)=>{
+    const keys=['A','B','C','D'];
+    const chosen=a.chosen!=null?keys[a.chosen]:'—';
+    const correct=a.q.ans!=null?keys[a.q.ans]:'N/A';
+    const res=a.correct?'<span class="ans-correct">✓ Correct</span>':a.chosen==null?'<span class="ans-skip">Skipped</span>':'<span class="ans-wrong">✗ Wrong</span>';
+    return `<tr><td>${i+1}</td><td>${a.sectionName}</td><td>${a.topic||a.q.topic_tag||'—'}</td><td>${a.diff||'—'}</td><td>${chosen}</td><td>${correct}</td><td>${res}</td><td>${a.timeSec}s</td></tr>`;
+  }).join('');
+  /* Recommendations */
+  renderRecommendations(pid,ans,rpt);
+}
+
+function renderCharts(ans){
+  ['chart-scatter','chart-radar'].forEach(id=>{const el=document.getElementById(id);if(el&&el._chart){el._chart.destroy();el._chart=null;}});
+  /* Scatter */
+  const scCtx=document.getElementById('chart-scatter').getContext('2d');
+  const scChart=new Chart(scCtx,{type:'scatter',data:{datasets:[
+    {label:'Correct',data:ans.filter(a=>a.correct).map(a=>({x:a.timeSec,y:100})),backgroundColor:'rgba(0,184,116,.7)',pointRadius:5},
+    {label:'Incorrect',data:ans.filter(a=>!a.correct&&a.chosen!=null).map(a=>({x:a.timeSec,y:0})),backgroundColor:'rgba(220,38,38,.7)',pointRadius:5},
+    {label:'Skipped',data:ans.filter(a=>a.chosen==null).map(a=>({x:a.timeSec,y:50})),backgroundColor:'rgba(107,143,174,.5)',pointRadius:4},
+  ]},options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{labels:{color:'#6b8fae',font:{size:10}}},tooltip:{callbacks:{label:d=>`Time: ${d.raw.x}s`}}},
+    scales:{x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#6b8fae',font:{size:9}},title:{display:true,text:'Response Time (seconds)',color:'#344d66',font:{size:9}}},
+      y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#6b8fae',font:{size:9},callback:v=>v===100?'Correct':v===50?'Skip':'Wrong'},min:-10,max:110,title:{display:true,text:'Result',color:'#344d66',font:{size:9}}}}}});
+  document.getElementById('chart-scatter')._chart=scChart;
+  /* Radar */
+  const sections={};
+  ans.forEach(a=>{if(!sections[a.sectionName])sections[a.sectionName]={t:0,c:0};sections[a.sectionName].t++;if(a.correct)sections[a.sectionName].c++;});
+  const labels=Object.keys(sections),data=labels.map(l=>sections[l].t?Math.round(sections[l].c/sections[l].t*100):0);
+  const rCtx=document.getElementById('chart-radar').getContext('2d');
+  const rChart=new Chart(rCtx,{type:'radar',data:{labels,datasets:[{label:'Score %',data,backgroundColor:'rgba(21,101,216,.12)',borderColor:'rgba(21,101,216,.8)',pointBackgroundColor:'rgba(21,101,216,1)',borderWidth:2,pointRadius:3}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#6b8fae',font:{size:10}}}},
+      scales:{r:{grid:{color:'rgba(255,255,255,0.06)'},ticks:{color:'#344d66',font:{size:8},backdropColor:'transparent'},pointLabels:{color:'#6b8fae',font:{size:9}},min:0,max:100,angleLines:{color:'rgba(255,255,255,0.06)'},stepSize:20}}}});
+  document.getElementById('chart-radar')._chart=rChart;
+}
+
+function renderWritexReport(wx){
+  if(!wx.essay)return;
+  document.getElementById('rpt-writex-section').style.display='block';
+  const wc=(wx.essay.match(/\S+/g)||[]).length;
+  const paras=wx.essay.split(/\n\s*\n/).filter(p=>p.trim()).length;
+  const grade=wc>=280?'B2':wc>=200?'B1':wc>=130?'A2':'A1';
+  const m=Math.floor(wx.timeUsed/60),s=wx.timeUsed%60;
+  document.getElementById('wx-rep-wc').textContent=wc;
+  document.getElementById('wx-rep-para').textContent=paras;
+  document.getElementById('wx-rep-grade').textContent=grade;
+  document.getElementById('wx-rep-time').textContent=`${m}:${String(s).padStart(2,'0')}`;
+  let fb=wc<130?'Essay is significantly below the minimum (200 words). Focus on expanding each argument with examples.':wc<200?'Slightly under the required word count. Add one more body paragraph with a specific example.':wc<=350?'Word count is in the ideal range (200–350 words). ':'Essay exceeds the recommended length. Eliminate filler sentences and repetition. ';
+  if(paras<3)fb+='\n\nStructure needs improvement — aim for Introduction → Body 1 → Body 2 → Conclusion (4+ paragraphs).';
+  else if(paras>=4)fb+='\n\nGood paragraph structure observed.';
+  fb+='\n\nSuggested technique: P-E-E method (Point → Evidence → Explanation) for each body paragraph. Open with a clear thesis statement in your introduction.';
+  document.getElementById('wx-rep-feedback').textContent=fb;
+  document.getElementById('wx-rep-essay').textContent=wx.essay;
+}
+
+function renderPersReport(pers){
+  const resp=pers.responses;
+  if(Object.keys(resp).length<10)return;
+  document.getElementById('rpt-personality-section').style.display='block';
+  const traits={E:{name:'Extraversion',low:'Reserved',high:'Sociable',color:'#1565d8'},C:{name:'Conscientiousness',low:'Spontaneous',high:'Diligent',color:'#00b874'},ES:{name:'Emotional Stability',low:'Sensitive',high:'Resilient',color:'#0891b2'},A:{name:'Agreeableness',low:'Competitive',high:'Cooperative',color:'#d97706'},O:{name:'Openness',low:'Conventional',high:'Curious',color:'#7c3aed'}};
+  const scores={E:0,C:0,ES:0,A:0,O:0},counts={E:0,C:0,ES:0,A:0,O:0};
+  PERS_Q.forEach((q,i)=>{if(resp[i]){scores[q.trait]+=resp[i];counts[q.trait]++;}});
+  const norm={};for(const t in scores)norm[t]=counts[t]?Math.round(scores[t]/counts[t]/5*100):50;
+  document.getElementById('pers-trait-bars').innerHTML=Object.entries(traits).map(([k,t])=>{
+    const v=norm[k]||50,lbl=v>=70?t.high:v<=30?t.low:'Balanced';
+    return `<div class="trait-row"><span class="trait-name">${t.name}</span><div class="trait-bar-wrap"><div class="trait-bar-fill" style="width:${v}%;background:${t.color}"></div></div><span class="trait-val" style="color:${t.color}">${v}</span><span class="trait-label" style="color:var(--t3)">${lbl}</span></div>`;
+  }).join('');
+  const E=norm.E,C=norm.C,A=norm.A,ES=norm.ES,O=norm.O;
+  let insight=E>=65?'High Extraversion — you thrive in collaborative, people-facing roles (sales, management, consulting). ':'Reserved nature enables focused independent work — ideal for analytical or technical roles. ';
+  if(C>=65)insight+='High Conscientiousness signals strong goal-orientation — valued in operations and project management. ';
+  if(ES>=65)insight+='Strong Emotional Stability means you perform consistently under pressure. ';
+  if(A>=65)insight+='High Agreeableness makes you an effective team player and natural collaborator. ';
+  if(O>=65)insight+='High Openness suggests creative problem-solving ability — strong fit for R&D and innovation. ';
+  insight+=`\n\nSuggested roles: ${[E>=60?'Leadership / Management':'Technical / Research',C>=65?'Operations / PM':'Creative / Strategy',A>=65?'Customer Success / Consulting':'Independent Research'].join(', ')}.`;
+  document.getElementById('pers-insight-text').textContent=insight;
+}
+
+function renderCfReport(cf){
+  document.getElementById('rpt-codefixer-section').style.display='block';
+  document.getElementById('cf-results-list').innerHTML=cf.snippets.map((s,i)=>{
+    const ans=cf.answers[i];
+    const fix=(ans&&ans.userFix||'').trim();
+    const hasInput=fix.length>5;
+    return `<div class="rec-item">
+      <span class="rec-icon">${hasInput?'📝':'⬜'}</span>
+      <div class="rec-content">
+        <div class="rec-title">${s.title} <span class="pill ${hasInput?'pill-blue':'pill-gray'}">${hasInput?'Answer Provided':'Not Attempted'}</span></div>
+        <div class="rec-body"><strong>Expected fix:</strong> <code style="font-family:var(--mono);background:var(--s2);padding:1px 6px;border-radius:2px;color:#7dd3fc">${escH(s.fix)}</code>${fix?`<br><strong>Your answer:</strong> <code style="font-family:var(--mono);background:var(--s2);padding:1px 6px;border-radius:2px;color:#a78bfa">${escH(fix)}</code>`:''}</div>
+      </div></div>`;
+  }).join('');
+}
+
+function renderRecommendations(pid,ans,rpt){
+  const secs={};
+  ans.forEach(a=>{if(!secs[a.sectionName])secs[a.sectionName]={total:0,correct:0,totalTime:0};secs[a.sectionName].total++;if(a.correct)secs[a.sectionName].correct++;secs[a.sectionName].totalTime+=a.timeSec;});
+  const recs=[];
+  Object.entries(secs).forEach(([name,d])=>{
+    const acc=d.total?Math.round(d.correct/d.total*100):0;
+    const avgT=d.total?Math.round(d.totalTime/d.total):0;
+    if(acc<50)recs.push({icon:'📈',title:`Improve ${name}`,body:`Accuracy was ${acc}%. Focus daily practice on core concepts. Use past papers and timed mock sessions.`});
+    if(acc>=80)recs.push({icon:'✅',title:`Strong: ${name}`,body:`Excellent ${acc}% accuracy. Maintain this by attempting harder difficulty questions to challenge your ceiling.`});
+    if(avgT>120)recs.push({icon:'⚡',title:`Speed: ${name}`,body:`Average response time was ${avgT}s — higher than recommended. Practice timed drills with a 60–90s per question target.`});
+  });
+  if(pid===1&&rpt.writex&&rpt.writex.essay){
+    const wc=(rpt.writex.essay.match(/\S+/g)||[]).length;
+    if(wc<200)recs.push({icon:'✍️',title:'WriteX: Increase Word Count',body:`Essay was ${wc} words — below the 200-word minimum. Practise writing one paragraph per prompt daily. Use the P-E-E method.`});
+    else recs.push({icon:'✍️',title:'WriteX: Good Length',body:`Essay length (${wc} words) is in the recommended range. Focus on argument clarity and using concrete examples.`});
+  }
+  if(!recs.length)recs.push({icon:'🎯',title:'Overall Good Performance',body:'Solid performance across all sections. Push to higher difficulty questions and aim for sub-60s average response time.'});
+  document.getElementById('rpt-recs-container').innerHTML=recs.slice(0,6).map(r=>`<div class="rec-item"><span class="rec-icon">${r.icon}</span><div class="rec-content"><div class="rec-title">${r.title}</div><div class="rec-body">${r.body}</div></div></div>`).join('');
+}
+
+/* ═══════════════════════════════════════════════
+   UTILS
+═══════════════════════════════════════════════ */
+function escH(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+/* ═══════════════════════════════════════════════
+   BOOT
+═══════════════════════════════════════════════ */
+renderHub();
+</script>
+</body>
+</html>

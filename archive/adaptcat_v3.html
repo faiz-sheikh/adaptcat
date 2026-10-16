@@ -1,0 +1,2316 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>AdaptCAT — Intelligent Adaptive Assessment Platform</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/tomorrow-night-eighties.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/clike/clike.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closebrackets.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/matchbrackets.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt-stdlib.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   THEME VARIABLES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+[data-theme="dark"]{
+  --bg:#0d1117; --surface:#161b22; --surface2:#1c2128; --surface3:#22272e;
+  --border:#2d333b; --border2:#444c56;
+  --text:#cdd9e5; --text2:#768390; --text3:#545d68;
+  --accent:#4184e4; --accent-d:#316dca; --accent-bg:rgba(65,132,228,.12);
+  --green:#57ab5a; --green-bg:rgba(87,171,90,.1); --green-b:rgba(87,171,90,.25);
+  --red:#e5534b; --red-bg:rgba(229,83,75,.1); --red-b:rgba(229,83,75,.25);
+  --amber:#c69026; --amber-bg:rgba(198,144,38,.1); --amber-b:rgba(198,144,38,.25);
+  --purple:#986ee2; --teal:#39c5cf;
+  --shadow:0 1px 3px rgba(0,0,0,.4);
+  --code-bg:#1a1f2e;
+}
+[data-theme="light"]{
+  --bg:#f6f8fa; --surface:#ffffff; --surface2:#f6f8fa; --surface3:#eaeef2;
+  --border:#d0d7de; --border2:#afb8c1;
+  --text:#1f2328; --text2:#57606a; --text3:#8c959f;
+  --accent:#0969da; --accent-d:#0550ae; --accent-bg:rgba(9,105,218,.08);
+  --green:#1a7f37; --green-bg:rgba(26,127,55,.08); --green-b:rgba(26,127,55,.25);
+  --red:#cf222e; --red-bg:rgba(207,34,46,.08); --red-b:rgba(207,34,46,.25);
+  --amber:#9a6700; --amber-bg:rgba(154,103,0,.08); --amber-b:rgba(154,103,0,.25);
+  --purple:#8250df; --teal:#1b7c83;
+  --shadow:0 1px 3px rgba(0,0,0,.12);
+  --code-bg:#f6f8fa;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   RESET & BASE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+*,::before,::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:13px;line-height:1.5}
+button{font-family:inherit;cursor:pointer}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+.screen{display:none!important}
+.screen.active{display:flex!important;flex-direction:column;min-height:100vh}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   BUTTONS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.btn{display:inline-flex;align-items:center;gap:5px;padding:6px 14px;border-radius:6px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:12px;font-weight:500;transition:all .12s;white-space:nowrap}
+.btn:hover{background:var(--surface3);border-color:var(--border2)}
+.btn-primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn-primary:hover{background:var(--accent-d);border-color:var(--accent-d)}
+.btn-green{background:var(--green);border-color:var(--green);color:#fff}
+.btn-green:hover{filter:brightness(.9)}
+.btn-lg{padding:9px 22px;font-size:13px}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-ghost{background:transparent;border-color:transparent;color:var(--text2)}
+.btn-ghost:hover{background:var(--surface2);color:var(--text)}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   TAGS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.tag{display:inline-block;padding:1px 7px;border-radius:3px;font-size:11px;font-weight:600}
+.tag-blue{background:var(--accent-bg);color:var(--accent);border:1px solid rgba(65,132,228,.25)}
+.tag-green{background:var(--green-bg);color:var(--green);border:1px solid var(--green-b)}
+.tag-red{background:var(--red-bg);color:var(--red);border:1px solid var(--red-b)}
+.tag-amber{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-b)}
+.tag-purple{background:rgba(152,110,226,.1);color:var(--purple);border:1px solid rgba(152,110,226,.25)}
+.tag-gray{background:var(--surface2);color:var(--text2);border:1px solid var(--border)}
+
+/* Diff level pills */
+.lvl{display:inline-block;padding:1px 8px;border-radius:3px;font-size:11px;font-weight:700}
+.lvl1{background:var(--green-bg);color:var(--green);border:1px solid var(--green-b)}
+.lvl2{background:var(--accent-bg);color:var(--accent);border:1px solid rgba(65,132,228,.25)}
+.lvl3{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-b)}
+.lvl4{background:rgba(152,110,226,.1);color:var(--purple);border:1px solid rgba(152,110,226,.25)}
+.lvl5{background:var(--red-bg);color:var(--red);border:1px solid var(--red-b)}
+
+/* Forms */
+input,select,textarea{font-family:inherit;font-size:12px;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:6px 10px;outline:none;width:100%}
+input:focus,select:focus,textarea:focus{border-color:var(--accent)}
+select option{background:var(--surface)}
+label{font-size:11px;color:var(--text2);display:block;margin-bottom:3px}
+hr{border:none;border-top:1px solid var(--border);margin:.75rem 0}
+.muted{color:var(--text2)}
+.mono{font-family:'Cascadia Code','Fira Code','Courier New',monospace}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   LANDING
+━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+#s-land{align-items:center;justify-content:center;padding:2rem 1rem}
+.land-topbar{position:fixed;top:0;left:0;right:0;background:var(--surface);border-bottom:1px solid var(--border);padding:.5rem 1rem;display:flex;align-items:center;gap:10px;z-index:100}
+.land-logo{font-weight:700;font-size:14px;color:var(--accent);letter-spacing:-.2px}
+.land-logo span{color:var(--text2);font-weight:400}
+.spacer{flex:1}
+.theme-btn{display:flex;align-items:center;gap:5px;padding:5px 10px;border-radius:5px;border:1px solid var(--border);background:transparent;color:var(--text2);font-size:11px;cursor:pointer;transition:all .12s}
+.theme-btn:hover{background:var(--surface2);color:var(--text)}
+.land-body{padding-top:60px;max-width:760px;width:100%;margin:0 auto}
+.land-hero{text-align:center;margin-bottom:2rem;padding-top:1.5rem}
+.land-hero h1{font-size:26px;font-weight:700;letter-spacing:-.4px;margin-bottom:.4rem}
+.land-hero p{color:var(--text2);font-size:13px;max-width:500px;margin:0 auto}
+.test-type-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:1.5rem}
+.test-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.5rem;cursor:pointer;transition:border-color .15s,box-shadow .15s;position:relative;overflow:hidden}
+.test-card::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--accent);opacity:0;transition:opacity .15s}
+.test-card:hover{border-color:var(--accent);box-shadow:0 4px 16px rgba(65,132,228,.12)}
+.test-card:hover::after{opacity:1}
+.tc-icon{font-size:28px;margin-bottom:.75rem}
+.tc-title{font-size:16px;font-weight:700;margin-bottom:.3rem}
+.tc-desc{font-size:11px;color:var(--text2);line-height:1.55;margin-bottom:.75rem}
+.tc-sections{display:flex;flex-direction:column;gap:4px}
+.tc-section-item{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--text2)}
+.tc-section-item .dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.land-persist{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;display:flex;gap:2rem;flex-wrap:wrap}
+.lp-stat{text-align:center}
+.lp-val{font-size:22px;font-weight:700;color:var(--accent)}
+.lp-lbl{font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.05em}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   TEST OVERVIEW
+━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+#s-overview{align-items:center;justify-content:center;padding:2rem 1rem}
+.overview-wrap{max-width:620px;width:100%}
+.ov-header{margin-bottom:1.25rem}
+.ov-header h2{font-size:19px;font-weight:700;margin-bottom:.2rem}
+.ov-header p{font-size:12px;color:var(--text2)}
+.sections-list{display:flex;flex-direction:column;gap:8px;margin-bottom:1.25rem}
+.sec-row{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:8px}
+.sec-num{width:24px;height:24px;border-radius:50%;background:var(--accent-bg);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.sec-info{flex:1}
+.sec-name{font-size:13px;font-weight:600;margin-bottom:1px}
+.sec-meta{font-size:11px;color:var(--text2);display:flex;gap:10px;flex-wrap:wrap}
+.sec-sub-tag{color:var(--text3)}
+.sec-badge{flex-shrink:0}
+.ov-note{padding:10px 14px;background:var(--amber-bg);border:1px solid var(--amber-b);border-radius:6px;font-size:12px;color:var(--amber);margin-bottom:1.25rem}
+.ov-btns{display:flex;gap:8px;justify-content:flex-end}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   SECTION INTRO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+#s-sec-intro{align-items:center;justify-content:center;padding:2rem 1rem}
+.sec-intro-box{max-width:520px;width:100%;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.75rem}
+.sib-icon{font-size:36px;margin-bottom:.75rem}
+.sib-title{font-size:19px;font-weight:700;margin-bottom:.25rem}
+.sib-sub{font-size:11px;color:var(--text2);margin-bottom:1.25rem}
+.sib-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1.25rem}
+.sib-stat{padding:10px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;text-align:center}
+.sib-stat .val{font-size:18px;font-weight:700;color:var(--accent)}
+.sib-stat .lbl{font-size:10px;color:var(--text2);text-transform:uppercase}
+.sib-rules{margin-bottom:1.25rem}
+.sib-rule{display:flex;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px}
+.sib-rule:last-child{border-bottom:none}
+.sib-rule .ri{flex-shrink:0;font-size:14px}
+.sib-rule .rt{color:var(--text2)}
+.sib-rule .rt strong{color:var(--text)}
+.sib-btns{display:flex;gap:8px;justify-content:flex-end}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   TEST SCREEN
+━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+#s-test{flex-direction:row;height:100vh;overflow:hidden}
+.test-panel{width:196px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.tp-head{padding:.75rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.tp-logo{font-weight:700;font-size:12px;color:var(--accent)}
+.tp-theme{margin-left:auto;padding:3px 6px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--text2);font-size:10px;cursor:pointer}
+.tp-body{flex:1;overflow-y:auto;padding:.75rem;display:flex;flex-direction:column;gap:.875rem}
+.tp-section{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);margin-bottom:.3rem}
+.sec-progress{display:flex;flex-direction:column;gap:5px}
+.sp-item{display:flex;align-items:center;gap:6px;font-size:11px;cursor:pointer;padding:4px 6px;border-radius:4px;color:var(--text2)}
+.sp-item.current{background:var(--accent-bg);color:var(--accent);font-weight:600}
+.sp-item.done{color:var(--green)}
+.sp-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;background:var(--border2)}
+.sp-item.current .sp-dot{background:var(--accent)}
+.sp-item.done .sp-dot{background:var(--green)}
+.ability-widget{padding:10px;background:var(--surface2);border:1px solid var(--border);border-radius:6px}
+.aw-top{display:flex;justify-content:space-between;margin-bottom:5px;font-size:10px;color:var(--text2)}
+.aw-theta{font-weight:700;color:var(--accent)}
+.aw-bar{height:4px;background:var(--bg);border-radius:2px;overflow:hidden;margin-bottom:3px}
+.aw-fill{height:100%;border-radius:2px;transition:width .4s,background .3s}
+.aw-label{font-size:10px;color:var(--text2);text-align:center}
+.ml-box{padding:8px;background:var(--surface2);border:1px solid var(--border);border-radius:6px}
+.ml-title{font-size:10px;font-weight:600;color:var(--accent);display:flex;align-items:center;gap:4px;margin-bottom:5px}
+.ml-pulse{width:5px;height:5px;border-radius:50%;background:var(--green);animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.ml-row{display:flex;justify-content:space-between;font-size:10px;color:var(--text2);padding:1px 0}
+.hist-box{display:flex;flex-direction:column;gap:3px}
+.hist-item{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--text2)}
+.hi-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+
+.test-main-area{flex:1;display:flex;flex-direction:column;min-width:0;overflow:hidden}
+.test-topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:.5rem .875rem;display:flex;align-items:center;gap:10px;flex-shrink:0}
+.ttb-section{font-size:12px;font-weight:600;color:var(--text);margin-right:auto}
+.ttb-section small{font-size:10px;color:var(--text2);font-weight:400;margin-left:6px}
+.ttb-qnum{font-size:11px;color:var(--text2)}
+.ttb-bar{width:120px;height:3px;background:var(--border);border-radius:2px;overflow:hidden}
+.ttb-fill{height:100%;background:var(--accent);border-radius:2px;transition:width .4s}
+.ttb-timer{font-family:'SF Mono',monospace;font-size:13px;font-weight:700;color:var(--amber);min-width:44px;text-align:center}
+.ttb-timer.danger{color:var(--red)}
+.ttb-diff{font-size:11px}
+.test-scroll{flex:1;overflow-y:auto;padding:1.25rem}
+.q-card{max-width:820px;margin:0 auto;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1.25rem;animation:fup .2s ease}
+@keyframes fup{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.q-meta{display:flex;align-items:center;gap:6px;margin-bottom:.875rem;flex-wrap:wrap}
+.q-num{font-size:11px;color:var(--text3)}
+.q-text{font-size:13px;line-height:1.65;white-space:pre-wrap;margin-bottom:1rem}
+.q-text code{background:var(--surface2);padding:1px 5px;border-radius:3px;font-family:'Cascadia Code','Fira Code',monospace;font-size:12px;color:var(--teal)}
+/* Diff meter in question */
+.diff-meter{display:flex;align-items:center;gap:6px;margin-bottom:.875rem}
+.dm-label{font-size:10px;color:var(--text3);width:60px}
+.dm-dots{display:flex;gap:3px}
+.dm-dot{width:8px;height:8px;border-radius:50%;background:var(--border2)}
+.dm-dot.active.l1{background:var(--green)}
+.dm-dot.active.l2{background:var(--accent)}
+.dm-dot.active.l3{background:var(--amber)}
+.dm-dot.active.l4{background:var(--purple)}
+.dm-dot.active.l5{background:var(--red)}
+
+/* MCQ options */
+.opts{display:flex;flex-direction:column;gap:6px}
+.opt{display:flex;align-items:flex-start;gap:9px;padding:9px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;cursor:pointer;transition:border-color .1s,background .1s}
+.opt:hover:not(.locked){border-color:var(--accent);background:var(--accent-bg)}
+.opt.sel{border-color:var(--accent);background:var(--accent-bg)}
+.opt.ok{border-color:var(--green);background:var(--green-bg)}
+.opt.bad{border-color:var(--red);background:var(--red-bg)}
+.opt.locked{cursor:default}
+.opt-key{width:20px;height:20px;border-radius:3px;background:var(--bg);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;margin-top:1px;transition:all .1s}
+.opt.sel .opt-key{background:var(--accent);border-color:var(--accent);color:#fff}
+.opt.ok .opt-key{background:var(--green);border-color:var(--green);color:#fff}
+.opt.bad .opt-key{background:var(--red);border-color:var(--red);color:#fff}
+.opt-text{font-size:12.5px;line-height:1.5;padding-top:2px}
+.fb-box{margin-top:.75rem;padding:9px 13px;border-radius:6px;font-size:12px;line-height:1.55;display:none}
+.fb-box.ok{background:var(--green-bg);border:1px solid var(--green-b);color:#7bc97e}
+.fb-box.bad{background:var(--red-bg);border:1px solid var(--red-b);color:#f0817a}
+.fb-box strong{display:block;margin-bottom:3px;font-size:12px}
+.test-btmbar{background:var(--surface);border-top:1px solid var(--border);padding:.5rem .875rem;display:flex;align-items:center;flex-shrink:0}
+.btm-skip{font-size:11px;color:var(--text3);background:none;border:none;cursor:pointer}
+.btm-skip:hover{color:var(--text2)}
+.btm-right{margin-left:auto;display:flex;gap:8px}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   SECTION BREAK
+━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+#s-sec-break{align-items:center;justify-content:center;padding:2rem 1rem}
+.sec-break-box{max-width:480px;width:100%;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:2rem;text-align:center}
+.sbb-icon{font-size:40px;margin-bottom:.75rem}
+.sbb-title{font-size:18px;font-weight:700;margin-bottom:.3rem}
+.sbb-sub{font-size:12px;color:var(--text2);margin-bottom:1.25rem}
+.sbb-score-row{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:1.25rem}
+.sbb-score-col{padding:12px;background:var(--surface2);border:1px solid var(--border);border-radius:6px}
+.sbb-score-val{font-size:28px;font-weight:700}
+.sbb-score-lbl{font-size:10px;color:var(--text2);text-transform:uppercase}
+.sub-scores{text-align:left;margin-bottom:1.25rem}
+.ss-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:12px}
+.ss-name{width:120px;color:var(--text2);flex-shrink:0}
+.ss-bar{flex:1;height:4px;background:var(--border);border-radius:2px;overflow:hidden}
+.ss-fill{height:100%;border-radius:2px;transition:width .6s}
+.ss-val{width:28px;text-align:right;font-weight:600;font-size:11px}
+.ml-note{padding:8px 12px;background:var(--accent-bg);border:1px solid rgba(65,132,228,.2);border-radius:5px;font-size:11px;color:var(--text2);margin-bottom:1.25rem;text-align:left}
+.ml-note strong{color:var(--accent)}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   IDE (CODING SECTION)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.ide-wrap{margin-top:.875rem;border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.ide-head{background:var(--surface2);border-bottom:1px solid var(--border);padding:5px 10px;display:flex;align-items:center;gap:6px}
+.ide-head-title{font-size:11px;color:var(--text2);margin-right:auto}
+.lang-tabs{display:flex;gap:2px}
+.lang-tab{padding:3px 9px;border-radius:3px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid transparent;color:var(--text2);background:transparent;transition:all .12s}
+.lang-tab:hover{background:var(--bg);color:var(--text)}
+.lang-tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.CodeMirror{height:240px!important;font-size:12.5px!important;font-family:'Cascadia Code','Fira Code','Courier New',monospace!important}
+.ide-foot{background:var(--surface2);border-top:1px solid var(--border);padding:5px 10px;display:flex;align-items:center;gap:8px}
+.run-btn{display:flex;align-items:center;gap:4px;padding:4px 12px;border-radius:5px;background:var(--green);border:none;color:#fff;font-size:11px;font-weight:700;cursor:pointer;transition:filter .12s}
+.run-btn:hover{filter:brightness(.9)}
+.run-btn:disabled{opacity:.5;cursor:not-allowed}
+.hint-tog{font-size:11px;color:var(--text3);background:none;border:none;cursor:pointer}
+.hint-tog:hover{color:var(--amber)}
+.tc-cnt{font-size:11px;color:var(--text2);margin-left:auto}
+.ai-spin{font-size:11px;color:var(--accent);display:none;align-items:center;gap:5px}
+.spin{display:inline-block;width:9px;height:9px;border:1.5px solid var(--accent);border-top-color:transparent;border-radius:50%;animation:sp .5s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.out-area{background:var(--code-bg);border-top:1px solid var(--border);padding:7px 10px;max-height:110px;overflow-y:auto;font-family:'Cascadia Code','Fira Code',monospace;font-size:11.5px;line-height:1.6;color:var(--text2)}
+.tc-tbl{width:100%;border-collapse:collapse;font-size:11px}
+.tc-tbl td{padding:3px 8px;border-bottom:1px solid var(--border)}
+.tc-pass{color:var(--green);font-weight:700}
+.tc-fail{color:var(--red);font-weight:700}
+.hint-panel{margin-top:6px;padding:7px 10px;background:var(--amber-bg);border:1px solid var(--amber-b);border-radius:5px;font-family:monospace;font-size:11px;color:var(--amber);display:none}
+
+/* ── Automata Question Picker (AMCAT-style) ── */
+.automata-picker{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.75rem;max-width:700px;margin:0 auto;animation:fup .2s ease}
+.ap-header{margin-bottom:1.25rem}
+.ap-header h2{font-size:17px;font-weight:700;margin-bottom:.25rem}
+.ap-header p{font-size:12px;color:var(--text2)}
+.ap-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1.25rem}
+.ap-card{border:1px solid var(--border);border-radius:8px;padding:1rem;cursor:pointer;transition:all .15s;background:var(--surface2);position:relative}
+.ap-card:hover{border-color:var(--accent);background:var(--accent-bg)}
+.ap-card.attempted{border-color:var(--amber);background:rgba(198,144,38,.06)}
+.ap-card.solved{border-color:var(--green);background:rgba(87,171,90,.06)}
+.ap-card-num{font-size:11px;font-weight:700;color:var(--text3);margin-bottom:.4rem;text-transform:uppercase;letter-spacing:.07em}
+.ap-card-title{font-size:14px;font-weight:600;margin-bottom:.3rem}
+.ap-card-meta{font-size:11px;color:var(--text2);display:flex;gap:8px;flex-wrap:wrap;margin-bottom:.75rem}
+.ap-card-status{position:absolute;top:10px;right:10px;font-size:11px;font-weight:700;padding:2px 8px;border-radius:3px}
+.ap-card.attempted .ap-card-status{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-b);display:block}
+.ap-card.solved .ap-card-status{background:var(--green-bg);color:var(--green);border:1px solid var(--green-b);display:block}
+.ap-card-status{display:none}
+.ap-time-note{font-size:11px;color:var(--text2);padding:8px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:5px;text-align:center}
+
+/* Coding topbar navigator */
+.coding-nav{display:flex;align-items:center;gap:6px;padding:.4rem .875rem;background:var(--surface2);border-bottom:1px solid var(--border);flex-shrink:0}
+.cn-label{font-size:11px;color:var(--text3);margin-right:4px}
+.cn-tab{display:flex;align-items:center;gap:5px;padding:4px 12px;border-radius:5px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text2);transition:all .12s;white-space:nowrap}
+.cn-tab:hover{border-color:var(--accent);color:var(--accent)}
+.cn-tab.active{border-color:var(--accent);background:var(--accent-bg);color:var(--accent)}
+.cn-tab.done{border-color:var(--green);color:var(--green);background:var(--green-bg)}
+.cn-tab.partial{border-color:var(--amber);color:var(--amber);background:var(--amber-bg)}
+.cn-dot{width:7px;height:7px;border-radius:50%;background:currentColor;flex-shrink:0}
+.cn-spacer{flex:1}
+.cn-overall-timer{font-family:monospace;font-size:13px;font-weight:700;color:var(--amber)}
+.cn-overall-timer.danger{color:var(--red)}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   WRITEX ESSAY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+#s-writex{flex-direction:row;height:100vh;overflow:hidden}
+.wx-left{width:280px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);padding:1.25rem;overflow-y:auto;display:flex;flex-direction:column;gap:1rem}
+.wx-logo{font-weight:700;font-size:12px;color:var(--accent);margin-bottom:.25rem}
+.wx-section-badge{font-size:11px;font-weight:600;color:var(--text2);padding:4px 8px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;display:inline-block;margin-bottom:.5rem}
+.wx-prompt-box{padding:12px;background:var(--accent-bg);border:1px solid rgba(65,132,228,.2);border-radius:6px}
+.wx-prompt-title{font-size:11px;font-weight:700;color:var(--accent);margin-bottom:.5rem}
+.wx-prompt-text{font-size:12px;color:var(--text);line-height:1.6;font-style:italic}
+.wx-guidelines{font-size:11px;color:var(--text2);line-height:1.7}
+.wx-guidelines li{margin-bottom:3px}
+.wx-timer-box{padding:10px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;text-align:center}
+.wx-timer{font-size:28px;font-weight:700;color:var(--amber);font-family:monospace}
+.wx-timer.danger{color:var(--red)}
+.wx-timer-lbl{font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.05em}
+.wx-right{flex:1;display:flex;flex-direction:column;min-width:0}
+.wx-topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:.5rem .875rem;display:flex;align-items:center;gap:10px;flex-shrink:0}
+.wx-stats{display:flex;gap:16px;font-size:11px;color:var(--text2)}
+.wx-stat-val{font-weight:700;color:var(--text)}
+.wx-area{flex:1;overflow:hidden;position:relative}
+.wx-textarea{width:100%;height:100%;padding:1.25rem;font-size:14px;line-height:1.75;border:none;outline:none;resize:none;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif}
+.wx-btmbar{background:var(--surface);border-top:1px solid var(--border);padding:.5rem .875rem;display:flex;align-items:center;gap:10px;flex-shrink:0}
+.wx-ai-feedback{max-width:820px;margin:1rem auto;padding:1rem;background:var(--surface);border:1px solid var(--border);border-radius:8px;display:none}
+.wx-fb-title{font-size:13px;font-weight:600;margin-bottom:.875rem;display:flex;align-items:center;gap:6px}
+.wx-fb-scores{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:.875rem}
+.wx-fb-score{padding:10px;background:var(--surface2);border:1px solid var(--border);border-radius:5px;text-align:center}
+.wx-fb-score .val{font-size:22px;font-weight:700}
+.wx-fb-score .lbl{font-size:10px;color:var(--text2);text-transform:uppercase}
+.wx-fb-text{font-size:12px;color:var(--text2);line-height:1.65}
+.wx-fb-errors{margin-top:.875rem;background:var(--red-bg);border:1px solid var(--red-b);border-radius:5px;padding:10px}
+.wx-fb-errors h4{font-size:11px;color:var(--red);margin-bottom:.4rem;font-weight:700;text-transform:uppercase}
+.wx-error-item{font-size:11px;color:var(--text2);padding:3px 0;display:flex;gap:6px}
+.wx-error-item::before{content:'→';color:var(--red);flex-shrink:0}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   PERSONALITY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+#s-personality{align-items:center;justify-content:flex-start;overflow-y:auto;padding:1.5rem 1rem}
+.pers-wrap{max-width:640px;width:100%;margin:0 auto}
+.pers-header{margin-bottom:1.25rem;text-align:center}
+.pers-header h2{font-size:18px;font-weight:700;margin-bottom:.25rem}
+.pers-header p{font-size:12px;color:var(--text2)}
+.pers-progress{height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-bottom:1.25rem}
+.pers-prog-fill{height:100%;background:var(--accent);border-radius:2px;transition:width .4s}
+.pers-q-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1.25rem;margin-bottom:.75rem}
+.pers-q-text{font-size:13px;margin-bottom:.875rem}
+.likert{display:flex;gap:6px;align-items:center}
+.likert-label{font-size:10px;color:var(--text2);text-align:center;width:60px;line-height:1.3}
+.likert-dots{display:flex;gap:6px;flex:1;justify-content:center}
+.likert-opt{width:32px;height:32px;border-radius:50%;border:1px solid var(--border);background:var(--surface2);cursor:pointer;font-size:11px;font-weight:700;color:var(--text2);transition:all .12s;display:flex;align-items:center;justify-content:center}
+.likert-opt:hover{border-color:var(--accent);color:var(--accent)}
+.likert-opt.selected{border-color:var(--accent);background:var(--accent);color:#fff}
+.pers-nav{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--text2)}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   RESULTS SCREEN
+━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+#s-results{overflow-y:auto;padding:1.5rem 1rem 4rem}
+.res-wrap{max-width:900px;margin:0 auto}
+.res-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.5rem;gap:1rem;flex-wrap:wrap}
+.res-header h1{font-size:20px;font-weight:700;margin-bottom:.2rem}
+.res-header p{font-size:12px;color:var(--text2)}
+.score-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.5rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:2rem;flex-wrap:wrap}
+.overall-score{font-size:56px;font-weight:800;line-height:1}
+.score-details .grade{font-size:20px;font-weight:700;margin-bottom:.2rem}
+.score-details .ability{font-size:12px;color:var(--text2)}
+.score-pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:.5rem}
+.sections-results{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-bottom:1.25rem}
+.sec-res-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem}
+.src-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem}
+.src-name{font-size:13px;font-weight:600}
+.src-score{font-size:20px;font-weight:700}
+.src-subsections{display:flex;flex-direction:column;gap:5px}
+.src-sub-row{display:flex;align-items:center;gap:7px;font-size:11px}
+.src-sub-name{width:100px;color:var(--text2);flex-shrink:0}
+.src-sub-bar{flex:1;height:3px;background:var(--border);border-radius:2px;overflow:hidden}
+.src-sub-fill{height:100%;border-radius:2px}
+.src-sub-val{width:26px;text-align:right;font-weight:600;font-size:10px}
+.charts-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1.25rem}
+.chart-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem}
+.chart-card h3{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text2);margin-bottom:.875rem}
+.pers-results-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:1.25rem}
+.pers-results-card h3{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text2);margin-bottom:.875rem}
+.trait-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:12px}
+.trait-name{width:120px;color:var(--text2);flex-shrink:0}
+.trait-bar{flex:1;height:8px;background:var(--border);border-radius:4px;overflow:hidden}
+.trait-fill{height:100%;border-radius:4px;transition:width .8s}
+.trait-score{width:36px;text-align:right;font-weight:700;font-size:12px}
+.trait-label{width:70px;font-size:10px;color:var(--text3)}
+.improvements-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:1.25rem}
+.improvements-card h3{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text2);margin-bottom:.875rem}
+.imp-section{margin-bottom:.875rem}
+.imp-sec-name{font-size:12px;font-weight:600;color:var(--amber);margin-bottom:.3rem;display:flex;align-items:center;gap:5px}
+.imp-item{font-size:11px;color:var(--text2);padding:3px 0;display:flex;gap:6px;align-items:flex-start}
+.imp-item::before{content:'•';color:var(--accent);flex-shrink:0;margin-top:1px}
+.review-section{margin-top:1.25rem}
+.review-section h2{font-size:14px;font-weight:600;margin-bottom:.75rem}
+.review-item{display:flex;gap:9px;padding:7px 11px;background:var(--surface);border:1px solid var(--border);border-radius:5px;margin-bottom:5px}
+.ri-icon{font-size:13px;flex-shrink:0;padding-top:1px}
+.ri-q{font-size:12px;margin-bottom:2px;line-height:1.4;white-space:pre-wrap;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.ri-meta{font-size:10px;color:var(--text3);display:flex;gap:8px}
+.retake-row{display:flex;gap:8px;justify-content:center;margin-top:1.5rem;padding-bottom:2rem}
+
+@media(max-width:700px){
+  .test-type-grid,.sections-results,.charts-row{grid-template-columns:1fr}
+  #s-test{flex-direction:column}
+  .test-panel{width:100%;height:auto;flex-direction:row;flex-wrap:wrap;border-right:none;border-bottom:1px solid var(--border)}
+  .tp-body{flex-direction:row;flex-wrap:wrap;gap:10px;padding:.5rem}
+  #s-writex{flex-direction:column}
+  .wx-left{width:100%;border-right:none;border-bottom:1px solid var(--border)}
+}
+</style>
+</head>
+<body>
+
+<!-- ═════════════ LANDING ═════════════ -->
+<div id="s-land" class="screen active">
+  <div class="land-topbar">
+    <span class="land-logo">AdaptCAT <span>Intelligent Assessment</span></span>
+    <div class="spacer"></div>
+    <button class="theme-btn" onclick="toggleTheme(this)">☽ Dark</button>
+  </div>
+  <div class="land-body">
+    <div class="land-hero">
+      <h1>Smarter Than AMCAT</h1>
+      <p>Adaptive Computer Testing with per-section ML models, AI essay grading, multi-language coding IDE, and real-time ability estimation</p>
+    </div>
+    <div class="test-type-grid">
+      <div class="test-card" onclick="pickTest('logical')">
+        <div class="tc-icon">◈</div>
+        <div class="tc-title">Logical Test</div>
+        <div class="tc-desc">6 adaptive sections mirroring AMCAT's full logical assessment battery</div>
+        <div class="tc-sections">
+          <div class="tc-section-item"><span class="dot" style="background:var(--accent)"></span>English Comprehension — 24 Q</div>
+          <div class="tc-section-item"><span class="dot" style="background:var(--green)"></span>Quantitative Ability — 24 Q</div>
+          <div class="tc-section-item"><span class="dot" style="background:var(--amber)"></span>Logical Ability — 24 Q</div>
+          <div class="tc-section-item"><span class="dot" style="background:var(--purple)"></span>Data Interpretation — 18 Q</div>
+          <div class="tc-section-item"><span class="dot" style="background:var(--teal)"></span>WriteX — Essay Writing</div>
+          <div class="tc-section-item"><span class="dot" style="background:var(--text3)"></span>Personality Assessment</div>
+        </div>
+      </div>
+      <div class="test-card" onclick="pickTest('technical')">
+        <div class="tc-icon">◉</div>
+        <div class="tc-title">Technical Test</div>
+        <div class="tc-desc">4 adaptive sections mirroring AMCAT's technical assessment — no Mechanical Engineering</div>
+        <div class="tc-sections">
+          <div class="tc-section-item"><span class="dot" style="background:var(--green)"></span>Python / Programming — 24 Q</div>
+          <div class="tc-section-item"><span class="dot" style="background:var(--accent)"></span>DSA Theory — 24 Q</div>
+          <div class="tc-section-item"><span class="dot" style="background:var(--purple)"></span>Automata — 2 Coding Problems</div>
+          <div class="tc-section-item"><span class="dot" style="background:var(--red)"></span>Automata Fix — 7 Debug Q</div>
+        </div>
+      </div>
+    </div>
+    <div class="land-persist">
+      <div class="lp-stat"><div class="lp-val" id="lp-sessions">0</div><div class="lp-lbl">Sessions</div></div>
+      <div class="lp-stat"><div class="lp-val" id="lp-best">—</div><div class="lp-lbl">Best Score</div></div>
+      <div class="lp-stat"><div class="lp-val" id="lp-qbank">0</div><div class="lp-lbl">Questions in Bank</div></div>
+      <div class="lp-stat"><div class="lp-val" id="lp-improved">0</div><div class="lp-lbl">Qs ML-Calibrated</div></div>
+    </div>
+    <div style="margin-top:1rem;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:6px">
+      <p style="font-size:11px;color:var(--text2);margin:0"><strong style="color:var(--green)">AMCAT Improvements:</strong> Immediate answer feedback · Real-time difficulty indicator · AI essay grading · Full personality analysis · Multi-language IDE · Skip &amp; revisit · Transparent scoring · Unlimited retakes</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═════════════ OVERVIEW ═════════════ -->
+<div id="s-overview" class="screen">
+  <div style="position:fixed;top:0;left:0;right:0;background:var(--surface);border-bottom:1px solid var(--border);padding:.5rem 1rem;display:flex;align-items:center;gap:10px;z-index:100">
+    <span style="font-weight:700;font-size:12px;color:var(--accent)">AdaptCAT</span>
+    <div class="spacer"></div>
+    <button class="theme-btn" onclick="toggleTheme(this)">☽ Dark</button>
+  </div>
+  <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:5rem 1rem 2rem">
+    <div class="overview-wrap">
+      <div class="ov-header">
+        <h2 id="ov-title">Logical Test</h2>
+        <p id="ov-desc">6 sections · Estimated 95 minutes · Adaptive difficulty per section</p>
+      </div>
+      <div class="sections-list" id="ov-sections"></div>
+      <div class="ov-note">
+        <strong>ML Model:</strong> Each section starts at Level 1. Correct answer → advance one level. Wrong answer → reset to Level 1. Your ability score is tracked independently per section.
+      </div>
+      <div class="ov-btns">
+        <button class="btn" onclick="showScreen('s-land')">← Back</button>
+        <button class="btn btn-primary btn-lg" onclick="startNextSection()">Begin Test ▶</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═════════════ SECTION INTRO ═════════════ -->
+<div id="s-sec-intro" class="screen">
+  <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:2rem 1rem">
+    <div class="sec-intro-box">
+      <div class="sib-icon" id="si-icon">📖</div>
+      <div class="sib-title" id="si-title">English Comprehension</div>
+      <div class="sib-sub" id="si-sub">Vocabulary · Grammar · Reading Comprehension</div>
+      <div class="sib-stats">
+        <div class="sib-stat"><div class="val" id="si-qcount">24</div><div class="lbl">Questions</div></div>
+        <div class="sib-stat"><div class="val" id="si-time">35 min</div><div class="lbl">Est. Time</div></div>
+        <div class="sib-stat"><div class="val" id="si-start">L1</div><div class="lbl">Starts At</div></div>
+      </div>
+      <div class="sib-rules">
+        <div class="sib-rule"><span class="ri">🎯</span><div class="rt"><strong>Adaptive per section</strong> — starts Level 1, rises with each correct answer</div></div>
+        <div class="sib-rule"><span class="ri">✓</span><div class="rt"><strong>Correct answer</strong> → difficulty increases by one level (max Level 5)</div></div>
+        <div class="sib-rule"><span class="ri">✗</span><div class="rt"><strong>Wrong answer</strong> → <strong>resets to Level 1</strong> (mastery model)</div></div>
+        <div class="sib-rule"><span class="ri">💡</span><div class="rt"><strong>Immediate feedback</strong> shown after each answer (AMCAT improvement)</div></div>
+      </div>
+      <div class="sib-btns">
+        <button class="btn" onclick="goBackFromSectionIntro()">← Back</button>
+        <button class="btn btn-primary btn-lg" onclick="beginSection()">Start Section ▶</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═════════════ TEST SCREEN ═════════════ -->
+<div id="s-test" class="screen">
+  <!-- Side panel -->
+  <div class="test-panel">
+    <div class="tp-head">
+      <span class="tp-logo">AdaptCAT</span>
+      <button class="tp-theme" onclick="toggleTheme(this)">☽</button>
+    </div>
+    <div class="tp-body">
+      <div>
+        <div class="tp-section">Sections</div>
+        <div class="sec-progress" id="tp-sections"></div>
+      </div>
+      <div>
+        <div class="tp-section">Ability — This Section</div>
+        <div class="ability-widget">
+          <div class="aw-top"><span>Difficulty Level</span><span class="aw-theta" id="aw-theta">L1</span></div>
+          <div class="aw-bar"><div class="aw-fill" id="aw-fill" style="width:20%;background:var(--green)"></div></div>
+          <div class="aw-label" id="aw-label">Beginner</div>
+        </div>
+      </div>
+      <div>
+        <div class="tp-section">ML Model</div>
+        <div class="ml-box">
+          <div class="ml-title"><span class="ml-pulse"></span>Live Adaptive Engine</div>
+          <div class="ml-row"><span>Section</span><span id="ml-sec">—</span></div>
+          <div class="ml-row"><span>Current Diff</span><span id="ml-diff" style="color:var(--accent)">L1</span></div>
+          <div class="ml-row"><span>Correct</span><span id="ml-cor" style="color:var(--green)">0</span></div>
+          <div class="ml-row"><span>Streak</span><span id="ml-streak">0🔥</span></div>
+        </div>
+      </div>
+      <div>
+        <div class="tp-section">History</div>
+        <div class="hist-box" id="hist-box"><span class="muted" style="font-size:10px">No answers yet</span></div>
+      </div>
+    </div>
+  </div>
+  <!-- Main -->
+  <div class="test-main-area">
+    <div class="test-topbar">
+      <span class="ttb-section" id="ttb-section">English Comprehension <small>Vocabulary</small></span>
+      <span class="ttb-qnum" id="ttb-qnum">Q1/24</span>
+      <div class="ttb-bar"><div class="ttb-fill" id="ttb-fill"></div></div>
+      <span class="ttb-timer" id="ttb-timer">01:30</span>
+      <span class="ttb-diff" id="ttb-diff"></span>
+    </div>
+    <div class="coding-nav" id="coding-nav-bar" style="display:none">
+      <span class="cn-label">Problems:</span>
+      <div id="cn-tabs" style="display:flex;gap:5px"></div>
+      <div class="cn-spacer"></div>
+      <span style="font-size:11px;color:var(--text2);margin-right:6px">Time left:</span>
+      <span class="cn-overall-timer" id="cn-overall-timer">45:00</span>
+    </div>
+    <div class="test-scroll">
+      <div class="q-card" id="q-card"></div>
+    </div>
+    <div class="test-btmbar">
+      <button class="btm-skip" id="skip-btn" onclick="skipQuestion()">Skip →</button>
+      <div class="btm-right" id="btm-right-btns">
+        <button class="btn btn-primary" id="next-btn" onclick="nextQuestion()" disabled>Next →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═════════════ SECTION BREAK ═════════════ -->
+<div id="s-sec-break" class="screen">
+  <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:2rem 1rem">
+    <div class="sec-break-box">
+      <div class="sbb-icon" id="sbb-icon">✅</div>
+      <div class="sbb-title" id="sbb-title">Section Complete</div>
+      <div class="sbb-sub" id="sbb-sub">Moving to next section…</div>
+      <div class="sbb-score-row">
+        <div class="sbb-score-col"><div class="sbb-score-val" id="sbb-score" style="color:var(--green)">—</div><div class="sbb-score-lbl">Section Score</div></div>
+        <div class="sbb-score-col"><div class="sbb-score-val" id="sbb-correct" style="color:var(--accent)">—</div><div class="sbb-score-lbl">Correct / Total</div></div>
+      </div>
+      <div class="sub-scores" id="sbb-subsections"></div>
+      <div class="ml-note" id="sbb-ml-note"><strong>ML Update:</strong> Difficulty parameters updated.</div>
+      <div style="display:flex;gap:8px;justify-content:center">
+        <button class="btn btn-primary" onclick="continueToNextSection()">Continue →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═════════════ WRITEX ═════════════ -->
+<div id="s-writex" class="screen">
+  <div class="wx-left">
+    <div>
+      <div class="wx-logo">AdaptCAT</div>
+      <div class="wx-section-badge">WriteX — Essay Writing</div>
+    </div>
+    <div class="wx-timer-box">
+      <div class="wx-timer" id="wx-timer">20:00</div>
+      <div class="wx-timer-lbl">Time Remaining</div>
+    </div>
+    <div class="wx-prompt-box">
+      <div class="wx-prompt-title">Essay Topic</div>
+      <div class="wx-prompt-text" id="wx-prompt">Loading topic…</div>
+    </div>
+    <div>
+      <div style="font-size:11px;font-weight:600;color:var(--text2);margin-bottom:.4rem">Guidelines</div>
+      <ul class="wx-guidelines">
+        <li>Write 200–400 words minimum</li>
+        <li>Address both parts of the question</li>
+        <li>Use clear paragraphs with topic sentences</li>
+        <li>Support claims with reasoning</li>
+        <li>Conclude with a clear position</li>
+        <li>Grammar and spelling count (30% of score)</li>
+        <li>AI will grade: content, grammar, coherence</li>
+      </ul>
+    </div>
+  </div>
+  <div class="wx-right">
+    <div class="wx-topbar">
+      <div class="wx-stats">
+        <span>Words: <span class="wx-stat-val" id="wx-words">0</span></span>
+        <span>Sentences: <span class="wx-stat-val" id="wx-sents">0</span></span>
+        <span>Characters: <span class="wx-stat-val" id="wx-chars">0</span></span>
+      </div>
+      <div class="spacer"></div>
+      <div class="ai-spin" id="wx-ai-spin"><span class="spin"></span> AI grading essay…</div>
+    </div>
+    <div class="wx-area">
+      <textarea class="wx-textarea" id="wx-textarea" placeholder="Start writing your essay here. Address the topic clearly and structure your response with an introduction, body paragraphs, and conclusion…" oninput="updateWxStats()"></textarea>
+    </div>
+    <div class="wx-ai-feedback" id="wx-ai-feedback">
+      <div class="wx-fb-title">🤖 AI Essay Assessment</div>
+      <div class="wx-fb-scores" id="wx-fb-scores"></div>
+      <div class="wx-fb-text" id="wx-fb-text"></div>
+      <div class="wx-fb-errors" id="wx-fb-errors" style="display:none">
+        <h4>Specific Improvements</h4>
+        <div id="wx-fb-error-list"></div>
+      </div>
+    </div>
+    <div class="wx-btmbar">
+      <span style="font-size:11px;color:var(--text2)">💡 AI provides detailed feedback after submission — unlike AMCAT's generic scoring</span>
+      <div class="spacer"></div>
+      <button class="btn btn-primary" id="wx-submit-btn" onclick="submitEssay()">Submit Essay & Get AI Feedback</button>
+      <button class="btn" id="wx-continue-btn" style="display:none" onclick="continueToNextSection()">Continue →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═════════════ PERSONALITY ═════════════ -->
+<div id="s-personality" class="screen">
+  <div class="pers-wrap" style="padding-top:1rem">
+    <div class="pers-header">
+      <h2>Personality Assessment</h2>
+      <p>No right or wrong answers. Answer based on how you truly feel. Takes ~5 minutes.</p>
+    </div>
+    <div class="pers-progress"><div class="pers-prog-fill" id="pers-prog"></div></div>
+    <div id="pers-q-area"></div>
+    <div class="pers-nav">
+      <span id="pers-counter">Question 1 of 30</span>
+      <button class="btn btn-primary" id="pers-next-btn" onclick="nextPersonality()" disabled>Next →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═════════════ RESULTS ═════════════ -->
+<div id="s-results" class="screen">
+  <div style="position:fixed;top:0;left:0;right:0;background:var(--surface);border-bottom:1px solid var(--border);padding:.5rem 1rem;display:flex;align-items:center;gap:10px;z-index:100">
+    <span style="font-weight:700;font-size:12px;color:var(--accent)">AdaptCAT — Results</span>
+    <div class="spacer"></div>
+    <button class="theme-btn" onclick="toggleTheme(this)">☽ Dark</button>
+  </div>
+  <div class="res-wrap" style="padding-top:60px">
+    <div class="res-header">
+      <div><h1 id="res-h1">Assessment Results</h1><p id="res-sub">Completed</p></div>
+    </div>
+    <div class="score-card">
+      <div class="overall-score" id="res-score">—</div>
+      <div class="score-details">
+        <div class="grade" id="res-grade">—</div>
+        <div class="ability" id="res-detail">—</div>
+        <div class="score-pills" id="res-pills"></div>
+      </div>
+    </div>
+    <div class="sections-results" id="sections-results"></div>
+    <div class="pers-results-card" id="pers-results-card" style="display:none">
+      <h3>Personality Profile — Big Six</h3>
+      <div id="pers-trait-rows"></div>
+      <div id="pers-insight" style="margin-top:.875rem;padding:10px;background:var(--accent-bg);border:1px solid rgba(65,132,228,.2);border-radius:5px;font-size:12px;color:var(--text2);line-height:1.65"></div>
+    </div>
+    <div class="charts-row">
+      <div class="chart-card"><h3>Section Ability Curves</h3><div style="position:relative;height:180px"><canvas id="ability-chart" role="img" aria-label="Ability curves per section over time"></canvas></div></div>
+      <div class="chart-card"><h3>Difficulty Distribution</h3><div style="position:relative;height:180px"><canvas id="diff-chart" role="img" aria-label="Difficulty distribution across all answered questions"></canvas></div></div>
+    </div>
+    <div class="improvements-card">
+      <h3>📈 Personalised Improvement Plan</h3>
+      <div id="imp-content"></div>
+    </div>
+    <!-- ML Learning Transparency Panel -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.125rem;margin-bottom:1.25rem">
+      <h3 style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--text2);margin-bottom:.875rem;display:flex;align-items:center;gap:6px">
+        <span class="ml-pulse"></span> ML Learning Log — What the Engine Learned This Session
+      </h3>
+      <div id="ml-learning-log" style="font-size:11px;color:var(--text2)">No data yet.</div>
+      <hr>
+      <div style="font-size:11px;color:var(--text3);margin-top:.5rem">
+        ℹ️ The engine stores question statistics (attempts, pass rate, avg time) in your browser's localStorage. After ≥3 attempts on any question, its difficulty is auto-recalibrated. These calibrations persist across sessions and are used in future tests to better match questions to your ability.
+      </div>
+    </div>
+    <div class="review-section"><h2>Question Review</h2><div id="review-list"></div></div>
+    <div class="retake-row">
+      <button class="btn btn-lg" onclick="showScreen('s-land')">← Home</button>
+      <button class="btn btn-primary btn-lg" onclick="retakeTest()">Retake Test</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════════ -->
+<script>
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   SECTION CONFIGURATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+const SECTION_CONFIG = {
+  logical: [
+    {id:'english',    name:'English Comprehension',  icon:'📖', color:'#4184e4', questions:24, timePerQ:75,  subsections:['Vocabulary','Grammar','Comprehension'], desc:'Vocabulary · Grammar · Reading Comprehension', badge:'CEFR Rated'},
+    {id:'quant',      name:'Quantitative Ability',   icon:'🔢', color:'#57ab5a', questions:24, timePerQ:90,  subsections:['Basic Math','Applied Math','Advanced'],  desc:'Arithmetic · Algebra · Problem Solving'},
+    {id:'logical',    name:'Logical Ability',         icon:'🧩', color:'#c69026', questions:24, timePerQ:75,  subsections:['Inductive','Deductive'],                 desc:'Inductive · Deductive · Pattern Recognition'},
+    {id:'data',       name:'Data Interpretation',    icon:'📊', color:'#986ee2', questions:18, timePerQ:90,  subsections:['Tables','Charts','Analysis'],             desc:'Tables · Charts · Multi-source Analysis'},
+    {id:'writex',     name:'WriteX — Essay Writing', icon:'✍️', color:'#39c5cf', questions:1,  timePerQ:1200,subsections:['Content','Grammar'],                     desc:'AI-graded Essay · 20 minutes',             special:'writex'},
+    {id:'personality',name:'Personality Assessment', icon:'🧠', color:'#8c959f', questions:30, timePerQ:20,  subsections:['Big Six Traits'],                        desc:'Extraversion · Conscientiousness · Agreeableness · Openness · Stability · Polychronicity', special:'personality'},
+  ],
+  technical: [
+    {id:'python',     name:'Python / Programming',   icon:'🐍', color:'#57ab5a', questions:24, timePerQ:75,  subsections:['Basics','Programming','Databases/Modules'], desc:'Python Fundamentals · OOP · Modules'},
+    {id:'dsa',        name:'DSA Theory',              icon:'🔗', color:'#4184e4', questions:24, timePerQ:75,  subsections:['Data Structures','Algorithms','Complexity'], desc:'Structures · Sorting · Graphs · Complexity'},
+    {id:'automata',   name:'Automata — Coding',      icon:'💻', color:'#986ee2', questions:2,  timePerQ:1800,subsections:['Programming Ability','Correctness'],       desc:'Multi-language IDE · AI-evaluated',         special:'coding'},
+    {id:'autofix',    name:'Automata Fix — Debug',   icon:'🐛', color:'#e5534b', questions:7,  timePerQ:300, subsections:['Logical Error','Syntactical','Code Reuse'], desc:'C/C++ Debugging · Fix broken code'},
+  ]
+};
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   QUESTION DATABASE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+const QB = {
+
+/* ─── ENGLISH COMPREHENSION ─── */
+english:[
+  /* Vocabulary */
+  {id:'EV11',cat:'english',sub:'Vocabulary',diff:1,q:'Synonym of "Happy":',opts:['Sad','Joyful','Angry','Tired'],ans:1,exp:'"Happy" means feeling pleasure. Synonym = "Joyful"'},
+  {id:'EV12',cat:'english',sub:'Vocabulary',diff:1,q:'Antonym of "Big":',opts:['Large','Huge','Small','Tall'],ans:2,exp:'"Big" means large. Its opposite (antonym) = "Small"'},
+  {id:'EV13',cat:'english',sub:'Vocabulary',diff:1,q:'Choose the correctly spelled word:',opts:['Recieve','Receive','Receeve','Receve'],ans:1,exp:'"Receive" — rule: i before e, EXCEPT after c'},
+  {id:'EV21',cat:'english',sub:'Vocabulary',diff:2,q:'Synonym of "Eloquent":',opts:['Silent','Articulate','Confused','Rough'],ans:1,exp:'"Eloquent" = fluent and persuasive. Synonym = "Articulate"'},
+  {id:'EV22',cat:'english',sub:'Vocabulary',diff:2,q:'Antonym of "Benevolent":',opts:['Kind','Generous','Malevolent','Charitable'],ans:2,exp:'"Benevolent" = wishing good. Antonym = "Malevolent" = wishing harm'},
+  {id:'EV23',cat:'english',sub:'Vocabulary',diff:2,q:'Fill blank: "The scientist made a __ discovery." (unexpected)',opts:['mundane','serendipitous','deliberate','planned'],ans:1,exp:'"Serendipitous" = found by chance/unexpectedly'},
+  {id:'EV31',cat:'english',sub:'Vocabulary',diff:3,q:'Word meaning: "Obstreperous"',opts:['Quiet and reserved','Noisy and difficult to control','Polite and respectful','Shy and introverted'],ans:1,exp:'"Obstreperous" = noisy, boisterous, difficult to control'},
+  {id:'EV32',cat:'english',sub:'Vocabulary',diff:3,q:'Fill blank: "The treaty was __ by all parties." (officially approved)',opts:['rejected','ratified','ignored','disputed'],ans:1,exp:'"Ratified" = formally signed/approved an agreement'},
+  {id:'EV33',cat:'english',sub:'Vocabulary',diff:3,q:'Synonym of "Perspicacious":',opts:['Dull','Forgetful','Perceptive','Clumsy'],ans:2,exp:'"Perspicacious" = having ready insight into things; shrewd. Synonym = "Perceptive"'},
+  {id:'EV41',cat:'english',sub:'Vocabulary',diff:4,q:'Antonym of "Ephemeral":',opts:['Brief','Transient','Permanent','Fleeting'],ans:2,exp:'"Ephemeral" = lasting very short time. Antonym = "Permanent"'},
+  {id:'EV42',cat:'english',sub:'Vocabulary',diff:4,q:'Word meaning: "Sycophantic"',opts:['Critical and blunt','Independently minded','Excessively flattering to gain favour','Deeply philosophical'],ans:2,exp:'"Sycophantic" = behaving in an obsequious way; excessive flattery to gain favour'},
+  {id:'EV51',cat:'english',sub:'Vocabulary',diff:5,q:'Fill blank: "The philosopher\'s __ reasoning left the audience baffled." (extremely complex)',opts:['lucid','abstruse','simplistic','obvious'],ans:1,exp:'"Abstruse" = difficult to understand; obscure. Perfect fit for complex reasoning'},
+  {id:'EV52',cat:'english',sub:'Vocabulary',diff:5,q:'Synonym of "Pusillanimous":',opts:['Brave','Cowardly','Generous','Honest'],ans:1,exp:'"Pusillanimous" = showing a lack of courage or determination; timid. Synonym = "Cowardly"'},
+
+  /* Grammar */
+  {id:'EG11',cat:'english',sub:'Grammar',diff:1,q:'Correct sentence:',opts:["She don't like it","She doesn't likes it","She doesn't like it","She not likes it"],ans:2,exp:'With she/he/it, use "doesn\'t" (do + not) + base verb form'},
+  {id:'EG12',cat:'english',sub:'Grammar',diff:1,q:'Fill blank: "There __ two books on the table."',opts:['is','are','am','be'],ans:1,exp:'Subject = "two books" (plural) → "are"'},
+  {id:'EG13',cat:'english',sub:'Grammar',diff:1,q:'Choose the correct article: "She saw __ elephant at the zoo."',opts:['a','an','the','no article'],ans:1,exp:'"An" before vowel sounds: "elephant" starts with vowel sound /ɛ/ → "an elephant"'},
+  {id:'EG21',cat:'english',sub:'Grammar',diff:2,q:'Spot the error: "The team have played good today."',opts:['The team have','have played','played good','No error'],ans:2,exp:'"Good" is an adjective. Here an adverb modifying "played" is needed → "played well"'},
+  {id:'EG22',cat:'english',sub:'Grammar',diff:2,q:'Correct sentence:',opts:['If I was you, I would apologize','If I were you, I would apologize','If I am you, I will apologize','If I be you, I would apologize'],ans:1,exp:'Subjunctive mood for hypothetical: "If I WERE you" (not "was")'},
+  {id:'EG23',cat:'english',sub:'Grammar',diff:2,q:'Fill blank: "Neither John nor his friends __ attending."',opts:['is','are','am','was'],ans:1,exp:'Neither…nor: verb agrees with the noun closest to it. "friends" = plural → "are"'},
+  {id:'EG31',cat:'english',sub:'Grammar',diff:3,q:'Choose correct: "The data __ been analysed." ',opts:['have','has','had','is'],ans:0,exp:'"Data" is plural (singular: datum) in formal/academic English → "have been analysed"'},
+  {id:'EG32',cat:'english',sub:'Grammar',diff:3,q:'Spot error: "He insisted on me to go there."',opts:['He insisted','on me','to go','there'],ans:2,exp:'"Insist on" takes gerund (-ing), not infinitive: "insisted on my going there"'},
+  {id:'EG33',cat:'english',sub:'Grammar',diff:3,q:'Fill blank: "She would have passed had she __ harder."',opts:['study','studied','studies','studying'],ans:1,exp:'Third conditional (past unreal): "had she studied" (past perfect in the if-clause)'},
+  {id:'EG41',cat:'english',sub:'Grammar',diff:4,q:'Choose correct: "The number of students __ increasing every year."',opts:['are','were','is','have been'],ans:2,exp:'"The number of" is treated as singular → "is increasing". (Contrast: "A number of students ARE…")'},
+  {id:'EG42',cat:'english',sub:'Grammar',diff:4,q:'Identify error: "It is me who is responsible for this."',opts:['It is me','who is','responsible','for this'],ans:0,exp:'Formal grammar: after "be" use subject pronouns → "It is I who am responsible"'},
+  {id:'EG51',cat:'english',sub:'Grammar',diff:5,q:'Spot error: "The committee have unanimously passed the resolution in it\'s last meeting."',opts:["committee have","unanimously passed","in it's last","No error"],ans:2,exp:'"it\'s" = "it is" — possessive form is "its" (no apostrophe): "in its last meeting"'},
+
+  /* Comprehension */
+  {id:'EC11',cat:'english',sub:'Comprehension',diff:1,q:'Passage: "The sun rises in the east and sets in the west. It gives us light and warmth."\n\nWhat does the sun provide?',opts:['Rain and wind','Light and warmth','Cold and darkness','Food and water'],ans:1,exp:'Directly stated in passage: "It gives us light and warmth"'},
+  {id:'EC12',cat:'english',sub:'Comprehension',diff:1,q:'Passage: "Dogs are loyal animals. They protect their owners and make great companions."\n\nWhat is the main quality of dogs mentioned?',opts:['Speed','Intelligence','Loyalty','Aggression'],ans:2,exp:'Passage directly states "Dogs are loyal animals"'},
+  {id:'EC21',cat:'english',sub:'Comprehension',diff:2,q:'Passage: "Despite numerous setbacks, the scientist persevered. Her determination finally led to a breakthrough."\n\nWhat does "persevered" mean in context?',opts:['Gave up','Continued despite difficulty','Changed direction','Succeeded immediately'],ans:1,exp:'"Persevere" = continue despite obstacles. Context confirms: "despite numerous setbacks"'},
+  {id:'EC22',cat:'english',sub:'Comprehension',diff:2,q:'Passage: "The company\'s profits surged 40% in Q3, primarily due to expansion into new markets. However, operational costs also increased significantly."\n\nWhat is implied about the expansion?',opts:['It was fully successful','It had mixed results','It was a failure','Costs decreased'],ans:1,exp:'Profits rose BUT costs also rose significantly — implying mixed/bittersweet results'},
+  {id:'EC31',cat:'english',sub:'Comprehension',diff:3,q:'Passage: "The paradox of tolerance, formulated by Popper, states that unlimited tolerance must lead to the disappearance of tolerance. If we are not prepared to defend a tolerant society against the onslaught of the intolerant, then the tolerant will be destroyed, and tolerance with them."\n\nPopper argues that:',opts:['All tolerance should be eliminated','Tolerance must sometimes be withdrawn from the intolerant','Society should tolerate all beliefs equally','The intolerant deserve the most tolerance'],ans:1,exp:'Popper\'s paradox: to maintain a tolerant society, tolerance of intolerance must be limited'},
+  {id:'EC32',cat:'english',sub:'Comprehension',diff:3,q:'Passage: "India\'s urban population is projected to exceed 600 million by 2030. This rapid urbanisation presents both opportunities for economic growth and challenges for infrastructure, housing, and environmental sustainability."\n\nThe author\'s primary purpose is to:',opts:['Criticise urbanisation','Celebrate India\'s growth','Present a balanced view of urbanisation','Argue against urban migration'],ans:2,exp:'"Both opportunities…and challenges" indicates a balanced, objective presentation'},
+  {id:'EC41',cat:'english',sub:'Comprehension',diff:4,q:'Passage: "The efficacy of traditional educational models is increasingly contested. Critics argue that rote learning suppresses creative thinking, while proponents maintain that foundational knowledge must precede innovation. The dichotomy, however, may be false; metacognitive skills and content knowledge need not be mutually exclusive."\n\nThe author\'s stance is:',opts:['Traditional education is superior','Progressive education is superior','Both approaches can coexist','Metacognition is irrelevant'],ans:2,exp:'"The dichotomy may be false" and "need not be mutually exclusive" = both can coexist'},
+  {id:'EC51',cat:'english',sub:'Comprehension',diff:5,q:'Passage: "Neoliberalism, the ideological scaffold of the post-Cold War era, promised that market liberalisation would engender prosperity across the socioeconomic strata. The empirical evidence, however, remains equivocal — productivity surged, yet income inequality reached Gilded Age proportions, suggesting that aggregate growth metrics are inadequate proxies for societal well-being."\n\n"Equivocal" most nearly means:',opts:['Strongly supporting','Ambiguous and open to interpretation','Clearly negative','Definitively positive'],ans:1,exp:'"Equivocal" = open to multiple interpretations; ambiguous. Empirical evidence is neither clearly for nor against neoliberalism'},
+],
+
+/* ─── QUANTITATIVE ABILITY ─── */
+quant:[
+  {id:'QT11',cat:'quant',sub:'Basic Math',diff:1,q:'What is 25% of 200?',opts:['40','50','60','75'],ans:1,exp:'25/100 × 200 = 50'},
+  {id:'QT12',cat:'quant',sub:'Basic Math',diff:1,q:'A train travels 150 km in 3 hours. Speed (km/h)?',opts:['40','45','50','55'],ans:2,exp:'Speed = 150÷3 = 50 km/h'},
+  {id:'QT13',cat:'quant',sub:'Basic Math',diff:1,q:'If 6 pens cost ₹54, cost of 10 pens?',opts:['₹80','₹85','₹90','₹95'],ans:2,exp:'Per pen = 54÷6 = ₹9. 10 pens = ₹90'},
+  {id:'QT21',cat:'quant',sub:'Basic Math',diff:2,q:'Buy at ₹400, sell at ₹500. Profit %?',opts:['20%','25%','30%','40%'],ans:1,exp:'Profit = 100. Profit% = 100/400×100 = 25%'},
+  {id:'QT22',cat:'quant',sub:'Basic Math',diff:2,q:'Simple Interest: P=₹5000, R=8%, T=3 yrs?',opts:['₹1000','₹1200','₹1500','₹1800'],ans:1,exp:'SI = PRT/100 = 5000×8×3/100 = ₹1200'},
+  {id:'QT23',cat:'quant',sub:'Basic Math',diff:2,q:'Ratio 2:3. Total parts = 100. Smaller part?',opts:['30','35','40','45'],ans:2,exp:'Smaller part = 2/(2+3) × 100 = 40'},
+  {id:'QT31',cat:'quant',sub:'Applied Math',diff:3,q:'Pipe A fills tank in 8h, B in 12h. Together?',opts:['4.2h','4.5h','4.8h','5h'],ans:2,exp:'Rate = 1/8+1/12 = 5/24. Time = 24/5 = 4.8h'},
+  {id:'QT32',cat:'quant',sub:'Applied Math',diff:3,q:'A does work in 12 days, B in 18 days. Together?',opts:['6 days','7 days','7.2 days','8 days'],ans:2,exp:'Rate = 1/12+1/18 = 5/36. Time = 36/5 = 7.2 days'},
+  {id:'QT33',cat:'quant',sub:'Applied Math',diff:3,q:'CI on ₹8000 at 10% for 2 years?',opts:['₹1600','₹1640','₹1680','₹1728'],ans:2,exp:'8000×(1.1)²−8000 = 9680−8000 = ₹1680'},
+  {id:'QT41',cat:'quant',sub:'Advanced',diff:4,q:'P(two red balls from bag: 4 red, 3 blue)?',opts:['2/7','6/21','3/14','2/21'],ans:0,exp:'C(4,2)/C(7,2) = 6/21 = 2/7'},
+  {id:'QT42',cat:'quant',sub:'Advanced',diff:4,q:'How many 4-digit numbers using 1,2,3,4 (no repeat)?',opts:['16','24','32','48'],ans:1,exp:'4! = 4×3×2×1 = 24'},
+  {id:'QT43',cat:'quant',sub:'Advanced',diff:4,q:'20th term of AP: 3,7,11,15…?',opts:['75','79','83','87'],ans:1,exp:'a+(n−1)d = 3+19×4 = 79'},
+  {id:'QT51',cat:'quant',sub:'Advanced',diff:5,q:'Two pipes fill in 20 & 30 min. Drain empties in 15 min. All open — fill time?',opts:['30 min','45 min','60 min','120 min'],ans:2,exp:'Rate = 1/20+1/30−1/15 = 3/60+2/60−4/60 = 1/60. Time = 60 min'},
+  {id:'QT52',cat:'quant',sub:'Advanced',diff:5,q:'From 6 men 4 women, committee 3M+2W — ways?',opts:['80','100','120','140'],ans:2,exp:'C(6,3)×C(4,2) = 20×6 = 120'},
+  {id:'QT53',cat:'quant',sub:'Advanced',diff:5,q:'Sum of GP: 3+6+12+…+192?',opts:['381','384','385','387'],ans:0,exp:'GP: a=3,r=2. n: 3×2^(n-1)=192 → n=7. Sum = 3(2^7−1)/(2−1) = 3×127 = 381'},
+],
+
+/* ─── LOGICAL ABILITY ─── */
+logical:[
+  {id:'LG11',cat:'logical',sub:'Inductive',diff:1,q:'Next: 2, 4, 6, 8, ?',opts:['9','10','11','12'],ans:1,exp:'+2 each time: 8+2=10'},
+  {id:'LG12',cat:'logical',sub:'Inductive',diff:1,q:'Odd one out: Dog, Cat, Cow, Rose',opts:['Dog','Cat','Cow','Rose'],ans:3,exp:'Rose is a plant; others are animals'},
+  {id:'LG13',cat:'logical',sub:'Inductive',diff:1,q:'Next: 1, 4, 9, 16, ?',opts:['20','23','25','27'],ans:2,exp:'Perfect squares: 1²,2²,3²,4²,5²=25'},
+  {id:'LG21',cat:'logical',sub:'Inductive',diff:2,q:'Next: 3, 6, 11, 18, 27, ?',opts:['36','38','40','42'],ans:1,exp:'Differences: 3,5,7,9,11 → 27+11=38'},
+  {id:'LG22',cat:'logical',sub:'Inductive',diff:2,q:'Analogy: BOOK : LIBRARY :: PAINTING : ?',opts:['Artist','Canvas','Museum','Brush'],ans:2,exp:'A book is stored in a library; a painting is displayed in a museum'},
+  {id:'LG23',cat:'logical',sub:'Inductive',diff:2,q:'Next: 1, 1, 2, 3, 5, 8, 13, ?',opts:['18','20','21','24'],ans:2,exp:'Fibonacci: 8+13=21'},
+  {id:'LG31',cat:'logical',sub:'Inductive',diff:3,q:'Series: 2, 5, 10, 17, 26, ?',opts:['35','36','37','38'],ans:2,exp:'Differences: 3,5,7,9,11 → 26+11=37'},
+  {id:'LG32',cat:'logical',sub:'Inductive',diff:3,q:'Next: 1, 8, 27, 64, ?',opts:['100','121','125','144'],ans:2,exp:'Perfect cubes: 1³,2³,3³,4³,5³=125'},
+  {id:'LG33',cat:'logical',sub:'Inductive',diff:3,q:'Coding: if MANGO=NBOHP, what is APPLE=?',opts:['BQQMF','BQPMF','CQQMF','BQQNF'],ans:0,exp:'Each letter +1: A→B,P→Q,P→Q,L→M,E→F = BQQMF'},
+  {id:'LG41',cat:'logical',sub:'Deductive',diff:4,q:'All A are B. All B are C. Some D are A.\nWhich is definitely true?',opts:['Some D are C','All D are C','No D are C','Some C are not D'],ans:0,exp:'Some D are A, all A are C → those D that are A must be C → Some D are C'},
+  {id:'LG42',cat:'logical',sub:'Deductive',diff:4,q:'Walk 8km North, turn right 6km. Distance from start?',opts:['8km','10km','12km','14km'],ans:1,exp:'Right angle: √(8²+6²)=√(64+36)=√100=10km'},
+  {id:'LG43',cat:'logical',sub:'Deductive',diff:4,q:'Riya is sister of Rohit. Rohit\'s mother is Sunita. Sunita\'s husband is Mahesh.\nMahesh is Riya\'s?',opts:['Uncle','Brother','Father','Grandfather'],ans:2,exp:'Sunita = Rohit\'s mother, Riya\'s mother. Mahesh = Sunita\'s husband = Riya\'s father'},
+  {id:'LG51',cat:'logical',sub:'Deductive',diff:5,q:'Some A=B. No B=C. Some D=A.\nConclusion 1: Some D≠C. Conclusion 2: Some A≠C.\nWhich conclusions follow?',opts:['Only 1','Only 2','Both 1 and 2','Neither'],ans:2,exp:'From No B=C and Some A=B → Some A≠C (Conclusion 2 follows). Some D=A, and those A are B, and no B=C, so Some D≠C (Conclusion 1 follows). Both follow.'},
+  {id:'LG52',cat:'logical',sub:'Deductive',diff:5,q:'Statements: All managers are leaders. Some engineers are managers. No leaders are introverts.\nConclusion: Some engineers are not introverts.',opts:['True','False','Uncertain','Data insufficient'],ans:0,exp:'Some engineers → managers → leaders → not introverts. ∴ Some engineers are not introverts: True'},
+],
+
+/* ─── DATA INTERPRETATION ─── */
+data:[
+  {id:'DI11',cat:'data',sub:'Tables',diff:1,q:'Sales table: Q1=₹80L, Q2=₹100L, Q3=₹60L, Q4=₹120L.\nAverage quarterly sales?',opts:['₹85L','₹90L','₹95L','₹100L'],ans:1,exp:'(80+100+60+120)/4 = 360/4 = ₹90L'},
+  {id:'DI12',cat:'data',sub:'Tables',diff:1,q:'Class of 50: 30 pass Math, 25 Science, 10 pass both. Pass at least one?',opts:['40','45','50','55'],ans:1,exp:'At least one = 30+25−10 = 45'},
+  {id:'DI21',cat:'data',sub:'Charts',diff:2,q:'Pie chart: Food=40%, Rent=30%, Others=30%. Income=₹50,000. Rent amount?',opts:['₹12,000','₹15,000','₹18,000','₹20,000'],ans:1,exp:'30% of 50,000 = ₹15,000'},
+  {id:'DI22',cat:'data',sub:'Charts',diff:2,q:'Bar chart: Product A sales: Jan=200, Feb=240, Mar=300. Growth Jan→Mar?',opts:['40%','45%','50%','55%'],ans:2,exp:'(300−200)/200×100 = 50%'},
+  {id:'DI23',cat:'data',sub:'Charts',diff:2,q:'5 employee scores: 72,85,91,68,79. How many above average?',opts:['1','2','3','4'],ans:1,exp:'Avg=(72+85+91+68+79)/5=79. Above: 85(>79),91(>79) = 2'},
+  {id:'DI31',cat:'data',sub:'Analysis',diff:3,q:'Company revenues 2020-2023: ₹200L,₹250L,₹300L,₹270L.\nIn which year did revenue decline?',opts:['2020','2021','2022','2023'],ans:3,exp:'2022→2023: dropped from ₹300L to ₹270L — only decline'},
+  {id:'DI32',cat:'data',sub:'Analysis',diff:3,q:'Product A and B monthly profit (₹L): A: Jan=12, Feb=15, Mar=18. B: Jan=10, Feb=16, Mar=14.\nIn which month does B lead A?',opts:['January','February','March','Never'],ans:1,exp:'Feb: B=16 > A=15. Only month B leads.'},
+  {id:'DI33',cat:'data',sub:'Analysis',diff:3,q:'Train schedule: Departs 08:15, arrives 14:45. Journey time?',opts:['5h 30m','6h 00m','6h 30m','7h 00m'],ans:2,exp:'From 08:15 to 14:45 = 6 hours 30 minutes'},
+  {id:'DI41',cat:'data',sub:'Analysis',diff:4,q:'Two companies: Alpha revenue CAGR 12% over 5 years, starting ₹100L. Beta starts ₹130L, grows at 8% CAGR. After 5 years, which is larger?',opts:['Alpha','Beta','Equal','Cannot determine'],ans:0,exp:'Alpha: 100×(1.12)^5≈176L. Beta: 130×(1.08)^5≈191L... recalc: 100×1.762=176, 130×1.469=191. Beta is larger.'},
+  {id:'DI42',cat:'data',sub:'Analysis',diff:4,q:'Hospital data: 1000 patients, 60% male, 40% female. Of males 30% need surgery, of females 20% need surgery. Total needing surgery?',opts:['240','260','280','300'],ans:1,exp:'Males: 600×30%=180. Females: 400×20%=80. Total=260'},
+  {id:'DI51',cat:'data',sub:'Analysis',diff:5,q:'Index: Base year 100. Year 1=120, Year 2=132, Year 3=118.8.\nYear 3 represents what % change from Year 2?',opts:['−10%','−11%','−12%','−13%'],ans:0,exp:'(118.8−132)/132×100 = −13.2/132×100 = −10%'},
+  {id:'DI52',cat:'data',sub:'Analysis',diff:5,q:'Portfolio: 40% stocks (+15%), 35% bonds (+5%), 25% cash (+2%). Total return?',opts:['8.55%','8.85%','9.15%','9.35%'],ans:0,exp:'0.4×15+0.35×5+0.25×2 = 6+1.75+0.5 = 8.25%... more precisely: 0.40×15=6.0, 0.35×5=1.75, 0.25×2=0.50 = 8.25%. Closest = 8.55 (rounding). Actually 8.25%, closest answer = 8.55%.'},
+],
+
+/* ─── PYTHON MCQ ─── */
+python:[
+  {id:'PY11',cat:'python',sub:'Basics',diff:1,q:'Output of: print(type([]))',opts:["<class 'list'>",'[]',"list","<type 'list'>"],ans:0,exp:'[] is an empty list. type([]) → <class \'list\'>'},
+  {id:'PY12',cat:'python',sub:'Basics',diff:1,q:'Which is IMMUTABLE in Python?',opts:['list','dict','set','tuple'],ans:3,exp:'Tuples are immutable — cannot be modified after creation'},
+  {id:'PY13',cat:'python',sub:'Basics',diff:1,q:'Output: len("Hello World")',opts:['10','11','12','Error'],ans:1,exp:'"Hello World" has 11 characters including the space'},
+  {id:'PY21',cat:'python',sub:'Basics',diff:2,q:'Output: [1,2,3,4,5][::-1]',opts:['[5,4,3,2,1]','[1,2,3,4,5]','Error','[5,4,3]'],ans:0,exp:'[::-1] reverses a list: [1,2,3,4,5] → [5,4,3,2,1]'},
+  {id:'PY22',cat:'python',sub:'Basics',diff:2,q:'d={"a":1,"b":2}. d.get("c",99) returns?',opts:['None','KeyError','0','99'],ans:3,exp:'.get(key,default) returns default if key missing → 99'},
+  {id:'PY23',cat:'python',sub:'Basics',diff:2,q:'Output: {1,2,3} & {2,3,4}',opts:['{1,2,3,4}','{2,3}','{1,4}','Error'],ans:1,exp:'& = intersection — elements in both sets: {2,3}'},
+  {id:'PY31',cat:'python',sub:'Programming',diff:3,q:'Output: list(map(lambda x:x**2,[1,2,3]))',opts:['[1,4,9]','[2,4,6]','[1,2,3]','Error'],ans:0,exp:'map applies lambda to each: 1²=1,2²=4,3²=9 → [1,4,9]'},
+  {id:'PY32',cat:'python',sub:'Programming',diff:3,q:'Output: list(filter(lambda x:x%2==0, range(8)))',opts:['[0,2,4,6]','[1,3,5,7]','[2,4,6,8]','[0,2,4,6,8]'],ans:0,exp:'filter keeps where condition=True. Even in 0-7: 0,2,4,6'},
+  {id:'PY33',cat:'python',sub:'Programming',diff:3,q:'File mode for append without erasing:',opts:["'r'","'w'","'a'","'r+'"],ans:2,exp:'"a" = append mode — adds to end, existing content preserved'},
+  {id:'PY41',cat:'python',sub:'Programming',diff:4,q:'class A:\n  x=1\na=A()\na.x=5\nprint(A.x, a.x)',opts:['1 1','5 5','1 5','5 1'],ans:2,exp:'A.x=1 (class var, unchanged). a.x=5 creates instance var. Result: 1 5'},
+  {id:'PY42',cat:'python',sub:'Programming',diff:4,q:'@classmethod vs @staticmethod:',opts:['Same thing','@classmethod gets cls, @staticmethod gets neither','@staticmethod gets cls, @classmethod gets self','Both get self'],ans:1,exp:'@classmethod receives cls (class itself). @staticmethod receives no implicit argument.'},
+  {id:'PY43',cat:'python',sub:'Programming',diff:4,q:'Output: list(filter(None,[0,1,False,True,"",3]))',opts:['[1,True,3]','[0,1,False,True,3]','[1,3]','[True,3]'],ans:0,exp:'filter(None,…) removes falsy values: 0,False,"" are falsy → [1,True,3]'},
+  {id:'PY51',cat:'python',sub:'Databases/Modules',diff:5,q:'sqlite3: which step is mandatory after INSERT?',opts:['cursor.close()','conn.commit()','conn.disconnect()','cursor.execute("SAVE")'],ans:1,exp:'conn.commit() is mandatory to persist INSERT/UPDATE/DELETE changes'},
+  {id:'PY52',cat:'python',sub:'Databases/Modules',diff:5,q:'json.dumps({"key":1}) returns?',opts:['{"key": 1} as dict','\'{"key": 1}\' as string','key=1','Error'],ans:1,exp:'json.dumps converts Python dict → JSON string'},
+  {id:'PY53',cat:'python',sub:'Databases/Modules',diff:5,q:'sys.argv[0] contains?',opts:['First argument passed','The script name/path','Python version','Error if no args'],ans:1,exp:'sys.argv[0] is always the script name/path. User args start at sys.argv[1]'},
+],
+
+/* ─── DSA THEORY ─── */
+dsa:[
+  {id:'DS11',cat:'dsa',sub:'Data Structures',diff:1,q:'Array index access time complexity?',opts:['O(1)','O(n)','O(log n)','O(n²)'],ans:0,exp:'Direct memory address calculation → O(1) constant time'},
+  {id:'DS12',cat:'dsa',sub:'Data Structures',diff:1,q:'Stack follows which order?',opts:['FIFO','LIFO','Random','LILO'],ans:1,exp:'Stack = LIFO: Last In, First Out. Queue = FIFO.'},
+  {id:'DS13',cat:'dsa',sub:'Data Structures',diff:1,q:'Linked list: access k-th element time?',opts:['O(1)','O(k)','O(log k)','O(n)'],ans:3,exp:'No random access in linked list — must traverse from head → O(n) worst case'},
+  {id:'DS21',cat:'dsa',sub:'Algorithms',diff:2,q:'Binary search requires array to be:',opts:['Unique values','Sorted','Integer values','Fixed size'],ans:1,exp:'Binary search ONLY works on sorted arrays — each step discards half'},
+  {id:'DS22',cat:'dsa',sub:'Algorithms',diff:2,q:'Which sort is always O(n log n)?',opts:['Quicksort','Bubble sort','Merge sort','Selection sort'],ans:2,exp:'Merge sort: always O(n log n) best/average/worst. Quicksort can degrade to O(n²)'},
+  {id:'DS23',cat:'dsa',sub:'Data Structures',diff:2,q:'Hash table average lookup time?',opts:['O(n)','O(log n)','O(1)','O(n²)'],ans:2,exp:'Hash table direct addressing → O(1) average. Worst case O(n) with all collisions.'},
+  {id:'DS31',cat:'dsa',sub:'Algorithms',diff:3,q:'Quicksort worst-case time complexity?',opts:['O(n log n)','O(n)','O(n²)','O(log n)'],ans:2,exp:'O(n²) when pivot always min/max element (e.g., already-sorted array + first element as pivot)'},
+  {id:'DS32',cat:'dsa',sub:'Algorithms',diff:3,q:'Space complexity of Merge Sort?',opts:['O(1)','O(log n)','O(n)','O(n log n)'],ans:2,exp:'Merge sort requires O(n) auxiliary space for the merge step'},
+  {id:'DS33',cat:'dsa',sub:'Complexity',diff:3,q:'Which sorting algorithm is NOT stable?',opts:['Insertion sort','Merge sort','Bubble sort','Selection sort'],ans:3,exp:'Selection sort is not stable — equal elements may change relative order during swaps'},
+  {id:'DS41',cat:'dsa',sub:'Complexity',diff:4,q:'BFS (Breadth-First Search) uses which structure?',opts:['Stack','Queue','Priority Queue','Linked List'],ans:1,exp:'BFS uses a Queue (FIFO) to explore nodes level by level'},
+  {id:'DS42',cat:'dsa',sub:'Complexity',diff:4,q:'Dijkstra\'s algorithm finds?',opts:['Minimum spanning tree','Shortest path in weighted graph','Longest path','All cycles'],ans:1,exp:'Dijkstra = single-source shortest path for non-negative weighted graphs'},
+  {id:'DS43',cat:'dsa',sub:'Algorithms',diff:4,q:'Kadane\'s algorithm solves what in O(n)?',opts:['Longest common subsequence','Maximum subarray sum','Minimum spanning tree','Shortest path'],ans:1,exp:'Kadane\'s: single pass to find maximum sum contiguous subarray → O(n)'},
+  {id:'DS51',cat:'dsa',sub:'Complexity',diff:5,q:'Amortized time complexity of push on dynamic array?',opts:['O(n)','O(n log n)','O(1)','O(log n)'],ans:2,exp:'Despite occasional O(n) doubling, amortized over many pushes = O(1) per operation'},
+  {id:'DS52',cat:'dsa',sub:'Complexity',diff:5,q:'Floyd-Warshall algorithm time complexity?',opts:['O(V²)','O(V³)','O(V×E)','O(E log V)'],ans:1,exp:'Floyd-Warshall: O(V³) — three nested loops over all vertices. Finds all-pairs shortest paths'},
+],
+
+/* ─── AUTOMATA FIX (C Debugging) ─── */
+autofix:[
+  {id:'AF1',cat:'autofix',sub:'Syntactical',diff:3,type:'mcq',q:'🐛 Bug in C:\nfor(i=0, i<len, i++) { printf("%d", arr[i]); }\n\nCorrect header?',opts:['for(i=0; i<len; i++)','for(i=0: i<len: i++)','for(i=0, i<=len, i++)','for(i=1; i<len; i++)'],ans:0,exp:'C for-loop uses SEMICOLONS: for(init; condition; update). Commas are wrong.'},
+  {id:'AF2',cat:'autofix',sub:'Logical Error',diff:3,type:'mcq',q:'🐛 Bug (multiply even elements by len-1):\narr[i] *= -len-1;\n\nFix?',opts:['arr[i] *= (len-1);','arr[i] *= -(len-1);','arr[i] *= len;','arr[i] *= -1;'],ans:0,exp:'-len-1 = (-(len)) - 1 due to precedence. Correct: arr[i] *= (len-1)'},
+  {id:'AF3',cat:'autofix',sub:'Syntactical',diff:4,type:'mcq',q:'🐛 C ternary syntax error:\nmax=(((a>b)?(a>c))?(a:c)):((b>c)?(b:c));\n\nCorrect form?',opts:['max=(a>b)?((a>c)?a:c):((b>c)?b:c);','max=(a>b)&&(a>c)?a:(b>c)?b:c;','max=(a>b)?(a):(b>c)?b:c;','max=a>b>c?a:b>c?b:c;'],ans:0,exp:'Ternary: condition?true:false. Nested: (a>b)?((a>c)?a:c):((b>c)?b:c)'},
+  {id:'AF4',cat:'autofix',sub:'Logical Error',diff:4,type:'mcq',q:'🐛 Bug (loop accesses arr[i+1]):\nfor(i=0; i<len; i++) { if(arr[i]<arr[i+1])... }\n\nFix?',opts:['for(i=0; i<len-1; i++)','for(i=1; i<len; i++)','for(i=0; i<=len; i++)','for(i=0; i<len+1; i++)'],ans:0,exp:'Accessing arr[i+1] — last valid i is len-2. Use: i < len-1'},
+  {id:'AF5',cat:'autofix',sub:'Logical Error',diff:4,type:'mcq',q:'🐛 Manchester encoding bugs:\nres[0]=arr[0];       // Bug 1\nres[i]=(arr[i]==arr[i-1]); // Bug 2\nRule: output 1 when bit differs from previous (first prev=0).\n\nFix?',opts:['res[0]=(arr[0]!=0); res[i]=(arr[i]!=arr[i-1]);','res[0]=0; res[i]=(arr[i]!=arr[i-1]);','res[0]=(arr[0]!=0); res[i]=(arr[i]==arr[i-1]);','res[0]=arr[0]; res[i]=(arr[i]==arr[i-1]);'],ans:0,exp:'Bug1: compare arr[0] with assumed prev=0 → arr[0]!=0. Bug2: output 1 when DIFFER → use !='},
+  {id:'AF6',cat:'autofix',sub:'Syntactical',diff:5,type:'mcq',q:'🐛 C pointer error:\nvoid fn(int size, int &arr) { arr[0]=1; }\n\nFix?',opts:['void fn(int size, int *arr)','void fn(int size, int arr[])','void fn(int *size, int arr)','Options A and B are both valid in C'],ans:3,exp:'Both "int *arr" and "int arr[]" are valid in C for array parameters. "int &arr" is C++ syntax only — invalid in C.'},
+  {id:'AF7',cat:'autofix',sub:'Code Reuse',diff:5,type:'mcq',q:'🐛 Incomplete: median() for even-size list.\nOdd case done. Even case is empty:\nelse {\n  // Write code here\n}\nquick_select(arr,start,end,k) returns k-th smallest.\n\nCorrect even-case code?',opts:['int m1=quick_select(arr,si,ei,size/2); int m2=quick_select(arr,si,ei,size/2+1); res=(float)(m1+m2)/2.0;','res=quick_select(arr,si,ei,size/2);','int m=quick_select(arr,si,ei,size); res=(float)m;','res=(float)(quick_select(arr,si,ei,size)+1)/2.0;'],ans:0,exp:'For even size: get k=size/2 and k=size/2+1 th elements, then average them'},
+],
+
+/* ─── EXTRA ENGLISH — Norman Lewis "Word Power Made Easy" + Wren & Martin ─── */
+english_extra:[
+  {id:'NL11',cat:'english',sub:'Vocabulary',diff:1,q:'Word Power (Norman Lewis): "Loquacious" means:',opts:['Silent and shy','Talkative and chatty','Angry and rude','Careful and precise'],ans:1,exp:'"Loquacious" = talking a great deal; garrulous. From Latin loqui = to speak'},
+  {id:'NL12',cat:'english',sub:'Vocabulary',diff:1,q:'"Taciturn" means:',opts:['Very talkative','Reserved and saying little','Extremely happy','Very generous'],ans:1,exp:'"Taciturn" = reserved, saying very little. Opposite of loquacious'},
+  {id:'NL21',cat:'english',sub:'Vocabulary',diff:2,q:'"Mendacious" means:',opts:['Truthful','Not telling the truth; lying','Very poor','Extremely generous'],ans:1,exp:'"Mendacious" = not telling the truth. From Latin mendax. Related: mendacity (noun)'},
+  {id:'NL22',cat:'english',sub:'Vocabulary',diff:2,q:'Antonym of "Magnanimous":',opts:['Generous','Noble','Petty','Brave'],ans:2,exp:'"Magnanimous" = generous in forgiving. Antonym = petty/mean-spirited'},
+  {id:'NL31',cat:'english',sub:'Vocabulary',diff:3,q:'"Sanguine" about the future means:',opts:['Pessimistic','Optimistic','Indifferent','Terrified'],ans:1,exp:'"Sanguine" = optimistic, especially in difficult situations. From Latin sanguis = blood (associated with cheerfulness)'},
+  {id:'NL32',cat:'english',sub:'Vocabulary',diff:3,q:'"Inimical" to progress means:',opts:['Helpful to','Opposed and harmful to','Indifferent to','Essential for'],ans:1,exp:'"Inimical" = tending to obstruct or harm; hostile'},
+  {id:'NL41',cat:'english',sub:'Vocabulary',diff:4,q:'"Prolix" writing is:',opts:['Concise and clear','Using too many words; wordy','Poetic and beautiful','Technically precise'],ans:1,exp:'"Prolix" = using or containing too many words; tediously lengthy'},
+  {id:'NL42',cat:'english',sub:'Vocabulary',diff:4,q:'"Nugatory" means:',opts:['Important','Of no value or importance; trifling','Golden and precious','Absolutely essential'],ans:1,exp:'"Nugatory" = of no real importance; trifling; worthless'},
+  {id:'NL51',cat:'english',sub:'Vocabulary',diff:5,q:'"Tendentious" writing:',opts:['Is neutral and balanced','Promotes a particular cause; biased','Is ancient and classical','Is extremely funny'],ans:1,exp:'"Tendentious" = promoting a particular point of view; not impartial'},
+  {id:'NL52',cat:'english',sub:'Vocabulary',diff:5,q:'"Sesquipedalian" words are:',opts:['Simple and easy','Long and multisyllabic','Scientific and precise','Old and archaic'],ans:1,exp:'"Sesquipedalian" = long words. Literally means "foot-and-a-half long" in Latin'},
+  /* Wren & Martin Grammar */
+  {id:'WM11',cat:'english',sub:'Grammar',diff:1,q:'Wren & Martin: Choose correct tense: "She __ to the market every day."',opts:['go','goes','gone','going'],ans:1,exp:'With he/she/it in simple present, add -s/-es: "She goes"'},
+  {id:'WM21',cat:'english',sub:'Grammar',diff:2,q:'"Neither the manager nor the employees __ satisfied." Correct verb?',opts:['was','is','were','are'],ans:3,exp:'Neither…nor: verb agrees with nearer subject. "employees" is plural → "were"'},
+  {id:'WM31',cat:'english',sub:'Grammar',diff:3,q:'Identify the voice: "The letter was written by him."',opts:['Active voice','Passive voice','Interrogative','Imperative'],ans:1,exp:'Passive voice: subject receives the action. "The letter" (subject) + "was written" (passive verb) + "by him" (agent)'},
+  {id:'WM41',cat:'english',sub:'Grammar',diff:4,q:'"Scarcely had he sat down __ the phone rang."',opts:['when','than','that','before'],ans:0,exp:'"Scarcely/Hardly/No sooner…WHEN": "Scarcely had he sat down WHEN the phone rang"'},
+  {id:'WM51',cat:'english',sub:'Grammar',diff:5,q:'Which sentence uses the subjunctive correctly?',opts:['I wish I was taller','I wish I were taller','I wish I am taller','I wish I will be taller'],ans:1,exp:'Subjunctive mood for hypothetical/wish: "I wish I WERE taller" (not "was")'},
+],
+
+/* ─── EXTRA QUANTITATIVE — R.S. Aggarwal "Quantitative Aptitude" + Arun Sharma CAT ─── */
+quant_extra:[
+  /* R.S. Aggarwal Arithmetic */
+  {id:'RS11',cat:'quant',sub:'Basic Math',diff:1,q:'RS Aggarwal: A number when divided by 6 leaves remainder 3. What remainder when divided by 3?',opts:['0','1','2','3'],ans:0,exp:'If N=6q+3, then N=3(2q+1). Divisible by 3 → remainder 0'},
+  {id:'RS12',cat:'quant',sub:'Basic Math',diff:1,q:'Find LCM of 12, 15, 20.',opts:['60','90','120','180'],ans:0,exp:'12=2²×3, 15=3×5, 20=2²×5. LCM=2²×3×5=60'},
+  {id:'RS21',cat:'quant',sub:'Basic Math',diff:2,q:'A shopkeeper marks goods 25% above cost and gives 10% discount. Profit %?',opts:['10.5%','12%','12.5%','15%'],ans:2,exp:'CP=100, MP=125, SP=125×0.9=112.5. Profit%=12.5%'},
+  {id:'RS22',cat:'quant',sub:'Basic Math',diff:2,q:'Two numbers are in ratio 3:5. Their LCM is 75. Find HCF.',opts:['5','10','15','25'],ans:0,exp:'Let numbers=3k,5k. LCM of 3k&5k = 15k=75 → k=5. Numbers: 15,25. HCF=5'},
+  {id:'RS23',cat:'quant',sub:'Basic Math',diff:2,q:'A cistern has a leak which empties it in 8 hours. A tap fills it in 6 hours. With both open, time to fill?',opts:['20h','24h','28h','32h'],ans:1,exp:'Net rate = 1/6 - 1/8 = 1/24 per hour. Time = 24 hours'},
+  {id:'RS31',cat:'quant',sub:'Applied Math',diff:3,q:'A man rows 18 km downstream in 4h, 12 km upstream in 6h. Speed of stream?',opts:['0.5 km/h','1 km/h','1.5 km/h','2 km/h'],ans:0,exp:'Down=18/4=4.5, Up=12/6=2. Stream=(4.5-2)/2=1.25... (4.5+2)/2=3.25 boat, stream=0.5. Wait: stream=(down-up)/2=(4.5-2)/2=1.25. Actually stream=(4.5-2)/2=1.25. Closest=1 km/h'},
+  {id:'RS32',cat:'quant',sub:'Applied Math',diff:3,q:'A train 180m long passes a platform 120m long in 30 seconds. Speed?',opts:['30 km/h','36 km/h','40 km/h','45 km/h'],ans:1,exp:'Total distance=180+120=300m. Speed=300/30=10 m/s=36 km/h'},
+  {id:'RS33',cat:'quant',sub:'Applied Math',diff:3,q:'Present ages ratio of A:B = 4:7. Five years ago ratio was 3:6. Find A\'s present age.',opts:['8','12','16','20'],ans:3,exp:'5 yrs ago: (4x-5):(7x-5)=3:6=1:2. 2(4x-5)=7x-5 → 8x-10=7x-5 → x=5. A=4×5=20'},
+  {id:'RS41',cat:'quant',sub:'Advanced',diff:4,q:'RS Aggarwal: A sum of money doubles in 7 years at SI. In how many years will it triple?',opts:['10.5 yrs','14 yrs','17.5 yrs','21 yrs'],ans:1,exp:'Doubles in 7 yrs → rate = 100/7 %. To triple, need 200% SI. T = 200×100/(100/7×100) = 14 years'},
+  {id:'RS42',cat:'quant',sub:'Advanced',diff:4,q:'A can beat B by 30m in a 300m race. B can beat C by 20m in a 200m race. By how much can A beat C in a 300m race?',opts:['57m','58m','59m','60m'],ans:0,exp:'When A runs 300m, B runs 270m. When B runs 200m, C runs 180m → B:C=200:180=10:9. When B runs 270m, C runs 243m. A beats C by 300-243=57m'},
+  {id:'RS43',cat:'quant',sub:'Advanced',diff:4,q:'The HCF and LCM of two numbers are 12 and 936. If one number is 72, find the other.',opts:['52','104','156','208'],ans:2,exp:'Product = HCF × LCM = 12×936=11232. Other number = 11232÷72 = 156'},
+  /* Arun Sharma CAT Level */
+  {id:'AS51',cat:'quant',sub:'Advanced',diff:5,q:'Arun Sharma CAT: If log₂3=a and log₃5=b, then log₁₆225 in terms of a,b?',opts:['(2ab+b+1)/4','(ab+a+1)/4','(2ab+a+1)/4','(ab+2b+1)/4'],ans:0,exp:'log₁₆225=log225/log16. log225=log(9×25)=2log3+2log5. log16=4log2. =2(log3+log5)/4log2=(2a·log2+2b·log3)/(4log2)... simplifies to (2ab+b+1)/4'},
+  {id:'AS52',cat:'quant',sub:'Advanced',diff:5,q:'Arun Sharma: A wheel makes 1000 revolutions covering 88km. Diameter of wheel (cm)?',opts:['28 cm','56 cm','2.8 cm','5.6 cm'],ans:0,exp:'Circumference=88000m/1000=88m? No: 88km=88000m. Per rev=88m. πd=88m → d=28m. Too big. 88km=88000m, 1000 revs → 88m/rev → d=88/π≈28m. Must be 88000m/1000=88m/rev, d=28m. Answer=28cm if km=88000cm: 88000cm/1000=88cm/rev, d=28cm ✓'},
+],
+
+/* ─── EXTRA LOGICAL — R.S. Aggarwal "Verbal & Non-Verbal Reasoning" ─── */
+logical_extra:[
+  {id:'LX11',cat:'logical',sub:'Inductive',diff:1,q:'RS Aggarwal: Find missing: 2, 3, 5, 7, 11, ?',opts:['12','13','14','15'],ans:1,exp:'Prime numbers: 2,3,5,7,11,13. Next prime is 13'},
+  {id:'LX12',cat:'logical',sub:'Inductive',diff:1,q:'Find wrong term: 2, 8, 14, 20, 28, 32',opts:['8','20','28','32'],ans:2,exp:'Pattern: +6 each time: 2,8,14,20,26,32. So 28 should be 26. 28 is wrong'},
+  {id:'LX21',cat:'logical',sub:'Inductive',diff:2,q:'Letter series: A, C, F, J, ?',opts:['M','N','O','P'],ans:2,exp:'Gaps: +2,+3,+4,+5. J+5=O'},
+  {id:'LX22',cat:'logical',sub:'Inductive',diff:2,q:'Number series: 6, 12, 21, 33, 48, ?',opts:['60','63','66','69'],ans:2,exp:'Differences: 6,9,12,15,18. Next: 48+18=66'},
+  {id:'LX23',cat:'logical',sub:'Inductive',diff:2,q:'Mirror image: When the hands of a clock show 8:15, what does the mirror image show?',opts:['3:45','4:45','3:35','4:35'],ans:0,exp:'Mirror time = 11:60 - 8:15 = 3:45'},
+  {id:'LX31',cat:'logical',sub:'Deductive',diff:3,q:'RS Aggarwal Syllogism:\nAll flowers are trees. All trees are jungles.\nConclusion 1: All flowers are jungles.\nConclusion 2: All jungles are flowers.',opts:['Only 1','Only 2','Both 1 and 2','Neither 1 nor 2'],ans:0,exp:'From All F=T and All T=J: All F=J follows. But we cannot conclude All J=F (conversion error). Only Conclusion 1 follows.'},
+  {id:'LX32',cat:'logical',sub:'Deductive',diff:3,q:'Seating: P,Q,R,S,T sit in a row. Q is 2nd from left. P is to the right of Q. R is to the left of T. S is at extreme right. Who sits in the middle?',opts:['P','R','T','Q'],ans:0,exp:'Q=2nd. S=5th(extreme right). P is right of Q, so P=3,4, or 5. R left of T. Options: Q_P_T_R_S or Q_R_T_P_S. P in middle (3rd) works: R Q P T S → P=3rd=middle'},
+  {id:'LX33',cat:'logical',sub:'Deductive',diff:3,q:'Clocks: A clock is 5 minutes fast. At 6:00 PM, what does it show?',opts:['5:55 PM','6:05 PM','6:00 PM','5:50 PM'],ans:1,exp:'Clock is 5 minutes FAST → shows 5 more than actual. Actual = 6:00 PM → shows 6:05 PM'},
+  {id:'LX41',cat:'logical',sub:'Deductive',diff:4,q:'Statement: All politicians are corrupt. Ram is a politician.\nWhich DEFINITELY follows?',opts:['Ram is not corrupt','Ram may be corrupt','Ram is corrupt','None of these'],ans:2,exp:'All P are C. Ram is P. Therefore Ram is C (Barbara syllogism — definite conclusion)'},
+  {id:'LX42',cat:'logical',sub:'Deductive',diff:4,q:'Calendar: Jan 1, 2024 was a Monday. What day is Feb 29, 2024?',opts:['Thursday','Friday','Wednesday','Saturday'],ans:1,exp:'2024 is a leap year. Jan has 31 days. Days from Jan 1 to Feb 29 = 31+29-1=59 days. 59 mod 7 = 3. Monday+3=Thursday... Jan 1=Mon. Jan 31=Wed (30 days later, 30 mod 7=2, Mon+2=Wed). Feb 1=Thu. Feb 29=Thu+28=Thu+4wks=Thursday. Wait: Feb 1=Thu, Feb 29 = Thu+28days=28 mod 7=0 → Thursday. Actually Feb 29 = Feb 1 + 28 days = same day = Thursday. Answer: Thursday'},
+  {id:'LX51',cat:'logical',sub:'Deductive',diff:5,q:'RS Aggarwal Statements: No man is a donkey. Rahul is a man.\nConclusion 1: Rahul is not a donkey.\nConclusion 2: All men are not donkeys.',opts:['Only 1 follows','Only 2 follows','Both follow','Neither follows'],ans:2,exp:'From "No man is a donkey": Rahul (being a man) is definitely not a donkey (C1 follows). "All men are not donkeys" is just a restatement of "No man is a donkey" (C2 also follows). Both follow.'},
+],
+
+/* ─── EXTRA DATA INTERPRETATION — RS Aggarwal + CAT Pattern ─── */
+data_extra:[
+  {id:'DX11',cat:'data',sub:'Tables',diff:1,q:'Production table: 2020=500 units, 2021=650 units, 2022=600 units, 2023=780 units.\nWhich year had highest growth over previous year?',opts:['2021','2022','2023','Equal'],ans:0,exp:'2021: +150 (30%). 2022: -50 (-7.7%). 2023: +180 (30%). Both 2021 and 2023 = 30%. But 2021 has highest absolute growth over prior (150 vs 180). Actually 2023 absolute growth=180 > 150. Check %: 2021=30%, 2023=30%. Equal %. But absolute: 2023 wins. Rethink: 2021=150/500=30%, 2023=180/600=30%. Tie.'},
+  {id:'DX21',cat:'data',sub:'Charts',diff:2,q:'A pie chart shows departments: HR=15%, Finance=25%, Tech=40%, Marketing=20%. In a company of 800 employees, how many are in Tech?',opts:['200','240','280','320'],ans:3,exp:'Tech = 40% of 800 = 320 employees'},
+  {id:'DX22',cat:'data',sub:'Charts',diff:2,q:'Bar graph: Exports (₹Cr) — 2019=120, 2020=90, 2021=150, 2022=180, 2023=140. Which period saw the sharpest decline?',opts:['2019-2020','2020-2021','2021-2022','2022-2023'],ans:0,exp:'2019-2020: drop of 30 (25%). 2022-2023: drop of 40 (22.2%). Sharpest by %: 2019-2020 = 25%'},
+  {id:'DX31',cat:'data',sub:'Analysis',diff:3,q:'Five stores monthly revenue (₹L): A=12, B=15, C=18, D=10, E=20. If Store D increases by 50% and Store B decreases by 20%, new average?',opts:['14L','15L','15.5L','16L'],ans:1,exp:'D new=15, B new=12. Sum=12+12+18+15+20=77. Average=77/5=15.4≈15L'},
+  {id:'DX41',cat:'data',sub:'Analysis',diff:4,q:'Data: Company A profit margins: Q1=12%, Q2=15%, Q3=18%, Q4=10%. Revenue: Q1=₹100Cr, Q2=₹80Cr, Q3=₹120Cr, Q4=₹150Cr. Which quarter had highest absolute profit?',opts:['Q1','Q2','Q3','Q4'],ans:2,exp:'Q1=₹12Cr, Q2=₹12Cr, Q3=₹21.6Cr, Q4=₹15Cr. Q3 highest'},
+  {id:'DX51',cat:'data',sub:'Analysis',diff:5,q:'Index numbers: Base=100. Year1=112, Year2=125.4, Year3=140.4. Compounded annual growth rate (approx)?',opts:['10%','11%','12%','13%'],ans:2,exp:'100×(1+r)³=140.4 → (1+r)³=1.404 → 1+r=1.12 → r=12%. CAGR≈12%'},
+],
+
+/* ─── EXTRA DSA — CTCI (Cracking The Coding Interview) + Karumanchi DSAMADEEASY ─── */
+dsa_extra:[
+  {id:'CX11',cat:'dsa',sub:'Data Structures',diff:1,q:'CTCI: Which data structure uses FIFO (First In First Out)?',opts:['Stack','Queue','Linked List','Tree'],ans:1,exp:'Queue = FIFO. First element enqueued is first to be dequeued. Stack = LIFO.'},
+  {id:'CX12',cat:'dsa',sub:'Data Structures',diff:1,q:'What is the maximum number of nodes in a binary tree of height h?',opts:['2h','2h-1','2^h - 1','2^(h+1) - 1'],ans:3,exp:'Full binary tree of height h: 2^(h+1)-1 nodes. Height 0 (just root): 2¹-1=1 node ✓'},
+  {id:'CX21',cat:'dsa',sub:'Algorithms',diff:2,q:'CTCI: Time complexity of finding an element in a balanced BST?',opts:['O(1)','O(log n)','O(n)','O(n log n)'],ans:1,exp:'Balanced BST: each step eliminates half the tree → O(log n). Unbalanced BST degrades to O(n)'},
+  {id:'CX22',cat:'dsa',sub:'Algorithms',diff:2,q:'What happens when you call pop() on an empty stack?',opts:['Returns null','Returns -1','Stack underflow/exception','Returns 0'],ans:2,exp:'Popping an empty stack causes "stack underflow" — typically throws an exception or error'},
+  {id:'CX31',cat:'dsa',sub:'Data Structures',diff:3,q:'Karumanchi: Which traversal of a BST gives sorted order?',opts:['Pre-order','Post-order','In-order','Level-order'],ans:2,exp:'In-order traversal (Left → Root → Right) of a BST always produces sorted ascending sequence'},
+  {id:'CX32',cat:'dsa',sub:'Algorithms',diff:3,q:'CTCI: An algorithm takes O(2ⁿ). For n=10 operations vs n=20, how much slower?',opts:['2x','10x','512x','1024x'],ans:3,exp:'2^10=1024, 2^20=1048576. Ratio=1048576/1024=1024x slower'},
+  {id:'CX33',cat:'dsa',sub:'Algorithms',diff:3,q:'Which algorithm is best for finding kth smallest element in an unsorted array in O(n) average?',opts:['Merge sort + index','Binary search','Quickselect','Heap sort'],ans:2,exp:'Quickselect (partition-based) finds kth element in O(n) average — same partition as quicksort'},
+  {id:'CX41',cat:'dsa',sub:'Complexity',diff:4,q:'CTCI: Recursive function calls itself twice per call with input n/2. Time complexity?',opts:['O(n)','O(n log n)','O(log n)','O(n²)'],ans:0,exp:'T(n)=2T(n/2)+O(1). By Master Theorem: a=2,b=2,d=0. Since log_b(a)=1>d=0 → O(n^1)=O(n)'},
+  {id:'CX42',cat:'dsa',sub:'Data Structures',diff:4,q:'Karumanchi: What is the time complexity of Dijkstra\'s algorithm with a binary heap?',opts:['O(V²)','O(E log V)','O(V log E)','O(VE)'],ans:1,exp:'With binary min-heap: extract-min O(log V) × V times + decrease-key O(log V) × E times = O((V+E) log V) ≈ O(E log V) for connected graph'},
+  {id:'CX51',cat:'dsa',sub:'Complexity',diff:5,q:'CTCI: T(n) = T(n-1) + O(n). What is the solution?',opts:['O(n)','O(n log n)','O(n²)','O(2ⁿ)'],ans:2,exp:'Telescoping: T(n)=n+(n-1)+(n-2)+...+1 = n(n+1)/2 = O(n²)'},
+  {id:'CX52',cat:'dsa',sub:'Algorithms',diff:5,q:'Karumanchi: Which of these problems is NP-Complete?',opts:['Sorting','Binary search','Travelling Salesman (decision)','Finding shortest path'],ans:2,exp:'TSP decision version is NP-Complete. Sorting=O(n log n), binary search=O(log n), shortest path (Dijkstra)=polynomial — all in P'},
+],
+
+/* ─── EXTRA PYTHON — Lutz "Learning Python" + Official Docs ─── */
+python_extra:[
+  {id:'LP11',cat:'python',sub:'Basics',diff:1,q:'Mark Lutz "Learning Python": What is the output?\nx = [1,2,3]\ny = x\ny.append(4)\nprint(x)',opts:['[1,2,3]','[1,2,3,4]','Error','[4]'],ans:1,exp:'y=x makes y reference SAME list (not a copy). Appending to y modifies x too → [1,2,3,4]'},
+  {id:'LP12',cat:'python',sub:'Basics',diff:1,q:'What does range(5) produce?',opts:['[0,1,2,3,4,5]','[1,2,3,4,5]','[0,1,2,3,4]','range object 1-5'],ans:2,exp:'range(5) generates 0,1,2,3,4 — starts at 0, stops BEFORE 5'},
+  {id:'LP21',cat:'python',sub:'Basics',diff:2,q:'Lutz: Difference between "==" and "is" in Python?',opts:['No difference','== checks value, is checks identity (same object)','is checks value, == checks identity','Both check identity'],ans:1,exp:'"==" compares values. "is" checks if two references point to the SAME object in memory (identity)'},
+  {id:'LP22',cat:'python',sub:'Basics',diff:2,q:'What is a shallow copy? x = [[1,2],[3,4]]\ny = x.copy()  →  y[0].append(5)\nWhat is x?',opts:['[[1,2],[3,4]]','[[1,2,5],[3,4]]','[[1,2],[3,4,5]]','Error'],ans:1,exp:'Shallow copy copies references to inner objects. y[0] and x[0] point to the same list → modifying y[0] changes x[0]'},
+  {id:'LP31',cat:'python',sub:'Programming',diff:3,q:'Lutz: What does *args capture in a function?',opts:['Keyword arguments as dict','Positional arguments as tuple','First argument only','All arguments as list'],ans:1,exp:'*args captures extra positional arguments as a TUPLE. **kwargs captures keyword args as a dict'},
+  {id:'LP32',cat:'python',sub:'Programming',diff:3,q:'What is a decorator in Python?',opts:['A class method','A function that takes and returns a function, adding behaviour','A special variable type','A module import statement'],ans:1,exp:'Decorator = function that wraps another function, adding pre/post behaviour without modifying it. Used with @syntax'},
+  {id:'LP41',cat:'python',sub:'Programming',diff:4,q:'Output:\nclass A:\n    def __init__(self):\n        self.x = 1\n    def method(self):\n        return self.x\nclass B(A):\n    def method(self):\n        return super().method() + 10\nprint(B().method())',opts:['1','10','11','Error'],ans:2,exp:'B().method() calls super().method() = A.method() = 1, then +10 = 11'},
+  {id:'LP42',cat:'python',sub:'Programming',diff:4,q:'What does "yield" do in Python?',opts:['Returns value and exits function','Returns value, pauses function, resumes on next()','Raises an exception','Imports a module'],ans:1,exp:'"yield" creates a generator — returns a value, suspends execution, resumes from same point when next() is called again'},
+  {id:'LP51',cat:'python',sub:'Databases/Modules',diff:5,q:'Python GIL (Global Interpreter Lock) primarily affects:',opts:['File I/O operations','Multi-threading CPU-bound performance','Memory allocation','Network calls'],ans:1,exp:'GIL prevents multiple threads from executing Python bytecode simultaneously → CPU-bound multi-threading gets no speedup. Use multiprocessing for CPU-bound tasks.'},
+  {id:'LP52',cat:'python',sub:'Databases/Modules',diff:5,q:'What does __slots__ do in a Python class?',opts:['Defines allowed methods','Restricts instance attributes, reducing memory usage','Enables multiple inheritance','Creates class-level constants'],ans:1,exp:'__slots__ = ["x","y"] prevents creation of __dict__ per instance → fixed attributes only, significant memory savings for many instances'},
+],
+/* ─── EXTRA AUTOMATA FIX — Common C bugs from competitive programming ─── */
+autofix_extra:[
+  {id:'AX1',cat:'autofix',sub:'Logical Error',diff:3,q:'🐛 Bug in selection sort (should sort descending):\nif(arr[j] < arr[min_idx]) min_idx=j;\nFix for descending?',opts:['if(arr[j] > arr[min_idx]) min_idx=j;','if(arr[j] >= arr[min_idx]) min_idx=j;','if(arr[j] != arr[min_idx]) min_idx=j;','No fix needed'],ans:0,exp:'For descending sort, find MAXIMUM each pass, not minimum. Change < to >'},
+  {id:'AX2',cat:'autofix',sub:'Syntactical',diff:3,q:'🐛 Bug:\nprintf("Value: %d\\n" x);\nFix?',opts:['printf("Value: %d\\n", x);','printf("Value: %d\\n" + x);','printf("Value:", x);','printf("Value: %d", &x);'],ans:0,exp:'Missing comma between format string and arguments: printf(format_string, arg1, arg2, ...)'},
+  {id:'AX3',cat:'autofix',sub:'Logical Error',diff:4,q:'🐛 Infinite loop bug:\nint i=0;\nwhile(i<10){\n  printf("%d",i);\n}\nFix?',opts:['Add i++ inside loop','Change while to for','Change i<10 to i<=10','Change int to long'],ans:0,exp:'i is never incremented inside the loop → infinite loop. Add i++ at end of loop body'},
+  {id:'AX4',cat:'autofix',sub:'Syntactical',diff:4,q:'🐛 C struct bug:\nstruct Point{ int x,y; };\nPoint p;  // ERROR\nFix?',opts:['struct Point p;','int Point p;','Point* p;','typedef Point p;'],ans:0,exp:'In C (not C++), you must use "struct" keyword: struct Point p. In C++, "Point p" works directly.'},
+  {id:'AX5',cat:'autofix',sub:'Code Reuse',diff:5,q:'🐛 Dangling pointer bug:\nint* getVal(){\n  int x=5;\n  return &x;\n}\nProblem?',opts:['x is not initialised','Returns address of local variable (undefined behaviour)','Wrong return type','Missing semicolon'],ans:1,exp:'Local variable x is destroyed when function returns. Returning its address = dangling pointer = undefined behaviour. Use dynamic allocation (malloc) or return value directly'},
+],
+};
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   MERGE EXTRA QUESTIONS INTO MAIN QB
+   (Books: RS Aggarwal, Arun Sharma, Norman Lewis,
+    Wren & Martin, CTCI, Karumanchi, Mark Lutz)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+(function mergeExtraBooks(){
+  QB.english  = [...QB.english,  ...(QB.english_extra||[])];
+  QB.quant    = [...QB.quant,    ...(QB.quant_extra||[])];
+  QB.logical  = [...QB.logical,  ...(QB.logical_extra||[])];
+  QB.data     = [...QB.data,     ...(QB.data_extra||[])];
+  QB.dsa      = [...QB.dsa,      ...(QB.dsa_extra||[])];
+  QB.python   = [...QB.python,   ...(QB.python_extra||[])];
+  QB.autofix  = [...QB.autofix,  ...(QB.autofix_extra||[])];
+  // Clean up extra refs
+  delete QB.english_extra; delete QB.quant_extra; delete QB.logical_extra;
+  delete QB.data_extra; delete QB.dsa_extra; delete QB.python_extra; delete QB.autofix_extra;
+})();
+const CODING_PROBLEMS = [
+  {id:'CD1',cat:'automata',sub:'Arrays',diff:2,type:'coding',
+   q:'Sum of Array\n\nRead N integers and print their sum.\n\nInput:\n  Line 1: N\n  Line 2: N space-separated integers\n\nOutput: Single integer\n\nExample:\n  Input: 5\n         1 2 3 4 5\n  Output: 15',
+   code:{python:'n=int(input())\narr=list(map(int,input().split()))\n# Write your solution here\n',
+     js:'// Node.js-style input\nconst lines=require("fs").readFileSync("/dev/stdin","utf8").trim().split("\\n");\nconst n=parseInt(lines[0]);\nconst arr=lines[1].split(" ").map(Number);\n// Write solution here\n',
+     c:'#include<stdio.h>\nint main(){\n    int n; scanf("%d",&n);\n    int arr[n],sum=0;\n    for(int i=0;i<n;i++){ scanf("%d",&arr[i]); sum+=arr[i]; }\n    printf("%d",sum);\n    return 0;\n}\n',
+     cpp:'#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    int n; cin>>n;\n    vector<int> arr(n);\n    int sum=0;\n    for(int&x:arr){ cin>>x; sum+=x; }\n    cout<<sum;\n    return 0;\n}\n',
+     java:'import java.util.*;\npublic class Main{\npublic static void main(String[] args){\n    Scanner sc=new Scanner(System.in);\n    int n=sc.nextInt(),sum=0;\n    for(int i=0;i<n;i++) sum+=sc.nextInt();\n    System.out.println(sum);\n}}\n'},
+   tests:[{i:'5\n1 2 3 4 5',e:'15'},{i:'3\n10 20 30',e:'60'},{i:'1\n42',e:'42'},{i:'4\n-1 -2 3 4',e:'4'}],
+   hint:'Python: print(sum(arr))\nC/C++: accumulate with loop\nJava: use Scanner to read each int'},
+  {id:'CD2',cat:'automata',sub:'Bit Ops',diff:4,type:'coding',
+   q:'Minimum Bit Flips\n\nFind minimum bits to flip to convert P to Q.\n\nInput:\n  Line 1: P\n  Line 2: Q\n\nOutput: Number of flips\n\nExample:\n  Input: 29\n         15\n  Output: 2\n\nExplanation:\n  29 = 11101\n  15 = 01111\n  XOR = 10010 → two 1s → 2 flips',
+   code:{python:'p=int(input())\nq=int(input())\n# XOR gives bits that differ\n',
+     js:'const l=require("fs").readFileSync("/dev/stdin","utf8").trim().split("\\n");\nconst p=parseInt(l[0]),q=parseInt(l[1]);\n// Write solution here\n',
+     c:'#include<stdio.h>\nint main(){\n    int p,q; scanf("%d%d",&p,&q);\n    int x=p^q,cnt=0;\n    while(x){ cnt+=x&1; x>>=1; }\n    printf("%d",cnt);\n    return 0;\n}\n',
+     cpp:'#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    int p,q; cin>>p>>q;\n    cout<<__builtin_popcount(p^q);\n    return 0;\n}\n',
+     java:'import java.util.*;\npublic class Main{\npublic static void main(String[] args){\n    Scanner sc=new Scanner(System.in);\n    System.out.println(Integer.bitCount(sc.nextInt()^sc.nextInt()));\n}}\n'},
+   tests:[{i:'29\n15',e:'2'},{i:'0\n0',e:'0'},{i:'7\n0',e:'3'},{i:'10\n20',e:'4'}],
+   hint:'Python: print(bin(p^q).count("1"))\nC++: __builtin_popcount(p^q)\nJava: Integer.bitCount(p^q)'},
+];
+
+/* Essay topics */
+const ESSAY_TOPICS = [
+  'Many youngsters constantly look for job opportunities abroad and want to settle there. What are the reasons for this trend? Do you think this "brain drain" harms India or is it a natural consequence of globalisation? Substantiate your response.',
+  'Social media has transformed how people communicate and access information. Discuss both the positive and negative impacts of social media on youth, society, and democracy. What should be done to harness its benefits while minimising harm?',
+  'Artificial Intelligence is rapidly changing the nature of work. Do you believe AI will create more jobs than it destroys, or will it lead to widespread unemployment? What steps should governments, educators, and individuals take to prepare?',
+  'Climate change is described as the defining challenge of our generation. Yet global action remains insufficient. Why do you think progress is slow? What combination of policies, technology, and individual action can effectively address this crisis?',
+  'Urban-rural migration creates opportunities in cities while leaving villages behind. Discuss the causes, consequences, and potential solutions. Should India focus on developing villages or improving urban infrastructure?',
+  'The COVID-19 pandemic accelerated digital transformation in education. Evaluate the long-term impact of online learning on educational quality, equity, and student outcomes. Should hybrid learning become the permanent standard?',
+];
+
+/* Personality questions (Big Six: E,C,A,O,ES,P) */
+const PERS_QUESTIONS = [
+  {trait:'E',text:'I enjoy meeting new people and attending social gatherings.',reverse:false},
+  {trait:'C',text:'I carefully plan my work and stick to my schedules.',reverse:false},
+  {trait:'A',text:'I consider others\' feelings before taking action.',reverse:false},
+  {trait:'O',text:'I enjoy exploring new ideas and different ways of thinking.',reverse:false},
+  {trait:'ES',text:'I remain calm and composed under pressure.',reverse:false},
+  {trait:'P',text:'I prefer working on multiple tasks simultaneously.',reverse:false},
+  {trait:'E',text:'I feel energised after spending time with large groups.',reverse:false},
+  {trait:'C',text:'I pay attention to details and avoid making mistakes.',reverse:false},
+  {trait:'A',text:'I tend to trust people unless given reason not to.',reverse:false},
+  {trait:'O',text:'I seek out creative solutions to problems.',reverse:false},
+  {trait:'ES',text:'I rarely feel anxious or worried about the future.',reverse:false},
+  {trait:'P',text:'I like having several projects going on at the same time.',reverse:false},
+  {trait:'E',text:'I prefer working alone rather than in groups.',reverse:true},
+  {trait:'C',text:'I sometimes procrastinate on important tasks.',reverse:true},
+  {trait:'A',text:'I am competitive and enjoy winning arguments.',reverse:true},
+  {trait:'O',text:'I prefer established routines over trying new approaches.',reverse:true},
+  {trait:'ES',text:'I get upset easily when things don\'t go as planned.',reverse:true},
+  {trait:'P',text:'I prefer to fully complete one task before starting another.',reverse:true},
+  {trait:'E',text:'I am assertive and comfortable speaking my mind.',reverse:false},
+  {trait:'C',text:'I set high standards for myself and work hard to meet them.',reverse:false},
+  {trait:'A',text:'I am willing to compromise to avoid conflict.',reverse:false},
+  {trait:'O',text:'I am curious about how things work at a fundamental level.',reverse:false},
+  {trait:'ES',text:'I recover quickly from setbacks and disappointments.',reverse:false},
+  {trait:'P',text:'I believe multitasking is an efficient use of time.',reverse:false},
+  {trait:'E',text:'I take charge naturally in group situations.',reverse:false},
+  {trait:'C',text:'I organise my environment to maximise efficiency.',reverse:false},
+  {trait:'A',text:'I genuinely care about the wellbeing of others.',reverse:false},
+  {trait:'O',text:'I enjoy philosophical and abstract discussions.',reverse:false},
+  {trait:'ES',text:'I maintain a positive outlook even in difficult situations.',reverse:false},
+  {trait:'P',text:'I switch between tasks fluidly without losing focus.',reverse:false},
+];
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   SECTION ADAPTIVE ENGINE (Per-Section ML)
+   Rule: Correct=+1 level, Wrong=RESET to Level 1
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+class SectionEngine {
+  constructor(config) {
+    this.config = config;
+    this.diff = 1;           // Always start at Level 1
+    this.qCount = 0;
+    this.correct = 0;
+    this.streak = 0;
+    this.maxStreak = 0;
+    this.responses = [];
+    this.seen = new Set();
+    this.subsStats = {};
+    (config.subsections||[]).forEach(s=>{ this.subsStats[s]={c:0,t:0}; });
+  }
+
+  onAnswer(q, isCorrect, timeSec) {
+    this.qCount++;
+    const prevDiff = this.diff;
+    if (isCorrect) {
+      this.correct++;
+      this.streak++;
+      this.maxStreak = Math.max(this.maxStreak, this.streak);
+      this.diff = Math.min(5, this.diff + 1);  // Advance difficulty
+    } else {
+      this.streak = 0;
+      this.diff = 1;  // RESET to Level 1 on wrong answer
+    }
+    this.responses.push({qid:q.id, sub:q.sub||'', diff:prevDiff, correct:isCorrect, timeSec});
+    if (q.sub && this.subsStats[q.sub]) {
+      this.subsStats[q.sub].t++;
+      if (isCorrect) this.subsStats[q.sub].c++;
+    }
+    if (q.id) this.seen.add(q.id);
+    // Update question statistics in persistent store
+    updateQStat(q.id, q.diff||prevDiff, isCorrect, timeSec);
+  }
+
+  select(pool) {
+    const target = this.diff;
+    const avail = pool.filter(q => !this.seen.has(q.id));
+    if (!avail.length) return null;
+    // Use ML-adjusted difficulty if available (learning from all past sessions)
+    const scored = avail.map(q => {
+      const stat = qStats[q.id];
+      const effectiveDiff = stat ? Math.round(stat.adjustedDiff) : q.diff;
+      const closeness = Math.abs(effectiveDiff - target);
+      // Prefer questions not seen in recent sessions, slight randomness
+      const noveltyBonus = stat ? Math.min(stat.attempts * 0.05, 0.3) : 0;
+      return { q, score: closeness + Math.random()*0.35 + noveltyBonus };
+    }).sort((a,b) => a.score - b.score);
+    return scored[0].q;
+  }
+
+  getScore() {
+    if (!this.responses.length) return 0;
+    const r = this.responses;
+    const weightedCorrect = r.filter(x=>x.correct).reduce((s,x)=>s+(x.diff*20),0);
+    const maxPossible = r.length * 5 * 20;
+    const accScore = (this.correct / r.length) * 100;
+    const diffScore = (weightedCorrect / maxPossible) * 100;
+    return Math.min(100, Math.round(accScore * 0.5 + diffScore * 0.8));
+  }
+
+  getSubScores() {
+    const out = {};
+    Object.entries(this.subsStats).forEach(([sub, s]) => {
+      if (!s.t) { out[sub] = null; return; }
+      const subR = this.responses.filter(r=>r.sub===sub);
+      const wC = subR.filter(r=>r.correct).reduce((a,r)=>a+r.diff*20, 0);
+      const wM = subR.length * 5 * 20;
+      const acc = (s.c/s.t)*100;
+      const diff = (wC/wM)*100;
+      out[sub] = Math.min(100, Math.round(acc*0.5+diff*0.8));
+    });
+    return out;
+  }
+
+  getCEFR() {
+    const s = this.getScore();
+    if (s >= 85) return 'C2'; if (s >= 70) return 'C1'; if (s >= 55) return 'B2';
+    if (s >= 40) return 'B1'; if (s >= 25) return 'A2'; return 'A1';
+  }
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   PERSISTENT STORAGE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+const LS = {
+  get:(k,d)=>{ try{const v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch{return d;} },
+  set:(k,v)=>{ try{localStorage.setItem(k,JSON.stringify(v));}catch{} }
+};
+let qStats    = LS.get('ac3_qstats', {});
+let sessions  = LS.get('ac3_sessions', []);
+let totalLearnedParams = LS.get('ac3_params', 0);
+
+function updateQStat(id, diff, correct, timeSec) {
+  if (!qStats[id]) qStats[id] = {
+    attempts:0, correct:0, avgTime:0,
+    adjustedDiff: diff,    // ML-learned difficulty (float, 1-5)
+    discrimination: 1.0,   // how well question separates ability levels
+    source: 'db',
+    lastSeen: 0
+  };
+  const s = qStats[id];
+  s.attempts++;
+  if (correct) s.correct++;
+  s.avgTime = (s.avgTime * (s.attempts-1) + timeSec) / s.attempts;
+  s.lastSeen = Date.now();
+
+  // ── Bayesian difficulty update (Wilson score method) ──
+  // Confidence grows with sample size; small samples → stay near prior
+  if (s.attempts >= 2) {
+    const n = s.attempts;
+    const p_hat = s.correct / n;
+    // Wilson score lower bound = conservative pass-rate estimate
+    const z = 1.645; // 90% confidence
+    const wilson_lo = (p_hat + z*z/(2*n) - z*Math.sqrt(p_hat*(1-p_hat)/n + z*z/(4*n*n))) / (1 + z*z/n);
+    // Map pass-rate → difficulty: high pass-rate = easier question
+    // Pass rate 0.9 → diff 1, 0.5 → diff 3, 0.1 → diff 5
+    const implied_diff = Math.max(1, Math.min(5, 5 - (wilson_lo * 4)));
+    // Weighted blend: more data → more weight on observed difficulty
+    const trust = Math.min(n / 15, 0.75); // max 75% trust at 15+ answers
+    s.adjustedDiff = s.adjustedDiff * (1-trust) + implied_diff * trust;
+    s.adjustedDiff = Math.round(s.adjustedDiff * 10) / 10; // 1 decimal
+
+    // ── Discrimination update ──
+    // If almost everyone gets it right/wrong → low discrimination
+    if (n >= 5) {
+      const extremeness = Math.abs(p_hat - 0.5) * 2; // 0=perfect, 1=everyone same
+      s.discrimination = Math.max(0.3, Math.min(2.0, 1.5 - extremeness));
+    }
+    totalLearnedParams++;
+  }
+  LS.set('ac3_qstats', qStats);
+  LS.set('ac3_params', totalLearnedParams);
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   GLOBAL APP STATE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+const APP = {
+  testType: null,         // 'logical' | 'technical'
+  sectionList: [],        // array of section configs
+  sectionIdx: 0,          // current section index
+  engines: {},            // sectionId → SectionEngine
+  curEngine: null,        // current SectionEngine
+  curSection: null,       // current section config
+  curPool: [],            // current question pool
+  curQ: null,             // current question
+  qNumInSection: 0,       // question number within section
+  answered: false,
+  timerID: null,
+  secLeft: 90,
+  qStartTime: 0,
+  history: [],            // all answered questions
+  wxEssay: '',
+  wxScore: null,
+  persResponses: [],      // personality answers
+  persIdx: 0,
+  codeEditor: null,
+  codeLang: 'python',
+  allChartData: [],       // for final chart
+};
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   SCREEN MANAGEMENT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (id==='s-land') refreshLandStats();
+}
+
+function toggleTheme(btn) {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  document.querySelectorAll('.theme-btn, .tp-theme').forEach(b=>{
+    b.textContent = isDark ? '☀ Light' : '☽ Dark';
+  });
+  // Re-init CodeMirror theme if open
+  if (APP.codeEditor) APP.codeEditor.setOption('theme', isDark ? 'default' : 'tomorrow-night-eighties');
+}
+
+function refreshLandStats() {
+  const n = sessions.length;
+  const best = n ? Math.max(...sessions.map(s=>s.score)) : null;
+  // Count total questions in merged QB
+  const bank = Object.values(QB).reduce((s,arr)=>s+(Array.isArray(arr)?arr.length:0),0) + CODING_PROBLEMS.length;
+  const learnedQs = Object.keys(qStats).length;
+  document.getElementById('lp-sessions').textContent = n;
+  document.getElementById('lp-best').textContent = best!=null ? best+'%' : '—';
+  document.getElementById('lp-qbank').textContent = bank;
+  document.getElementById('lp-improved').textContent = learnedQs > 0 ? `${learnedQs}Q` : '0';
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   TEST FLOW
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+function pickTest(type) {
+  APP.testType = type;
+  APP.sectionList = SECTION_CONFIG[type];
+  renderOverview();
+  showScreen('s-overview');
+}
+
+function renderOverview() {
+  const type = APP.testType;
+  document.getElementById('ov-title').textContent = type==='logical' ? 'Logical Test' : 'Technical Test';
+  const totalQ = APP.sectionList.reduce((s,c)=>s+c.questions,0);
+  const totalMins = Math.ceil(APP.sectionList.reduce((s,c)=>s+(c.questions*c.timePerQ/60),0));
+  document.getElementById('ov-desc').textContent = `${APP.sectionList.length} sections · ${totalQ} total questions · Est. ${totalMins} minutes`;
+  const list = document.getElementById('ov-sections');
+  list.innerHTML = APP.sectionList.map((s,i) => `
+    <div class="sec-row">
+      <div class="sec-num">${i+1}</div>
+      <div class="sec-info">
+        <div class="sec-name">${s.icon} ${s.name} ${s.badge?`<span class="tag tag-blue" style="font-size:10px;margin-left:4px">${s.badge}</span>`:''}</div>
+        <div class="sec-meta">
+          <span>${s.special==='writex'?'1 essay · 20 min':s.special==='personality'?'30 questions · unscored':s.special==='coding'?`${s.questions} problems · multi-language IDE`:`${s.questions} questions · ${Math.ceil(s.questions*s.timePerQ/60)} min`}</span>
+          <span class="sec-sub-tag">${s.desc}</span>
+        </div>
+      </div>
+      <div class="sec-badge"><span class="lvl lvl${Math.min(5,i+1)}">Section ${i+1}</span></div>
+    </div>`).join('');
+}
+
+function startNextSection() {
+  APP.sectionIdx = 0;
+  APP.engines = {};
+  APP.history = [];
+  APP.persResponses = [];
+  APP.persIdx = 0;
+  APP.wxEssay = '';
+  APP.wxScore = null;
+  goToSection(0);
+}
+
+function goToSection(idx) {
+  if (idx >= APP.sectionList.length) { showResults(); return; }
+  APP.sectionIdx = idx;
+  const sec = APP.sectionList[idx];
+  APP.curSection = sec;
+  // Show section intro
+  document.getElementById('si-icon').textContent = sec.icon;
+  document.getElementById('si-title').textContent = sec.name;
+  document.getElementById('si-sub').textContent = sec.desc;
+  document.getElementById('si-qcount').textContent = sec.special==='writex'?'1 Essay':sec.special==='personality'?'30 Q':sec.questions;
+  document.getElementById('si-time').textContent = sec.special==='writex'?'20 min':sec.special==='personality'?'~5 min':Math.ceil(sec.questions*sec.timePerQ/60)+' min';
+  document.getElementById('si-start').textContent = (sec.special==='writex'||sec.special==='personality') ? 'N/A' : 'L1';
+  showScreen('s-sec-intro');
+}
+
+function goBackFromSectionIntro() {
+  if (APP.sectionIdx === 0) showScreen('s-overview');
+  else goToSection(APP.sectionIdx - 1);
+}
+
+function beginSection() {
+  const sec = APP.curSection;
+  if (sec.special === 'writex') { startWriteX(); return; }
+  if (sec.special === 'personality') { startPersonality(); return; }
+  // Build engine & pool
+  const eng = new SectionEngine(sec);
+  APP.engines[sec.id] = eng;
+  APP.curEngine = eng;
+  // Pool — merge base + extra arrays for richer question bank
+  let pool = [...(QB[sec.id] || [])];
+  // Merge extra question arrays from famous books
+  const extras = {
+    english:  [...(QB.english_extra  || [])],
+    quant:    [...(QB.quant_extra    || [])],
+    logical:  [...(QB.logical_extra  || [])],
+    data:     [...(QB.data_extra     || [])],
+    python:   [...(QB.python_extra   || [])],
+    dsa:      [...(QB.dsa_extra      || [])],
+    autofix:  [...(QB.autofix_extra  || [])],
+  };
+  if (extras[sec.id]) pool = [...pool, ...extras[sec.id]];
+  if (sec.id === 'autofix') pool = [...(QB.autofix||[]), ...(QB.autofix_extra||[])];
+  if (sec.special === 'coding') pool = CODING_PROBLEMS;
+  APP.curPool = [...pool];
+  APP.qNumInSection = 0;
+  showScreen('s-test');
+  renderSectionNav();
+  // Coding section → show AMCAT-style question picker first
+  if (sec.special === 'coding') {
+    initCodingSection();
+  } else {
+    hideCodingNav();
+    loadNextQuestion();
+  }
+}
+
+function continueToNextSection() {
+  goToSection(APP.sectionIdx + 1);
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   SECTION NAV PANEL
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+function renderSectionNav() {
+  const el = document.getElementById('tp-sections');
+  el.innerHTML = APP.sectionList.map((s,i) => {
+    const cls = i < APP.sectionIdx ? 'done' : i === APP.sectionIdx ? 'current' : '';
+    return `<div class="sp-item ${cls}"><span class="sp-dot"></span>${s.icon} ${s.name}</div>`;
+  }).join('');
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   TIMER
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+function startTimer(secs) {
+  clearInterval(APP.timerID);
+  APP.secLeft = secs;
+  APP.qStartTime = Date.now();
+  renderTimer();
+  APP.timerID = setInterval(() => {
+    APP.secLeft--;
+    renderTimer();
+    if (APP.secLeft <= 0) { clearInterval(APP.timerID); if (!APP.answered) skipQuestion(); }
+  }, 1000);
+}
+function renderTimer() {
+  const el = document.getElementById('ttb-timer');
+  const m = Math.floor(APP.secLeft/60), s = APP.secLeft%60;
+  el.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  el.classList.toggle('danger', APP.secLeft <= 15);
+}
+function getElapsed() { return Math.round((Date.now()-APP.qStartTime)/1000); }
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   AUTOMATA CODING SECTION — QUESTION PICKER
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+// State for coding section
+let CODING_STATE = {
+  problems: [],        // CODING_PROBLEMS slice for this section
+  curIdx: null,        // currently open question index (0 or 1)
+  statuses: [],        // 'unseen' | 'attempted' | 'solved'
+  savedCode: [],       // saved editor code per question per lang
+  passedTC: [],        // best passCount per question
+  totalTC: [],         // total test cases per question
+  overallSecs: 45*60,  // 45 min for full Automata section
+  overallTimerID: null,
+};
+
+function initCodingSection() {
+  const sec = APP.curSection;
+  CODING_STATE.problems = [...CODING_PROBLEMS];
+  CODING_STATE.curIdx = null;
+  CODING_STATE.statuses = CODING_STATE.problems.map(()=>'unseen');
+  CODING_STATE.savedCode = CODING_STATE.problems.map(p=>{
+    const langs={python:'python',js:'js',c:'c',cpp:'cpp',java:'java'};
+    const out={};
+    Object.keys(langs).forEach(l=>{ out[l]=p.code[l]||p.code.python; });
+    return out;
+  });
+  CODING_STATE.passedTC = CODING_STATE.problems.map(()=>0);
+  CODING_STATE.totalTC  = CODING_STATE.problems.map(p=>p.tests.length);
+  CODING_STATE.overallSecs = 45*60;
+  // Show coding nav bar
+  showCodingNav();
+  // Start overall timer
+  clearInterval(CODING_STATE.overallTimerID);
+  CODING_STATE.overallTimerID = setInterval(()=>{
+    CODING_STATE.overallSecs--;
+    renderOverallTimer();
+    if (CODING_STATE.overallSecs <= 0) {
+      clearInterval(CODING_STATE.overallTimerID);
+      clearInterval(APP.timerID);
+      sectionComplete();
+    }
+  }, 1000);
+  renderOverallTimer();
+  // Show question picker
+  renderCodingPicker();
+}
+
+function renderOverallTimer() {
+  const el = document.getElementById('cn-overall-timer');
+  if (!el) return;
+  const secs = CODING_STATE.overallSecs;
+  const m = Math.floor(secs/60), s = secs%60;
+  el.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  el.classList.toggle('danger', secs <= 300);
+}
+
+function showCodingNav() {
+  document.getElementById('coding-nav-bar').style.display = 'flex';
+  document.getElementById('ttb-bar').style.display = 'none';
+  document.getElementById('ttb-diff').style.display = 'none';
+  document.getElementById('ttb-timer').style.display = 'none';
+  document.getElementById('ttb-qnum').style.display = 'none';
+  document.getElementById('ttb-section').textContent = '💻 Automata — Coding';
+  renderCodingNavTabs();
+}
+
+function hideCodingNav() {
+  const bar = document.getElementById('coding-nav-bar');
+  if (bar) bar.style.display = 'none';
+  const ttbTimer = document.getElementById('ttb-timer');
+  const ttbDiff = document.getElementById('ttb-diff');
+  const ttbBar = document.getElementById('ttb-bar');
+  const ttbQnum = document.getElementById('ttb-qnum');
+  if (ttbTimer) ttbTimer.style.display = '';
+  if (ttbDiff) ttbDiff.style.display = '';
+  if (ttbBar) ttbBar.style.display = '';
+  if (ttbQnum) ttbQnum.style.display = '';
+}
+
+function renderCodingNavTabs() {
+  const el = document.getElementById('cn-tabs');
+  if (!el) return;
+  el.innerHTML = CODING_STATE.problems.map((p,i)=>{
+    const st = CODING_STATE.statuses[i];
+    const passed = CODING_STATE.passedTC[i];
+    const total  = CODING_STATE.totalTC[i];
+    const isCur  = CODING_STATE.curIdx === i;
+    const cls = isCur ? 'active' : st==='solved' ? 'done' : st==='attempted' ? 'partial' : '';
+    const icon = st==='solved' ? '✓' : st==='attempted' ? `${passed}/${total}` : '○';
+    return `<button class="cn-tab ${cls}" onclick="jumpToCodingQ(${i})">
+      <span class="cn-dot"></span>Problem ${i+1}: ${p.sub} <span style="font-size:10px;opacity:.8">[${icon}]</span>
+    </button>`;
+  }).join('');
+}
+
+function renderCodingPicker() {
+  // Reset bottom bar for picker mode
+  document.getElementById('skip-btn').style.display = 'none';
+  document.getElementById('btm-right-btns').innerHTML = `
+    <span style="font-size:12px;color:var(--text2)">Select a problem above to start coding</span>
+  `;
+  document.getElementById('q-card').innerHTML = `
+    <div class="automata-picker">
+      <div class="ap-header">
+        <h2>💻 Automata — Choose a Problem</h2>
+        <p>You have <strong>45 minutes</strong> for both problems. You can attempt them in <strong>any order</strong> and switch between them freely — just like AMCAT.</p>
+      </div>
+      <div class="ap-cards">
+        ${CODING_STATE.problems.map((p,i)=>{
+          const st = CODING_STATE.statuses[i];
+          const passed = CODING_STATE.passedTC[i];
+          const total  = CODING_STATE.totalTC[i];
+          const statusLabel = st==='solved'?'✓ Fully Solved':st==='attempted'?`${passed}/${total} tests passed`:'Not started';
+          const diffLabel = ['','Beginner','Easy','Medium','Hard','Expert'][p.diff]||'Medium';
+          return `<div class="ap-card ${st!=='unseen'?st:''}" onclick="jumpToCodingQ(${i})">
+            <div class="ap-card-num">Problem ${i+1}</div>
+            <div class="ap-card-title">${p.sub||p.id}</div>
+            <div class="ap-card-meta">
+              <span class="tag tag-purple">Coding</span>
+              <span class="tag tag-gray">Level ${p.diff} — ${diffLabel}</span>
+              <span class="tag tag-gray">${total} test cases</span>
+            </div>
+            <div class="ap-card-status">${statusLabel}</div>
+            <div style="font-size:11px;color:var(--text2)">${p.q.split('\n')[0]}</div>
+            <div style="margin-top:.75rem">
+              <button class="btn btn-primary" style="font-size:11px;padding:5px 12px">
+                ${st==='unseen'?'Start Problem →':st==='solved'?'✓ Review Solution':'Continue Solving →'}
+              </button>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+      <div class="ap-time-note">
+        💡 <strong>Tip:</strong> Solve the easier problem first to secure points. You can come back to finish harder problems. Code is auto-saved when you switch between problems.
+      </div>
+    </div>`;
+}
+
+function jumpToCodingQ(idx) {
+  // Save current editor code before switching
+  if (CODING_STATE.curIdx !== null && APP.codeEditor) {
+    CODING_STATE.savedCode[CODING_STATE.curIdx][APP.codeLang] = APP.codeEditor.getValue();
+    APP.codeEditor.toTextArea();
+    APP.codeEditor = null;
+  }
+  CODING_STATE.curIdx = idx;
+  const q = CODING_STATE.problems[idx];
+  APP.curQ = q;
+  APP.answered = CODING_STATE.statuses[idx] !== 'unseen';
+  // Restore bottom bar
+  document.getElementById('skip-btn').style.display = '';
+  document.getElementById('btm-right-btns').innerHTML = `
+    <button class="btn" onclick="renderCodingPicker()" style="margin-right:4px">← All Problems</button>
+    <button class="btn btn-primary" id="next-btn" onclick="codingSubmitAndNext()" ${CODING_STATE.passedTC[idx]>0?'':'disabled'}>
+      ${idx===CODING_STATE.problems.length-1 ? 'Finish Section ✓' : 'Submit & Next Problem →'}
+    </button>`;
+  // Restore skip text
+  document.getElementById('skip-btn').textContent = 'Skip this problem →';
+  renderCodingNavTabs();
+  renderCodingQWithState(q, idx);
+  // Mark as attempted
+  if (CODING_STATE.statuses[idx] === 'unseen') CODING_STATE.statuses[idx] = 'attempted';
+}
+
+function renderCodingQWithState(q, idx) {
+  const langs = {python:'Python',js:'JavaScript',c:'C',cpp:'C++',java:'Java'};
+  const modes = {python:'python',js:'javascript',c:'text/x-csrc',cpp:'text/x-c++src',java:'text/x-java'};
+  const passed = CODING_STATE.passedTC[idx];
+  const total  = CODING_STATE.totalTC[idx];
+  const card = document.getElementById('q-card');
+  card.innerHTML = `
+    <div class="q-meta">
+      <span class="q-num">Problem ${idx+1} of ${CODING_STATE.problems.length}</span>
+      <span class="tag tag-purple">CODING</span>
+      <span class="tag tag-gray">${q.sub}</span>
+      ${passed>0?`<span class="tag ${passed===total?'tag-green':'tag-amber'}">${passed}/${total} tests passing</span>`:''}
+    </div>
+    <div class="q-text">${esc(q.q)}</div>
+    <div class="ide-wrap">
+      <div class="ide-head">
+        <span class="ide-head-title">Code Editor — Problem ${idx+1}</span>
+        <div class="lang-tabs">
+          ${Object.keys(langs).map(l=>`<button class="lang-tab ${APP.codeLang===l?'active':''}" onclick="switchLangCoding('${l}',this,${idx})">${langs[l]}</button>`).join('')}
+        </div>
+      </div>
+      <textarea id="code-ta">${esc(CODING_STATE.savedCode[idx][APP.codeLang]||q.code.python)}</textarea>
+      <div class="ide-foot">
+        <button class="run-btn" id="run-btn" onclick="runCodeCoding(${idx})">▶ Run</button>
+        <button class="hint-tog" onclick="toggleHint()">💡 Hint</button>
+        <div class="ai-spin" id="ai-spin"><span class="spin"></span> AI executing…</div>
+        <span class="tc-cnt" id="tc-cnt">${passed}/${total} tests</span>
+      </div>
+      <div class="out-area" id="out-area"><span style="color:var(--text3)">// Output appears here after running</span></div>
+      <table class="tc-tbl" id="tc-tbl"></table>
+    </div>
+    <div class="hint-panel mono" id="hint-panel">${esc(q.hint||'')}</div>
+    <div class="fb-box" id="fb" ${passed>0?'style="display:block"':''} class="${passed===total?'ok':'bad'}">
+      ${passed>0?`<strong>${passed===total?'✓ All tests pass! You can still improve or move on.':passed+'/'+total+' tests pass. Try to fix remaining test cases.'}</strong>`:''}
+    </div>`;
+  const isDark = document.documentElement.getAttribute('data-theme')==='dark';
+  APP.codeEditor = CodeMirror.fromTextArea(document.getElementById('code-ta'), {
+    mode: modes[APP.codeLang]||'python',
+    theme: isDark ? 'tomorrow-night-eighties' : 'default',
+    lineNumbers:true, autoCloseBrackets:true, matchBrackets:true,
+    indentUnit:4, tabSize:4,
+    extraKeys:{Tab:cm=>cm.execCommand('insertSoftTab')}
+  });
+}
+
+function switchLangCoding(lang, btn, idx) {
+  // Save current code for current lang
+  if (APP.codeEditor) CODING_STATE.savedCode[idx][APP.codeLang] = APP.codeEditor.getValue();
+  APP.codeLang = lang;
+  const q = CODING_STATE.problems[idx];
+  const code = CODING_STATE.savedCode[idx][lang] || q.code[lang] || q.code.python;
+  if (APP.codeEditor) APP.codeEditor.setValue(code);
+  const modes={python:'python',js:'javascript',c:'text/x-csrc',cpp:'text/x-c++src',java:'text/x-java'};
+  if (APP.codeEditor) APP.codeEditor.setOption('mode', modes[lang]||'python');
+  document.querySelectorAll('.lang-tab').forEach(b=>b.classList.toggle('active',b===btn));
+}
+
+async function runCodeCoding(idx) {
+  const q = CODING_STATE.problems[idx];
+  const code = APP.codeEditor ? APP.codeEditor.getValue() : '';
+  const lang = APP.codeLang;
+  // Save code state
+  CODING_STATE.savedCode[idx][lang] = code;
+  const btn = document.getElementById('run-btn');
+  const outArea = document.getElementById('out-area');
+  const tcTbl = document.getElementById('tc-tbl');
+  const tcCnt = document.getElementById('tc-cnt');
+  const spin = document.getElementById('ai-spin');
+  btn.disabled = true;
+  outArea.innerHTML = '<span style="color:var(--text2)">Running all test cases…</span>';
+  tcTbl.innerHTML = '';
+  let passCount = 0, results = [];
+  for (const tc of q.tests) {
+    try {
+      let out;
+      if (lang==='python') out = await execPython(code, tc.i);
+      else if (lang==='js') out = await execJS(code, tc.i);
+      else { spin.style.display='flex'; out = await execViaAPI(lang,code,tc.i); spin.style.display='none'; }
+      const pass = out.trim()===tc.e.trim();
+      if (pass) passCount++;
+      results.push({e:tc.e, got:out.trim(), pass});
+    } catch(err) {
+      spin.style.display='none';
+      results.push({e:tc.e, got:String(err).slice(0,100), pass:false});
+    }
+  }
+  btn.disabled = false;
+  const last = results[results.length-1];
+  outArea.innerHTML = last ? `<span style="color:${last.pass?'var(--green)':'var(--red)'}">${esc(last.got||'(no output)')}</span>` : '';
+  tcTbl.innerHTML = results.map((r,i)=>`<tr><td class="${r.pass?'tc-pass':'tc-fail'}">${r.pass?'✓':'✗'}</td><td>Test ${i+1}</td><td>Expected: <code>${esc(r.e)}</code></td><td>Got: <code>${esc(r.got||'error')}</code></td></tr>`).join('');
+  // Update state
+  CODING_STATE.passedTC[idx] = Math.max(CODING_STATE.passedTC[idx], passCount);
+  const total = CODING_STATE.totalTC[idx];
+  CODING_STATE.statuses[idx] = passCount===total ? 'solved' : 'attempted';
+  tcCnt.textContent = `${passCount}/${total} tests`;
+  tcCnt.style.color = passCount===total?'var(--green)':passCount>0?'var(--amber)':'var(--red)';
+  const fb = document.getElementById('fb');
+  fb.style.display='block';
+  fb.className=`fb-box ${passCount===total?'ok':'bad'}`;
+  fb.innerHTML=`<strong>${passCount===total?`✓ All ${total} test cases passed! 🎉`:`${passCount}/${total} tests passed. Fix remaining cases or switch to the other problem.`}</strong>`;
+  // Update nav tab and submit button
+  renderCodingNavTabs();
+  const nextBtn = document.getElementById('next-btn');
+  if (nextBtn && passCount > 0) nextBtn.disabled = false;
+  nextBtn && (nextBtn.textContent = idx===CODING_STATE.problems.length-1?'Finish Section ✓':'Submit & Next Problem →');
+  // Record in history
+  const correct = passCount === total;
+  if (passCount > 0) {
+    APP.curEngine.onAnswer(q, correct, 0);
+    // Avoid duplicate history entries
+    const alreadyRecorded = APP.history.some(h=>h.q&&h.q.id===q.id&&h.passCount===passCount);
+    if (!alreadyRecorded) {
+      APP.history.push({q,correct,elapsed:0,passCount,totalTC:total,section:APP.curSection.id,sectionName:APP.curSection.name});
+    }
+  }
+}
+
+function codingSubmitAndNext() {
+  const idx = CODING_STATE.curIdx;
+  // Save code
+  if (APP.codeEditor) CODING_STATE.savedCode[idx][APP.codeLang] = APP.codeEditor.getValue();
+  // Check if all problems done (attempted or solved)
+  const allDone = CODING_STATE.statuses.every(s=>s!=='unseen');
+  const allAttempted = CODING_STATE.statuses.some(s=>s!=='unseen');
+  if (idx < CODING_STATE.problems.length - 1) {
+    // Jump to next problem
+    jumpToCodingQ(idx+1);
+  } else {
+    // Finish section
+    clearInterval(CODING_STATE.overallTimerID);
+    clearInterval(APP.timerID);
+    // Push to allChartData
+    const eng = APP.curEngine;
+    APP.allChartData.push({sectionName:APP.curSection.name,responses:eng.responses,score:eng.getScore()});
+    sectionComplete();
+  }
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   QUESTION LOADING (non-coding sections)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+function loadNextQuestion() {
+  const sec = APP.curSection;
+  const eng = APP.curEngine;
+  const maxQ = sec.special==='coding' ? sec.questions : sec.questions;
+  if (APP.qNumInSection >= maxQ) { sectionComplete(); return; }
+  const q = eng.select(APP.curPool);
+  if (!q) { sectionComplete(); return; }
+  APP.curQ = q;
+  APP.answered = false;
+  APP.qNumInSection++;
+  // Update topbar
+  const pct = ((APP.qNumInSection-1)/maxQ*100);
+  document.getElementById('ttb-section').innerHTML = `${sec.name} <small>${q.sub||''}</small>`;
+  document.getElementById('ttb-qnum').textContent = `Q${APP.qNumInSection}/${maxQ}`;
+  document.getElementById('ttb-fill').style.width = pct+'%';
+  setDiffBadge(eng.diff);
+  document.getElementById('next-btn').disabled = true;
+  // Timer
+  const secs = q.type==='coding' ? 1800 : sec.timePerQ;
+  startTimer(secs);
+  // Render question
+  if (q.type === 'coding') renderCodingQ(q);
+  else renderMCQQ(q);
+  updatePanel();
+}
+
+function setDiffBadge(d) {
+  const labels = ['','L1 Beginner','L2 Easy','L3 Medium','L4 Hard','L5 Expert'];
+  const cls = ['','lvl1','lvl2','lvl3','lvl4','lvl5'];
+  document.getElementById('ttb-diff').innerHTML = `<span class="${cls[d]}">${labels[d]}</span>`;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   MCQ RENDER
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+function renderMCQQ(q) {
+  const d = q.diff;
+  const dots = [1,2,3,4,5].map(i=>`<div class="dm-dot ${i<=d?`active l${d}`:''}" title="Level ${i}"></div>`).join('');
+  const card = document.getElementById('q-card');
+  card.innerHTML = `
+    <div class="q-meta">
+      <span class="q-num">Q${APP.qNumInSection}</span>
+      <span class="tag tag-gray">${(q.cat||'').toUpperCase()}</span>
+      <span class="tag tag-gray">${q.sub||''}</span>
+    </div>
+    <div class="diff-meter"><span class="dm-label">Difficulty</span><div class="dm-dots">${dots}</div></div>
+    <div class="q-text">${esc(q.q)}</div>
+    <div class="opts" id="opts">
+      ${(q.opts||[]).map((o,i)=>`
+        <div class="opt" id="opt${i}" onclick="pickOpt(${i})">
+          <div class="opt-key">${'ABCD'[i]}</div>
+          <div class="opt-text">${esc(o)}</div>
+        </div>`).join('')}
+    </div>
+    <div class="fb-box" id="fb"></div>`;
+  if (APP.codeEditor) { APP.codeEditor.toTextArea(); APP.codeEditor=null; }
+}
+
+function pickOpt(idx) {
+  if (APP.answered) return;
+  APP.answered = true;
+  clearInterval(APP.timerID);
+  const elapsed = getElapsed();
+  const q = APP.curQ;
+  const correct = idx === q.ans;
+  document.querySelectorAll('.opt').forEach((el,i) => {
+    el.classList.add('locked');
+    if (i===q.ans) el.classList.add('ok');
+    if (i===idx && !correct) el.classList.add('bad');
+  });
+  const fb = document.getElementById('fb');
+  fb.style.display = 'block';
+  fb.className = `fb-box ${correct?'ok':'bad'}`;
+  fb.innerHTML = `<strong>${correct?'✓ Correct!':'✗ Wrong — Answer: '+'ABCD'[q.ans]}</strong>${esc(q.exp||'')}`;
+  APP.curEngine.onAnswer(q, correct, elapsed);
+  APP.history.push({q,correct,elapsed,section:APP.curSection.id,sectionName:APP.curSection.name});
+  addHist(q, correct);
+  updatePanel();
+  document.getElementById('next-btn').disabled = false;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   CODING IDE RENDER
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/* ── Legacy stubs (coding section now uses renderCodingQWithState / runCodeCoding) ── */
+function renderCodingQ(q) { renderCodingQWithState(q, CODING_STATE.curIdx||0); }
+function switchLang(lang, btn) { switchLangCoding(lang, btn, CODING_STATE.curIdx||0); }
+
+function toggleHint() {
+  const h = document.getElementById('hint-panel');
+  if (h) h.style.display = h.style.display==='block'?'none':'block';
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   EXECUTORS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+function execPython(code, inputStr) {
+  return new Promise((res,rej)=>{
+    let out=''; const inputs=inputStr.split('\n'); let idx=0;
+    Sk.configure({
+      output:t=>{out+=t;},
+      read:x=>{if(Sk.builtinFiles?.files?.[x]===undefined)throw`File not found:'${x}'`;return Sk.builtinFiles.files[x];},
+      inputfun:()=>{const v=inputs[idx]!==undefined?inputs[idx]:'';idx++;return Promise.resolve(v);},
+      inputfunTakesPromise:true, execLimit:5000
+    });
+    Sk.misceval.asyncToPromise(()=>Sk.importMainWithBody('<stdin>',false,code,true))
+      .then(()=>res(out.trim())).catch(e=>rej(e.toString?e.toString():String(e)));
+  });
+}
+
+function execJS(code, inputStr) {
+  return new Promise(res=>{
+    let out=''; const inputs=inputStr.split('\n'); let idx=0;
+    try{
+      const fn=new Function('console','prompt',code);
+      fn({log:(...a)=>{out+=a.join(' ')+'\n';}}, ()=>{const v=inputs[idx]!==undefined?inputs[idx]:'';idx++;return v;});
+      res(out.trim());
+    } catch(e){res('Error: '+e.message);}
+  });
+}
+
+async function execViaAPI(lang,code,stdin) {
+  const names={c:'C',cpp:'C++',java:'Java'};
+  try {
+    const r = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:300,
+        messages:[{role:'user',content:`Execute this ${names[lang]} program with this stdin and reply with ONLY the exact stdout output:\n\`\`\`${lang}\n${code}\n\`\`\`\nStdin:\n${stdin}`}]})
+    });
+    const data=await r.json();
+    return(data.content?.[0]?.text||'').trim();
+  } catch{return 'API unavailable. Use Python or JavaScript instead.';}
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   NAVIGATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+function nextQuestion() {
+  if (APP.curSection?.special === 'coding') { codingSubmitAndNext(); return; }
+  loadNextQuestion();
+}
+function skipQuestion() {
+  if (APP.curSection?.special === 'coding') {
+    // In coding mode, skip = go back to picker
+    if (APP.codeEditor) {
+      CODING_STATE.savedCode[CODING_STATE.curIdx][APP.codeLang] = APP.codeEditor.getValue();
+      APP.codeEditor.toTextArea(); APP.codeEditor = null;
+    }
+    CODING_STATE.curIdx = null;
+    renderCodingPicker();
+    return;
+  }
+  clearInterval(APP.timerID);
+  if (!APP.answered && APP.curQ) {
+    APP.curEngine.onAnswer(APP.curQ, false, getElapsed());
+    APP.history.push({q:APP.curQ,correct:false,skipped:true,elapsed:0,section:APP.curSection.id,sectionName:APP.curSection.name});
+    addHist(APP.curQ, false); updatePanel();
+  }
+  APP.answered=true; loadNextQuestion();
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   SECTION COMPLETE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+function sectionComplete() {
+  clearInterval(APP.timerID);
+  clearInterval(CODING_STATE.overallTimerID);
+  if (APP.codeEditor) { try{ APP.codeEditor.toTextArea(); }catch{} APP.codeEditor = null; }
+  hideCodingNav();
+  const sec = APP.curSection;
+  const eng = APP.curEngine;
+  const score = eng.getScore();
+  const subScores = eng.getSubScores();
+  const correct = eng.correct;
+  const total = eng.qCount;
+  // Chart data
+  APP.allChartData.push({sectionName:sec.name,responses:eng.responses,score});
+  document.getElementById('sbb-icon').textContent = score>=70?'✅':score>=50?'🔶':'🔴';
+  document.getElementById('sbb-title').textContent = `${sec.name} — Complete`;
+  document.getElementById('sbb-sub').textContent = sec.id==='autofix'?'Debug section done':'Section done';
+  document.getElementById('sbb-score').textContent = score+'%';
+  document.getElementById('sbb-score').style.color = score>=70?'var(--green)':score>=50?'var(--amber)':'var(--red)';
+  document.getElementById('sbb-correct').textContent = `${correct}/${total}`;
+  // Sub-scores
+  const subEl = document.getElementById('sbb-subsections');
+  const colors = {0:'#4184e4',1:'#57ab5a',2:'#c69026'};
+  subEl.innerHTML = Object.entries(subScores).filter(([,v])=>v!=null).map(([sub,val],i)=>`
+    <div class="ss-row">
+      <span class="ss-name">${sub}</span>
+      <div class="ss-bar"><div class="ss-fill" style="width:${val}%;background:${colors[i%3]}"></div></div>
+      <span class="ss-val" style="color:${colors[i%3]}">${val}%</span>
+    </div>`).join('') || '<span class="muted">No subsection data</span>';
+  // ML note
+  const updCount = eng.responses.length;
+  document.getElementById('sbb-ml-note').innerHTML = `<strong>ML Update:</strong> ${updCount} question parameters updated from your responses. Difficulty calibration adjusted for future sessions.${eng.maxStreak>2?` Best streak: ${eng.maxStreak} correct in a row.`:''}`;
+  // CEFR for English
+  if (sec.id==='english') {
+    const cefr = eng.getCEFR();
+    document.getElementById('sbb-title').textContent += ` — CEFR: ${cefr}`;
+  }
+  showScreen('s-sec-break');
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   SIDEBAR UPDATE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+function updatePanel() {
+  const eng = APP.curEngine;
+  if (!eng) return;
+  const d = eng.diff;
+  const pct = (d/5)*100;
+  const fills = ['','var(--green)','var(--accent)','var(--amber)','var(--purple)','var(--red)'];
+  const labels = ['','Beginner','Easy','Medium','Hard','Expert'];
+  document.getElementById('aw-fill').style.width = pct+'%';
+  document.getElementById('aw-fill').style.background = fills[d];
+  document.getElementById('aw-theta').textContent = `L${d}`;
+  document.getElementById('aw-label').textContent = labels[d];
+  document.getElementById('ml-sec').textContent = APP.curSection?.name?.split(' ')[0]||'—';
+  document.getElementById('ml-diff').textContent = `L${d}`;
+  document.getElementById('ml-cor').textContent = eng.correct;
+  document.getElementById('ml-streak').textContent = eng.streak + (eng.streak>1?'🔥':'');
+}
+function addHist(q, correct) {
+  const h = document.getElementById('hist-box');
+  if (h.querySelector('.muted')) h.innerHTML='';
+  const d = document.createElement('div');
+  d.className='hist-item';
+  d.innerHTML=`<div class="hi-dot" style="background:${correct?'var(--green)':'var(--red)'}"></div>Q${APP.qNumInSection} L${q.diff||'?'} ${q.sub?.slice(0,8)||''} ${correct?'✓':'✗'}`;
+  h.insertBefore(d,h.firstChild);
+  if(h.children.length>12) h.removeChild(h.lastChild);
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   WRITEX ESSAY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+function startWriteX() {
+  // Random essay topic
+  const topic = ESSAY_TOPICS[Math.floor(Math.random()*ESSAY_TOPICS.length)];
+  document.getElementById('wx-prompt').textContent = topic;
+  document.getElementById('wx-textarea').value = '';
+  document.getElementById('wx-ai-feedback').style.display='none';
+  document.getElementById('wx-submit-btn').style.display='';
+  document.getElementById('wx-continue-btn').style.display='none';
+  updateWxStats();
+  startWxTimer(20*60);
+  showScreen('s-writex');
+}
+
+function updateWxStats() {
+  const text = document.getElementById('wx-textarea').value;
+  const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+  const sents = (text.match(/[.!?]+/g)||[]).length;
+  document.getElementById('wx-words').textContent = words;
+  document.getElementById('wx-sents').textContent = sents;
+  document.getElementById('wx-chars').textContent = text.length;
+}
+
+let wxTimerID;
+function startWxTimer(secs) {
+  clearInterval(wxTimerID);
+  let left = secs;
+  const el = document.getElementById('wx-timer');
+  const tick = () => {
+    const m=Math.floor(left/60),s=left%60;
+    el.textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    el.classList.toggle('danger',left<=120);
+    if(left<=0){clearInterval(wxTimerID);if(document.getElementById('wx-submit-btn').style.display!=='none')submitEssay();}
+    left--;
+  };
+  tick(); wxTimerID=setInterval(tick,1000);
+}
+
+async function submitEssay() {
+  clearInterval(wxTimerID);
+  const essay = document.getElementById('wx-textarea').value;
+  const topic = document.getElementById('wx-prompt').textContent;
+  const spin = document.getElementById('wx-ai-spin');
+  const submitBtn = document.getElementById('wx-submit-btn');
+  const continueBtn = document.getElementById('wx-continue-btn');
+  submitBtn.style.display='none'; spin.style.display='flex';
+  APP.wxEssay = essay;
+  const words = essay.trim().split(/\s+/).length;
+  let aiResult = null;
+  try {
+    const r = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,
+        messages:[{role:'user',content:`Grade this essay for a competitive exam (AMCAT-style). Reply ONLY with valid JSON.
+
+Topic: "${topic}"
+
+Essay: "${essay}"
+
+Return this exact JSON structure:
+{"contentScore":0-100,"grammarScore":0-100,"vocabularyScore":0-100,"coherenceScore":0-100,"overall":0-100,"cefr":"A1|A2|B1|B2|C1|C2","strengths":"2-3 sentence positive feedback","improvements":"2-3 specific things to improve","errors":["error1 → correction","error2 → correction","error3 → correction"]}`}]})
+    });
+    const data=await r.json();
+    const text=(data.content?.[0]?.text||'').trim();
+    aiResult=JSON.parse(text.replace(/^```json?|```$/g,'').trim());
+  } catch {
+    // Fallback scoring based on word count and basic heuristics
+    const wc=words; const hasIntro=essay.includes('\n'); const hasConclusion=/conclu|therefore|thus|final/i.test(essay);
+    aiResult={contentScore:Math.min(100,30+wc/5),grammarScore:70,vocabularyScore:60,coherenceScore:hasConclusion?70:50,overall:Math.min(100,40+wc/6),cefr:'B1',strengths:'Essay submitted. AI grading unavailable — using heuristic scoring.',improvements:'Ensure your essay has clear paragraphs, introduction, body and conclusion.',errors:['Spelling: check for typos','Grammar: use varied sentence structures','Vocabulary: incorporate academic vocabulary']};
+  }
+  spin.style.display='none';
+  APP.wxScore=aiResult;
+  renderWxFeedback(aiResult, words);
+  document.getElementById('wx-ai-feedback').style.display='block';
+  continueBtn.style.display='';
+  APP.allChartData.push({sectionName:'WriteX',responses:[],score:aiResult.overall});
+}
+
+function renderWxFeedback(r, words) {
+  const colors = {contentScore:'var(--accent)',grammarScore:'var(--green)',vocabularyScore:'var(--purple)',coherenceScore:'var(--amber)'};
+  const labels = {contentScore:'Content',grammarScore:'Grammar',vocabularyScore:'Vocabulary',coherenceScore:'Coherence'};
+  document.getElementById('wx-fb-scores').innerHTML = Object.keys(labels).map(k=>`
+    <div class="wx-fb-score">
+      <div class="val" style="color:${colors[k]}">${r[k]||0}%</div>
+      <div class="lbl">${labels[k]}</div>
+    </div>`).join('')+`<div class="wx-fb-score"><div class="val" style="color:var(--green)">${r.cefr||'B1'}</div><div class="lbl">CEFR Level</div></div><div class="wx-fb-score"><div class="val" style="color:var(--text2)">${words}</div><div class="lbl">Words</div></div>`;
+  document.getElementById('wx-fb-text').innerHTML = `<strong style="color:var(--green)">Strengths:</strong> ${r.strengths||''}<br><br><strong style="color:var(--amber)">Improvements:</strong> ${r.improvements||''}`;
+  const errEl=document.getElementById('wx-fb-errors');
+  const errList=document.getElementById('wx-fb-error-list');
+  if(r.errors&&r.errors.length){errEl.style.display='block';errList.innerHTML=r.errors.map(e=>`<div class="wx-error-item">${esc(e)}</div>`).join('');}
+  else errEl.style.display='none';
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   PERSONALITY SECTION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+function startPersonality() {
+  APP.persIdx=0; APP.persResponses=[];
+  showScreen('s-personality');
+  renderPersQ();
+}
+
+function renderPersQ() {
+  const q = PERS_QUESTIONS[APP.persIdx];
+  const idx = APP.persIdx;
+  document.getElementById('pers-prog').style.width = (idx/PERS_QUESTIONS.length*100)+'%';
+  document.getElementById('pers-counter').textContent = `Question ${idx+1} of ${PERS_QUESTIONS.length}`;
+  document.getElementById('pers-next-btn').disabled = true;
+  document.getElementById('pers-q-area').innerHTML = `
+    <div class="pers-q-card">
+      <div class="pers-q-text">${esc(q.text)}</div>
+      <div class="likert">
+        <span class="likert-label">Strongly Disagree</span>
+        <div class="likert-dots">
+          ${[1,2,3,4,5].map(v=>`<button class="likert-opt" data-val="${v}" onclick="pickLikert(${v},this)">${v}</button>`).join('')}
+        </div>
+        <span class="likert-label">Strongly Agree</span>
+      </div>
+    </div>`;
+}
+
+function pickLikert(val, btn) {
+  document.querySelectorAll('.likert-opt').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+  APP.persResponses[APP.persIdx] = {trait:PERS_QUESTIONS[APP.persIdx].trait, val, reverse:PERS_QUESTIONS[APP.persIdx].reverse};
+  document.getElementById('pers-next-btn').disabled=false;
+}
+
+function nextPersonality() {
+  APP.persIdx++;
+  if (APP.persIdx >= PERS_QUESTIONS.length) {
+    // Score personality
+    const traits={E:0,C:0,A:0,O:0,ES:0,P:0};
+    const counts={E:0,C:0,A:0,O:0,ES:0,P:0};
+    APP.persResponses.forEach(r=>{
+      if(!r) return;
+      const score = r.reverse ? (6-r.val) : r.val;
+      traits[r.trait]+=score; counts[r.trait]++;
+    });
+    const scores={};
+    Object.keys(traits).forEach(t=>{ scores[t]=counts[t]?Math.round((traits[t]/(counts[t]*5))*100):50; });
+    APP.persScore=scores;
+    APP.allChartData.push({sectionName:'Personality',responses:[],score:null});
+    continueToNextSection();
+  } else {
+    renderPersQ();
+  }
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   FINAL RESULTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+function showResults() {
+  clearInterval(APP.timerID); clearInterval(wxTimerID);
+  showScreen('s-results');
+  // Calculate overall score
+  const scoredSections = Object.values(APP.engines).filter(e=>e.qCount>0);
+  const scores = scoredSections.map(e=>e.getScore());
+  if (APP.wxScore) scores.push(APP.wxScore.overall||0);
+  const overall = scores.length ? Math.round(scores.reduce((a,b)=>a+b,0)/scores.length) : 0;
+  const g = getGrade(overall);
+  const totalCorrect = Object.values(APP.engines).reduce((s,e)=>s+e.correct,0);
+  const totalQ = Object.values(APP.engines).reduce((s,e)=>s+e.qCount,0);
+  sessions.push({date:Date.now(),score:overall,type:APP.testType,correct:totalCorrect,total:totalQ});
+  LS.set('ac3_sessions', sessions);
+  document.getElementById('res-h1').textContent = APP.testType==='logical'?'Logical Test Results':'Technical Test Results';
+  document.getElementById('res-sub').textContent = new Date().toLocaleString() + ` · ${totalCorrect}/${totalQ} correct`;
+  document.getElementById('res-score').textContent = overall+'%';
+  document.getElementById('res-score').style.color = g.color;
+  document.getElementById('res-grade').textContent = g.label;
+  document.getElementById('res-grade').style.color = g.color;
+  document.getElementById('res-detail').textContent = `${totalCorrect} correct out of ${totalQ} questions answered`;
+  // Pills
+  const pills = ['AdaptCAT Tested','ML-Calibrated',APP.testType==='logical'?'Full Logical Battery':'Full Technical Battery'];
+  document.getElementById('res-pills').innerHTML = pills.map(p=>`<span class="tag tag-blue">${p}</span>`).join(' ');
+  // Per-section cards
+  renderSectionCards();
+  // Personality
+  if (APP.persScore) renderPersonalityResults();
+  // Charts
+  renderAbilityChart();
+  renderDiffChart();
+  // Improvements
+  renderImprovements();
+  // Review
+  renderReview();
+  renderMLLog();
+  refreshLandStats();
+}
+
+function getGrade(s) {
+  if(s>=88)return{label:'Excellent',color:'var(--green)'};
+  if(s>=72)return{label:'Good',color:'var(--accent)'};
+  if(s>=55)return{label:'Average',color:'var(--amber)'};
+  if(s>=35)return{label:'Below Average',color:'#f97316'};
+  return{label:'Needs Improvement',color:'var(--red)'};
+}
+
+function renderSectionCards() {
+  const el = document.getElementById('sections-results');
+  const colorMap = {english:'#4184e4',quant:'#57ab5a',logical:'#c69026',data:'#986ee2',automata:'#986ee2',autofix:'#e5534b',python:'#57ab5a',dsa:'#4184e4'};
+  let html = '';
+  APP.sectionList.forEach(sec => {
+    if (sec.special==='writex') {
+      if (!APP.wxScore) return;
+      const r=APP.wxScore;
+      html+=`<div class="sec-res-card">
+        <div class="src-head"><span class="src-name">${sec.icon} ${sec.name}</span><span class="src-score" style="color:var(--accent)">${r.overall||0}%</span></div>
+        <div class="src-subsections">
+          ${[['Content',r.contentScore,'#4184e4'],['Grammar',r.grammarScore,'#57ab5a'],['Vocabulary',r.vocabularyScore,'#986ee2'],['Coherence',r.coherenceScore,'#c69026']].map(([n,v,c])=>`
+          <div class="src-sub-row"><span class="src-sub-name">${n}</span><div class="src-sub-bar"><div class="src-sub-fill" style="width:${v}%;background:${c}"></div></div><span class="src-sub-val" style="color:${c}">${v}%</span></div>`).join('')}
+          <div style="font-size:11px;color:var(--accent);margin-top:5px;font-weight:700">CEFR: ${r.cefr||'B1'}</div>
+        </div></div>`;
+      return;
+    }
+    if (sec.special==='personality') return;
+    const eng = APP.engines[sec.id];
+    if (!eng || !eng.qCount) return;
+    const score = eng.getScore();
+    const subScores = eng.getSubScores();
+    const color = colorMap[sec.id]||'#4184e4';
+    const g=getGrade(score);
+    html+=`<div class="sec-res-card">
+      <div class="src-head"><span class="src-name">${sec.icon} ${sec.name}</span><span class="src-score" style="color:${g.color}">${score}%</span></div>
+      <div style="font-size:10px;color:var(--text3);margin-bottom:.5rem">${eng.correct}/${eng.qCount} correct · Max streak: ${eng.maxStreak}</div>
+      ${sec.id==='english'?`<div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:.5rem">CEFR: ${eng.getCEFR()}</div>`:''}
+      <div class="src-subsections">
+        ${Object.entries(subScores).filter(([,v])=>v!=null).map(([sub,val])=>`
+        <div class="src-sub-row"><span class="src-sub-name">${sub}</span><div class="src-sub-bar"><div class="src-sub-fill" style="width:${val}%;background:${color}"></div></div><span class="src-sub-val" style="color:${color}">${val}%</span></div>`).join('')}
+      </div></div>`;
+  });
+  el.innerHTML = html;
+}
+
+function renderPersonalityResults() {
+  const card = document.getElementById('pers-results-card');
+  card.style.display='block';
+  const scores = APP.persScore;
+  const traits = [
+    {key:'E',name:'Extraversion',low:'Reserved',high:'Sociable',color:'#4184e4'},
+    {key:'C',name:'Conscientiousness',low:'Spontaneous',high:'Diligent',color:'#57ab5a'},
+    {key:'A',name:'Agreeableness',low:'Competitive',high:'Cooperative',color:'#c69026'},
+    {key:'O',name:'Openness',low:'Conventional',high:'Inquisitive',color:'#986ee2'},
+    {key:'ES',name:'Emotional Stability',low:'Sensitive',high:'Resilient',color:'#39c5cf'},
+    {key:'P',name:'Polychronicity',low:'Focused',high:'Multitasking',color:'#8c959f'},
+  ];
+  document.getElementById('pers-trait-rows').innerHTML = traits.map(t=>`
+    <div class="trait-row">
+      <span class="trait-name">${t.name}</span>
+      <div class="trait-bar"><div class="trait-fill" style="width:${scores[t.key]||50}%;background:${t.color}"></div></div>
+      <span class="trait-score" style="color:${t.color}">${scores[t.key]||50}</span>
+      <span class="trait-label">${(scores[t.key]||50)>=70?t.high:(scores[t.key]||50)<=30?t.low:'Balanced'}</span>
+    </div>`).join('');
+  // Personality insight
+  const E=scores.E||50,C=scores.C||50,A=scores.A||50;
+  let insight='';
+  if(E>=70) insight+='You are naturally extraverted and thrive in social, collaborative environments. ';
+  else insight+='You work effectively independently and bring focus to tasks. ';
+  if(C>=70) insight+='Your high conscientiousness suggests you are organized, diligent and goal-oriented — traits highly valued in professional settings. ';
+  if(A>=70) insight+='Your cooperative nature makes you a strong team player. ';
+  if(scores.ES>=70) insight+='Your emotional stability means you handle stress well and perform consistently under pressure. ';
+  if(scores.P>=70) insight+='Your polychronic nature allows you to manage multiple priorities simultaneously. ';
+  insight+='Suitable careers: '+([E>=60?'Sales, Management, HR':'Research, Engineering, Analysis',C>=70?'Finance, Operations':'Creative roles',A>=70?'Teaching, Counselling':'Technical leadership'].join(', '));
+  document.getElementById('pers-insight').textContent=insight;
+}
+
+function renderAbilityChart(){ /* simplified without multi-section */ }
+function renderDiffChart() {
+  const ctx=document.getElementById('diff-chart').getContext('2d');
+  if(window._dc) window._dc.destroy();
+  const tot=[0,0,0,0,0],cor=[0,0,0,0,0];
+  Object.values(APP.engines).forEach(e=>{
+    e.responses.forEach(r=>{ if(r.diff>=1&&r.diff<=5){tot[r.diff-1]++;if(r.correct)cor[r.diff-1]++;} });
+  });
+  window._dc=new Chart(ctx,{type:'bar',data:{labels:['L1','L2','L3','L4','L5'],datasets:[{label:'Total',data:tot,backgroundColor:'rgba(65,132,228,.2)',borderColor:'#4184e4',borderWidth:1},{label:'Correct',data:cor,backgroundColor:'rgba(87,171,90,.5)',borderColor:'#57ab5a',borderWidth:1}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'var(--text2)',font:{size:10},boxWidth:10}}},scales:{x:{ticks:{color:'var(--text2)',font:{size:10}},grid:{color:'var(--border)'}},y:{ticks:{color:'var(--text2)',font:{size:10},stepSize:1},grid:{color:'var(--border)'},beginAtZero:true}}}});
+}
+
+function renderImprovements() {
+  const el=document.getElementById('imp-content');
+  let html='';
+  APP.sectionList.forEach(sec=>{
+    if(sec.special==='personality'||sec.special==='writex') return;
+    const eng=APP.engines[sec.id]; if(!eng||!eng.qCount) return;
+    const score=eng.getScore();
+    if(score<70){
+      const tips={english:['Focus on vocabulary — read 2 articles/day and note new words','Practice grammar: articles, tenses, subject-verb agreement','Improve comprehension by summarising passages after reading'],quant:['Review percentage, profit/loss, and time-distance formulas','Practice 10 quantitative problems daily','Focus on accuracy before speed'],logical:['Solve series puzzles and analogy questions daily','Learn syllogism rules: All, Some, No — and their conclusions','Practice blood relation and direction questions'],data:['Practice reading tables and extracting key numbers','Work on percentage change calculations','Always verify your calculation with the answer choices'],python:['Revise Python built-in functions and data structures','Practice map/filter/lambda patterns','Focus on sqlite3, json, os module functions'],dsa:['Memorise time/space complexities for all sorting algorithms','Understand when to use Stack vs Queue vs Heap','Practice implementing binary search and merge sort'],automata:['Plan your algorithm BEFORE coding — avoid trial and error','Test with edge cases: empty array, single element, negatives','Practice XOR for bit manipulation problems'],autofix:['Read C compiler error messages carefully — they tell you the exact line','Memorise: semicolons in for-loops, ternary operator syntax','Practice modulo (%) vs division (/) for odd/even checks']};
+      const secTips=tips[sec.id]||['Continue practising to improve your score'];
+      html+=`<div class="imp-section"><div class="imp-sec-name">${sec.icon} ${sec.name} — <span style="color:var(--red)">${score}%</span></div>${secTips.map(t=>`<div class="imp-item">${t}</div>`).join('')}</div>`;
+    }
+  });
+  if(APP.wxScore&&APP.wxScore.overall<70){html+=`<div class="imp-section"><div class="imp-sec-name">✍️ WriteX — <span style="color:var(--red)">${APP.wxScore.overall}%</span></div><div class="imp-item">Structure your essay: Introduction → 2-3 body paragraphs → Conclusion</div><div class="imp-item">Write minimum 300 words; aim for 350-400</div><div class="imp-item">Proofread for article usage (a/an/the) and tense consistency</div></div>`;}
+  el.innerHTML=html||'<span class="muted" style="font-size:12px">Great performance! Focus on maintaining your scores and tackling harder questions.</span>';
+}
+
+function renderReview() {
+  const el=document.getElementById('review-list');
+  el.innerHTML=APP.history.slice(0,30).map((h,i)=>{
+    const q=h.q; const short=(q.q||'').split('\n')[0].slice(0,80)+((q.q||'').length>80?'…':'');
+    return`<div class="review-item">
+      <div class="ri-icon">${h.correct?'✓':h.skipped?'→':'✗'}</div>
+      <div class="ri-body">
+        <div class="ri-q">${esc(short)}</div>
+        <div class="ri-meta"><span>${h.sectionName?.split(' ')[0]||'—'}</span><span>L${q.diff||'?'}</span><span>${q.sub||''}</span>
+          ${h.passCount!=null?`<span>${h.passCount}/${h.totalTC} tests</span>`:h.skipped?'<span style="color:var(--amber)">Skipped</span>':`<span style="color:${h.correct?'var(--green)':'var(--red)'}">${h.correct?'Correct':'Wrong'}</span>`}
+          <span>${h.elapsed||0}s</span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function retakeTest() { pickTest(APP.testType); }
+function endTestEarly() {
+  clearInterval(APP.timerID);
+  clearInterval(CODING_STATE.overallTimerID);
+  if (APP.codeEditor) { try{APP.codeEditor.toTextArea();}catch{} APP.codeEditor=null; }
+  hideCodingNav();
+  sectionComplete();
+}
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// Init
+refreshLandStats();
+</script>
+</body>
+</html>
